@@ -280,7 +280,7 @@ export function createEmailClient(deps: EmailClientDeps): EmailClient {
         // The pending mail goes STALE in 10 real minutes anyway; the send failure is what matters.
         log.error("email.pending_close_failed", { error: closeError instanceof Error ? closeError.name : "unknown" });
       }
-      log.error("email.send_failed", { code: failure.code });
+      log.error("email.send_failed", { code: failure.code, errorName: failure.cause instanceof Error ? failure.cause.name : undefined });
       throw failure;
     }
     await deps.connector.write(deps.connector.emails.setProviderMessageIdOp(ref, providerMessageId));

@@ -181,7 +181,8 @@ const WORKER = {
   capabilities: ["PIPELINE", "MOCK_CORE", "MOCK_NETWORK"],
   tables: { Complaints: "write", Conversations: "write", Timers: "write", Runtime: "write", Metrics: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" },
   buckets: { Documents: "write", Settlements: "read" },
-  secrets: ["SessionKey", "RegisterChainKey"],
+  // PhoneHashKey: the outbound gate keys the reply-button nonces of a WhatsApp message by the phone hash.
+  secrets: ["SessionKey", "RegisterChainKey", "PhoneHashKey"],
   actions: [
     "bedrock-agentcore:InvokeHarness",
     "bedrock-agentcore:InvokeAgentRuntime",
@@ -225,11 +226,11 @@ export const LAMBDA_CAPABILITIES = {
     capabilities: ["PIPELINE", "MOCK_CORE"],
     tables: { Complaints: "write", Timers: "write", Runtime: "write", Register: "append", AuditLog: "append" },
     buckets: { Documents: "write" },
-    secrets: ["SessionKey", "RegisterChainKey"],
+    secrets: ["SessionKey", "RegisterChainKey", "PhoneHashKey"],
   },
-  ToolMessaging: { ...TOOL, capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "read", Runtime: "write", AuditLog: "append" } },
+  ToolMessaging: { ...TOOL, secrets: ["SessionKey", "PhoneHashKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "read", Runtime: "write", AuditLog: "append" } },
   // MOCK_CORE: its outbound gate (handoff notice, safety guidance) reads the customer from the core.
-  ToolHandoff: { ...TOOL, capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Complaints: "write", Conversations: "write", Runtime: "write", AuditLog: "append" } },
+  ToolHandoff: { ...TOOL, secrets: ["SessionKey", "PhoneHashKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Complaints: "write", Conversations: "write", Runtime: "write", AuditLog: "append" } },
   MediaIntake: {
     capabilities: [],
     tables: { Runtime: "write", Conversations: "write", Complaints: "read", Reference: "read", AuditLog: "append" },
