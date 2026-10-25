@@ -172,12 +172,20 @@ function fencedSend(fromAddress: string, recipients: readonly string[]): Stateme
   ];
 }
 
-/** `SEND_EMAIL` (holders of `PIPELINE`): the identity AND the app's configuration set, from `respuestas@`. */
+/**
+ * `SEND_EMAIL` (holders of `PIPELINE`): the identity AND the app's configuration set, from `respuestas@`.
+ * The customer emails go as `Content.Raw`, and SES leaves `ses:FromAddress` and `ses:Recipients` empty for
+ * them (a send with the `Null` guards is denied with AccessDenied): the keys are checked when SES fills
+ * them, and the single recipient is fenced in code (channels/email/outbound.ts, `assertSingleRecipient`).
+ */
 export function sendEmailStatement(place: Place, configurationSet: string): SendStatement {
   return {
     actions: [...SEND_ACTIONS],
     resources: [sesIdentityArn(place), sesConfigurationSetArn(place, configurationSet)],
-    conditions: fencedSend(ANSWERS_FROM_ADDRESS, SEND_EMAIL_RECIPIENTS),
+    conditions: [
+      { test: "StringEqualsIfExists", variable: "ses:FromAddress", values: [ANSWERS_FROM_ADDRESS] },
+      { test: "ForAllValues:StringLike", variable: "ses:Recipients", values: [...SEND_EMAIL_RECIPIENTS] },
+    ],
   };
 }
 

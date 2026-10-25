@@ -71,7 +71,7 @@ describe("capabilities table", () => {
 
   it("fences SEND_EMAIL to the answers sender and to the SES mailbox simulator and @craftech.io", () => {
     const fence = CAPABILITIES.SEND_EMAIL.fence;
-    for (const part of ["respuestas@reclamo.demo.craftech.io", "*@simulator.amazonses.com", "*@craftech.io", "Null guard", "…-email-poc"]) expect(fence).toContain(part);
+    for (const part of ["respuestas@reclamo.demo.craftech.io", "*@simulator.amazonses.com", "*@craftech.io", "IfExists", "…-email-poc"]) expect(fence).toContain(part);
   });
 });
 

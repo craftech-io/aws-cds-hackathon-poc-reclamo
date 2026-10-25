@@ -65,6 +65,7 @@ function allows(statement: SendStatement, request: { from?: string; recipients?:
     const present = variable === "ses:FromAddress" ? request.from !== undefined : request.recipients !== undefined;
     if (test === "Null" && values[0] === "false" && !present) return false;
     if (test === "StringEquals" && variable === "ses:FromAddress" && !values.includes(request.from ?? "")) return false;
+    if (test === "StringEqualsIfExists" && variable === "ses:FromAddress" && request.from !== undefined && !values.includes(request.from)) return false;
     if (test === "ForAllValues:StringLike" && !(request.recipients ?? []).every((address) => values.some((pattern) => stringLike(pattern, address)))) return false;
   }
   return true;
@@ -198,13 +199,12 @@ describe("SEND_EMAIL of the outbound gate (docs/architecture.md §14)", () => {
     expect(statement.resources).toEqual([sesIdentityArn(PLACE), sesConfigurationSetArn(PLACE, SET)]);
   });
 
-  it("fences FROM to respuestas@, every recipient to the simulator or @craftech.io, with both Null guards", () => {
-    expect(condition(statement, "StringEquals", "ses:FromAddress")).toEqual(["respuestas@reclamo.demo.craftech.io"]);
+  it("fences FROM to respuestas@ and every recipient to the simulator or @craftech.io when SES fills the keys", () => {
+    expect(condition(statement, "StringEqualsIfExists", "ses:FromAddress")).toEqual(["respuestas@reclamo.demo.craftech.io"]);
     expect(condition(statement, "ForAllValues:StringLike", "ses:Recipients")).toEqual(["*@simulator.amazonses.com", "*@craftech.io"]);
-    expect(condition(statement, "Null", "ses:Recipients")).toEqual(["false"]);
-    expect(condition(statement, "Null", "ses:FromAddress")).toEqual(["false"]);
+    expect(statement.conditions.some((entry) => entry.test === "Null")).toBe(false);
     const fence = CAPABILITIES.SEND_EMAIL.fence;
-    for (const part of ["respuestas@reclamo.demo.craftech.io", "*@simulator.amazonses.com", "*@craftech.io", "Null guard", "…-email-poc"]) expect(fence).toContain(part);
+    for (const part of ["respuestas@reclamo.demo.craftech.io", "*@simulator.amazonses.com", "*@craftech.io", "IfExists", "…-email-poc"]) expect(fence).toContain(part);
   });
 
   it("allows the simulator and the team, and denies anything else, a missing key or another sender", () => {
@@ -215,9 +215,9 @@ describe("SEND_EMAIL of the outbound gate (docs/architecture.md §14)", () => {
       expect(allows(statement, { from, recipients: [address] }), address).toBe(false);
     }
     expect(allows(statement, { from, recipients: ["success@simulator.amazonses.com", "someone@example.com"] })).toBe(false);
-    expect(allows(statement, { from })).toBe(false);
-    expect(allows(statement, { recipients: ["success@simulator.amazonses.com"] })).toBe(false);
     expect(allows(statement, { from: NO_REPLY_FROM_ADDRESS, recipients: ["success@simulator.amazonses.com"] })).toBe(false);
+    // Content.Raw: SES leaves both keys empty, and the send is allowed (the recipient is fenced in code).
+    expect(allows(statement, {})).toBe(true);
   });
 
   it("is carried by the EmailSender Linkable, which names the set and the sender", () => {

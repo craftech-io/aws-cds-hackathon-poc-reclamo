@@ -103,7 +103,7 @@ export const CAPABILITIES: Readonly<Record<CapabilityName, Capability>> = {
   SEND_EMAIL: {
     actions: ["ses:SendEmail"],
     fence:
-      "identity reclamo.demo.craftech.io + configuration set …-email-poc; ses:FromAddress = respuestas@reclamo.demo.craftech.io; ForAllValues:StringLike ses:Recipients ∈ {*@simulator.amazonses.com, *@craftech.io} + Null guard on ses:Recipients and ses:FromAddress",
+      "identity reclamo.demo.craftech.io + configuration set …-email-poc; ses:FromAddress = respuestas@reclamo.demo.craftech.io; ForAllValues:StringLike ses:Recipients ∈ {*@simulator.amazonses.com, *@craftech.io} when SES fills them (IfExists: Content.Raw leaves both keys empty); the single recipient is fenced in code",
   },
   SEND_WHATSAPP: {
     actions: ["social-messaging:SendWhatsAppMessage"],
