@@ -60,9 +60,10 @@ function srcset(picture: Picture | undefined, format: "avif" | "webp"): string {
   return (picture?.[format] ?? []).map((source) => `${source.src} ${source.w}w`).join(", ");
 }
 
-/** The same manifest before the pipeline: each tour step a render, each gallery picture a placeholder. */
+/** The same manifest before the pipeline and the video: each tour step a render, each gallery picture a placeholder. */
 const beforeCaptures: LandingManifest = {
   ...manifest,
+  video: null,
   architecture: null,
   media: Object.fromEntries(
     Object.keys(manifest.media).map((id): [string, MediaItem] =>
@@ -79,7 +80,7 @@ function captureFixture(index: number): CaptureItem {
   return { status: "capture", desktop: picture, alt: { es: `Captura ${index}`, en: `Capture ${index}` }, origin: "local", capturedAt: "2026-10-09", commit: "abcdef1" };
 }
 
-const withVideo: MediaState = { status: "ready", manifest: { ...manifest, video: { src: "/landing/video/reclamo-en-regla.mp4", poster: "/landing/video/poster.jpg", type: "video/mp4" } } };
+const withVideo: MediaState = { status: "ready", manifest };
 
 describe("landing copy [FL-102]", () => {
   it("has the same keys in Spanish and English", () => {
@@ -328,13 +329,14 @@ describe("landing captures manifest [FL-102]", () => {
     expect(CONSOLE_TOKENS_KEY).toBe(TOKENS_KEY);
   });
 
-  it("names only files that exist: every capture, the diagram in both languages and, once delivered, the video", () => {
-    expect(manifest.video).toBeNull();
+  it("names only files that exist: every capture, the diagram in both languages and the video with its poster", () => {
+    expect(manifest.video).toEqual({ src: "/landing/video/reclamo-en-regla.mp4", poster: "/landing/video/poster.jpg", type: "video/mp4" });
     expect(manifest.architecture?.es.png).toBe("/landing/architecture/es.png");
     expect(manifest.architecture?.en.avif.map((source) => source.w)).toEqual([1920, 3840]);
     const files = manifestFiles(manifest);
-    // 5 files a picture (2 AVIF, 2 WebP, a PNG): six tour captures in two viewports, two gallery views, the diagram in two languages.
-    expect(files.length).toBe(6 * 2 * 5 + 2 * 5 + 2 * 5);
+    // 5 files a picture (2 AVIF, 2 WebP, a PNG): six tour captures in two viewports, two gallery views, the diagram in two
+    // languages; plus the video and its poster.
+    expect(files.length).toBe(6 * 2 * 5 + 2 * 5 + 2 * 5 + 2);
     for (const file of files) expect(existsSync(`${PUBLIC_DIR}${file}`), file).toBe(true);
   });
 });

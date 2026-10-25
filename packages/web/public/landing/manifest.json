@@ -1,6 +1,10 @@
 {
   "version": 2,
-  "video": null,
+  "video": {
+    "src": "/landing/video/reclamo-en-regla.mp4",
+    "poster": "/landing/video/poster.jpg",
+    "type": "video/mp4"
+  },
   "architecture": {
     "es": {
       "width": 3840,

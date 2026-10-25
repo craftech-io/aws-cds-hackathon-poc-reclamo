@@ -26,7 +26,7 @@ export const en: LandingCopy = {
     toConsole: "Go to the console",
     talk: "Let's talk",
     newTab: "(opens in a new tab)",
-    watch: "Watch the walkthrough (3 min)",
+    watch: "Watch the walkthrough (2½ min)",
   },
   hero: {
     eyebrow: "A regulated-complaints agent for consumer lenders and wallets in Latin America",
@@ -207,8 +207,8 @@ export const en: LandingCopy = {
   },
   video: {
     eyebrow: "Video walkthrough",
-    title: "Reclamo en regla in three minutes",
-    lead: "One complaint end to end: the message, the number on the spot, the investigation, the written answer and the gate that stops collection on WhatsApp.",
+    title: "Reclamo en regla in two and a half minutes",
+    lead: "One complaint end to end: the message, the number on the spot, the investigation, the written answer and the gate that stops collection on WhatsApp. Narrated in English, with subtitles.",
     fallback: "Download the video",
   },
   simulated: {

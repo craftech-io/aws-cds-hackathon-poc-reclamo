@@ -116,7 +116,7 @@ Quiroga**.
 | Chip de prueba (debajo de los CTA, no en el lead) | Una compuerta de política bloquea la cobranza por WhatsApp — la intente el agente o un operador | A policy gate blocks debt collection on WhatsApp — even when a human operator tries it |
 | CTA primario (Reemplazado por ADR-0021) | Probar Reclamo en regla → | Try Reclamo en regla → |
 | CTA secundario | Ingresar | Sign in |
-| CTA terciario (solo si existe el video; baja a la sección `#video`, ADR-0021) | Ver el recorrido (3 min) | Watch the walkthrough (3 min) |
+| CTA terciario (solo si existe el video; baja a la sección `#video`, ADR-0021) | Ver el recorrido (2½ min) | Watch the walkthrough (2½ min) |
 | Nota bajo el CTA | Entorno de prueba con datos 100 % sintéticos: un prestamista ficticio, clientes ficticios, sin operaciones reales. | A test environment with 100% synthetic data: a fictitious lender, fictitious customers, no real operations. |
 
 **Visual del hero**: no repite el auto-tipeo del paso 1 (§3.1) — el auto-tipeo cuenta la historia una

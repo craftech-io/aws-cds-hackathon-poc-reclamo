@@ -5,6 +5,8 @@ complaint of a consumer lender or wallet in Latin America, inside the rules.**
 
 **Live product:** https://reclamo.demo.craftech.io
 
+**Demo video (2:31):** https://youtu.be/p3Wf2DsWoeg
+
 Three things set it apart:
 
 1. **A complaints register with an anchored hash chain.** Every complaint gets its number
@@ -311,6 +313,7 @@ or wallet, with a fictitious lender and synthetic data.
   `UTILITY` templates as code, media, SNS events); in the published demo visitors drive it through
   the console's phone simulator, which feeds the same inbound pipeline. See
   [How it uses AWS Communication Developer Services](#how-it-uses-aws-communication-developer-services).
+- **Demo video (2:31)**: https://youtu.be/p3Wf2DsWoeg (also on the landing, `#video`).
 - **AWS Partner Central**: ACE opportunity `O28893816`.
 - **Access for testing**: anyone can create an account at `https://reclamo.demo.craftech.io/signup`
   and start with the 5-minute guided tour. Judges use the private testing instructions of the

@@ -16,7 +16,7 @@ import { LandingManifest } from "../src/views/landing/manifest.ts";
 
 type Lang = "es" | "en";
 const LANGS: readonly Lang[] = ["es", "en"];
-const SECTIONS = ["inicio", "problema", "recorrido", "que-hace", "reglas", "impacto", "integracion", "simulado", "empezar"];
+const SECTIONS = ["inicio", "problema", "recorrido", "que-hace", "reglas", "impacto", "video", "integracion", "simulado", "empezar"];
 const MANIFEST = LandingManifest.parse(JSON.parse(readFileSync(fileURLToPath(new URL("../public/landing/manifest.json", import.meta.url)), "utf8")));
 const TOUR_IDS = Object.keys(MANIFEST.media).filter((id) => id.startsWith("tour-"));
 /** The 1x width of a capture's desktop picture. */
@@ -77,7 +77,15 @@ test.describe("landing [FL-102]", () => {
       expect(await page.locator("main > section").evaluateAll((sections) => sections.map((section) => section.id))).toEqual(SECTIONS);
       await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
       for (const id of SECTIONS.slice(1)) await expect(page.locator(`section#${id} h2`).first()).toBeVisible();
-      await expect(page.locator("#video")).toHaveCount(0);
+      // The product video: no preload, its poster, controls and no autoplay; the hero's third call to action goes to it.
+      const video = page.locator("#video video");
+      await expect(video).toHaveAttribute("preload", "none");
+      await expect(video).toHaveAttribute("poster", MANIFEST.video?.poster ?? "");
+      await expect(video).toHaveAttribute("controls", "");
+      expect(await video.getAttribute("autoplay")).toBeNull();
+      await expect(page.locator(`#video source[src="${MANIFEST.video?.src ?? ""}"]`)).toHaveAttribute("type", "video/mp4");
+      await expect(page.locator('#inicio a[data-cta="watch"]')).toHaveAttribute("href", "#video");
+      await expect(page.locator('#inicio a[data-cta="watch"]')).toHaveText(LANDING_COPY[lang].cta.watch);
       await expect(page.locator("#galeria figure")).toHaveCount(Object.values(MANIFEST.media).filter((item) => item.status === "capture").length);
       await expect(page.locator('#integracion [data-media="architecture"]')).toBeAttached();
       await expect(page.getByRole("banner")).toBeVisible();

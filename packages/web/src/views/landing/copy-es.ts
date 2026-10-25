@@ -28,7 +28,7 @@ export const es = {
     toConsole: "Ir a la consola",
     talk: "Hablemos",
     newTab: "(se abre en otra pestaña)",
-    watch: "Ver el recorrido (3 min)",
+    watch: "Ver el recorrido (2½ min)",
   },
   hero: {
     eyebrow: "Agente de reclamos regulados para prestamistas y billeteras de América Latina",
@@ -209,8 +209,8 @@ export const es = {
   },
   video: {
     eyebrow: "Recorrido en video",
-    title: "Reclamo en regla en tres minutos",
-    lead: "Un reclamo de punta a punta: el mensaje, el número en el acto, la investigación, la respuesta escrita y la compuerta que frena la cobranza por WhatsApp.",
+    title: "Reclamo en regla en dos minutos y medio",
+    lead: "Un reclamo de punta a punta: el mensaje, el número en el acto, la investigación, la respuesta escrita y la compuerta que frena la cobranza por WhatsApp. Narrado en inglés, con subtítulos.",
     fallback: "Descargar el video",
   },
   simulated: {
