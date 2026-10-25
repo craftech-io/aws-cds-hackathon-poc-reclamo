@@ -189,8 +189,8 @@ describe("configuration set and events", () => {
 describe("SEND_EMAIL of the outbound gate (docs/architecture.md §14)", () => {
   const statement = sendEmailStatement(PLACE, SET);
 
-  it("grants only ses:SendEmail on the identity and the app's configuration set", () => {
-    expect(statement.actions).toEqual(["ses:SendEmail"]);
+  it("grants only ses:SendEmail (and SendRawEmail, which authorizes Content.Raw) on the identity and the app's configuration set", () => {
+    expect(statement.actions).toEqual(["ses:SendEmail", "ses:SendRawEmail"]);
     expect(statement.actions).toEqual([...CAPABILITIES.SEND_EMAIL.actions]);
     expect(statement.resources).toEqual([
       "arn:aws:ses:us-east-1:776805327629:identity/reclamo.demo.craftech.io",

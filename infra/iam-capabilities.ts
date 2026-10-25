@@ -101,7 +101,8 @@ export const CAPABILITIES: Readonly<Record<CapabilityName, Capability>> = {
     fence: "schedule/aws-cds-hackathon-poc-reclamo-poc-schedules/*; PassRole only of the Scheduler invocation role, iam:PassedToService = scheduler.amazonaws.com",
   },
   SEND_EMAIL: {
-    actions: ["ses:SendEmail"],
+    // SES v2 SendEmail with Content.Raw is authorized as ses:SendRawEmail.
+    actions: ["ses:SendEmail", "ses:SendRawEmail"],
     fence:
       "identity reclamo.demo.craftech.io + configuration set …-email-poc; ses:FromAddress = respuestas@reclamo.demo.craftech.io; ForAllValues:StringLike ses:Recipients ∈ {*@simulator.amazonses.com, *@craftech.io} when SES fills them (IfExists: Content.Raw leaves both keys empty); the single recipient is fenced in code",
   },

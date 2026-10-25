@@ -152,7 +152,7 @@ export interface SendStatement {
   readonly conditions: StatementCondition[];
 }
 
-/** `ses:SendEmail` of SES v2 (`Content.Raw` included); never `SendRawEmail` of v1 nor a wildcard. */
+/** `ses:SendEmail` of SES v2; `Content.Raw` is authorized as `ses:SendRawEmail` (the v1 API is never called); never a wildcard. */
 export const SEND_ACTIONS: readonly string[] = CAPABILITIES.SEND_EMAIL.actions;
 export const LEAD_NOTICE_ACTIONS: readonly string[] = LAMBDA_CAPABILITIES.LeadNotifier.actions;
 
@@ -174,9 +174,9 @@ function fencedSend(fromAddress: string, recipients: readonly string[]): Stateme
 
 /**
  * `SEND_EMAIL` (holders of `PIPELINE`): the identity AND the app's configuration set, from `respuestas@`.
- * The customer emails go as `Content.Raw`, and SES leaves `ses:FromAddress` and `ses:Recipients` empty for
- * them (a send with the `Null` guards is denied with AccessDenied): the keys are checked when SES fills
- * them, and the single recipient is fenced in code (channels/email/outbound.ts, `assertSingleRecipient`).
+ * The customer emails go as `Content.Raw`, authorized as `ses:SendRawEmail`; SES may leave `ses:FromAddress`
+ * and `ses:Recipients` empty for them, so the keys are checked when SES fills them, and the single recipient
+ * is fenced in code (channels/email/outbound.ts, `assertSingleRecipient`).
  */
 export function sendEmailStatement(place: Place, configurationSet: string): SendStatement {
   return {
