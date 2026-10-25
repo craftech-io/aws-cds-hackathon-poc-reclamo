@@ -198,7 +198,7 @@ const TOOL = { secrets: ["SessionKey"] } as const;
 export const LAMBDA_CAPABILITIES = {
   InboundWhatsApp: {
     capabilities: ["PIPELINE", "BEDROCK_READ", "MOCK_CORE"],
-    tables: { Conversations: "write", Complaints: "write", Timers: "write", Runtime: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" },
+    tables: { Conversations: "write", Complaints: "write", Timers: "write", Runtime: "write", Metrics: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" },
     buckets: { Media: "write", Seed: "read" },
     secrets: ["SimEnvelopeKey", "QaSimEnvelopeKey", "PhoneHashKey", "RegisterChainKey"],
     actions: ["social-messaging:GetWhatsAppMessageMedia", "s3:ListBucket", "sqs:SendMessage"],
@@ -208,29 +208,26 @@ export const LAMBDA_CAPABILITIES = {
   // Same code as EventWorker, fed by SignupCustomerEvents.fifo for the `gs-*` worlds (ADR-0020).
   SignupEventWorker: WORKER,
   QaEventWorker: WORKER,
-  ToolIdentity: { ...TOOL, capabilities: ["MOCK_CORE"], tables: { Conversations: "write", Runtime: "write", AuditLog: "append" } },
+  // Every tool that runs the outbound gate holds PIPELINE and PhoneHashKey; every one that appends to the register, RegisterChainKey.
+  ToolIdentity: { capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "write", Runtime: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" }, secrets: ["SessionKey", "PhoneHashKey", "RegisterChainKey"], },
   // Complaints: the loan status, payoff quote and clauses an account read leaves on the complaint of the turn.
-  ToolAccount: { ...TOOL, capabilities: ["MOCK_CORE"], tables: { Complaints: "write", Runtime: "write", Reference: "read", AuditLog: "append" } },
+  ToolAccount: { ...TOOL, capabilities: ["MOCK_CORE"], tables: { Complaints: "write", Conversations: "read", Runtime: "write", Worlds: "read", Reference: "read", AuditLog: "append" } },
   ToolInvestigation: {
-    ...TOOL,
-    capabilities: ["BEDROCK_READ", "MOCK_CORE", "MOCK_NETWORK"],
-    tables: { Complaints: "write", Runtime: "write", Reference: "read", AuditLog: "append" },
+    capabilities: ["PIPELINE", "BEDROCK_READ", "MOCK_CORE", "MOCK_NETWORK"],
+    tables: { Complaints: "write", Timers: "write", Runtime: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" },
     buckets: { Media: "read", Settlements: "read" },
+    secrets: ["SessionKey", "PhoneHashKey", "RegisterChainKey"],
   },
-  ToolActions: {
-    capabilities: ["ANCHOR", "MOCK_CORE", "MOCK_NETWORK"],
-    tables: { Complaints: "write", Runtime: "write", Worlds: "read", Register: "append", AuditLog: "append" },
-    secrets: ["SessionKey", "RegisterChainKey"],
-  },
+  ToolActions: { capabilities: ["ANCHOR", "MOCK_CORE", "MOCK_NETWORK"], tables: { Complaints: "write", Conversations: "read", Runtime: "write", Worlds: "read", Register: "append", AuditLog: "append" }, secrets: ["SessionKey", "RegisterChainKey"], },
   ToolComplaints: {
     capabilities: ["PIPELINE", "MOCK_CORE"],
-    tables: { Complaints: "write", Timers: "write", Runtime: "write", Register: "append", AuditLog: "append" },
+    tables: { Complaints: "write", Timers: "write", Runtime: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" },
     buckets: { Documents: "write" },
     secrets: ["SessionKey", "RegisterChainKey", "PhoneHashKey"],
   },
-  ToolMessaging: { ...TOOL, secrets: ["SessionKey", "PhoneHashKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "read", Runtime: "write", AuditLog: "append" } },
+  ToolMessaging: { secrets: ["SessionKey", "PhoneHashKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "read", Runtime: "write", Worlds: "read", Reference: "read", AuditLog: "append" } },
   // MOCK_CORE: its outbound gate (handoff notice, safety guidance) reads the customer from the core.
-  ToolHandoff: { ...TOOL, secrets: ["SessionKey", "PhoneHashKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Complaints: "write", Conversations: "write", Runtime: "write", AuditLog: "append" } },
+  ToolHandoff: { secrets: ["SessionKey", "PhoneHashKey", "RegisterChainKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Complaints: "write", Conversations: "write", Runtime: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" }, },
   MediaIntake: {
     capabilities: [],
     tables: { Runtime: "write", Conversations: "write", Complaints: "read", Reference: "read", AuditLog: "append" },

@@ -271,7 +271,7 @@ describe("tool Lambdas (docs/architecture.md §9.2 and §14)", () => {
   it("get exactly the actions their capabilities declare, through one Linkable each", () => {
     for (const fn of Object.values(spec.TOOL_FUNCTIONS)) expect(actionDrift(fn, spec.toolActions(fn)), fn).toEqual({ extra: [], missing: [] });
     expect([...spec.toolLinkContracts("ToolMessaging")].sort()).toEqual(["AnchorWriter", "CoreMock", "EmailSender", "GuardrailG2", "Scheduler", "WhatsAppSender"]);
-    expect(spec.toolLinkContracts("ToolInvestigation").sort()).toEqual(["CoreMock", "NetworkMock", "ReceiptReader"]);
+    expect(spec.toolLinkContracts("ToolInvestigation").sort()).toEqual(["AnchorWriter", "CoreMock", "EmailSender", "GuardrailG2", "NetworkMock", "ReceiptReader", "Scheduler", "WhatsAppSender"]);
     expect(() => spec.toolLinkContracts("WorldJanitor" as LambdaName)).toThrow();
     const holders = (Object.keys(LAMBDA_CAPABILITIES) as LambdaName[]).filter((fn) => !fn.startsWith("Tool"));
     for (const fn of holders) {
