@@ -225,7 +225,7 @@ export const LAMBDA_CAPABILITIES = {
     buckets: { Documents: "write" },
     secrets: ["SessionKey", "RegisterChainKey", "PhoneHashKey"],
   },
-  ToolMessaging: { secrets: ["SessionKey", "PhoneHashKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "read", Runtime: "write", Worlds: "read", Reference: "read", AuditLog: "append" } },
+  ToolMessaging: { secrets: ["SessionKey", "PhoneHashKey", "RegisterChainKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Conversations: "write", Complaints: "read", Runtime: "write", Worlds: "read", Reference: "read", AuditLog: "append" } },
   // MOCK_CORE: its outbound gate (handoff notice, safety guidance) reads the customer from the core.
   ToolHandoff: { secrets: ["SessionKey", "PhoneHashKey", "RegisterChainKey"], capabilities: ["PIPELINE", "MOCK_CORE"], tables: { Complaints: "write", Conversations: "write", Runtime: "write", Worlds: "read", Reference: "read", Register: "append", AuditLog: "append" }, },
   MediaIntake: {
