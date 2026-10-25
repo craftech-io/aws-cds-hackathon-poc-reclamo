@@ -126,11 +126,14 @@ export interface StaticFileOption {
  *   - `assets/**`: Vite's content-hashed bundles, immutable for a year;
  *   - any other file copied from packages/web/public (logos, landing captures): one hour;
  *   - HTML never cached, so a deploy is visible at once (index.html points at the new bundle);
- *   - the legal pages: public, five minutes, explicit UTF-8 so the Spanish text renders everywhere.
+ *   - the legal pages: public, five minutes, explicit UTF-8 so the Spanish text renders everywhere;
+ *   - the landing's product video: one hour, with its explicit media type (the upload would otherwise
+ *     label it a generic binary, which `nosniff` keeps a browser from treating as a video).
  */
 export const STATIC_FILE_OPTIONS: readonly StaticFileOption[] = [
   { files: "**", cacheControl: "max-age=3600,public" },
   { files: "assets/**", cacheControl: "max-age=31536000,public,immutable" },
   { files: "**/*.html", cacheControl: "max-age=0,no-cache,no-store,must-revalidate" },
   { files: `${LEGAL_PATH.slice(1)}/*.html`, cacheControl: "max-age=300,public", contentType: "text/html; charset=utf-8" },
+  { files: "landing/video/*.mp4", cacheControl: "max-age=3600,public", contentType: "video/mp4" },
 ];

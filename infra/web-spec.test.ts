@@ -119,4 +119,9 @@ describe("static file options", () => {
       expect(option?.cacheControl).toBe("max-age=300,public");
     }
   });
+
+  it("serves the landing's product video as video/mp4", () => {
+    expect(optionFor("landing/video/reclamo-en-regla.mp4")).toEqual({ files: "landing/video/*.mp4", cacheControl: "max-age=3600,public", contentType: "video/mp4" });
+    expect(optionFor("landing/video/poster.jpg")?.contentType).toBeUndefined();
+  });
 });
