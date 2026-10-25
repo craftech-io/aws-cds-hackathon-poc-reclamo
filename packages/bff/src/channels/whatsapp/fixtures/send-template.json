@@ -1,0 +1,22 @@
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "5491100009001",
+  "type": "template",
+  "template": {
+    "name": "reclamo_novedad",
+    "language": { "code": "es_AR" },
+    "components": [
+      {
+        "type": "body",
+        "parameters": [
+          { "type": "text", "text": "Valeria" },
+          { "type": "text", "text": "R-2026-000123" },
+          { "type": "text", "text": "ya tenemos la rendición de la red" }
+        ]
+      },
+      { "type": "button", "sub_type": "quick_reply", "index": "0", "parameters": [{ "type": "payload", "payload": "01K6ZT0000NONCE0000000005" }] },
+      { "type": "button", "sub_type": "quick_reply", "index": "1", "parameters": [{ "type": "payload", "payload": "01K6ZT0000NONCE0000000006" }] }
+    ]
+  }
+}

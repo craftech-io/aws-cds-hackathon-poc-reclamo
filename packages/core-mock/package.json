@@ -1,0 +1,26 @@
+{
+  "name": "@reclamo/core-mock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simulated core of the fictitious lender: customers, accounts, loans, instalments, ledger (Function URL with AWS_IAM)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --root ../.. packages/core-mock"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1135.0",
+    "@aws-sdk/lib-dynamodb": "3.1135.0",
+    "@reclamo/core-contract": "*",
+    "@reclamo/shared": "*",
+    "sst": "4.17.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "8.10.163"
+  }
+}

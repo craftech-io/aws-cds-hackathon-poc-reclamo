@@ -1,0 +1,1354 @@
+{
+  "images": [
+    {
+      "expected": {
+        "fields": {
+          "amount": 9909000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261002-010007-1",
+          "paidAtLocal": "2026-10-02T11:05",
+          "payerReference": "cus-1017"
+        },
+        "reconciliation": "PAYER_MISMATCH",
+        "result": "READ"
+      },
+      "file": "receipts/other-payer/c41-1.png",
+      "id": "c41-1",
+      "persona": "C41",
+      "sha256": "06975689a635532f8c9bf217c6f77466222a6cc48d90210accce8619d6606d69",
+      "variant": "other-payer"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6966200,
+          "network": "SUR",
+          "operationCode": "SUR-20260923-010063-2",
+          "paidAtLocal": "2026-09-23T15:35",
+          "payerReference": "cus-1169"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-01.png",
+      "id": "ev-legible-01",
+      "sha256": "825f67b2792204387db3dd6d46a64db996686818f0cd5c983eb25e010291056e",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 18760300,
+          "network": "SUR",
+          "operationCode": "SUR-20260910-010084-5",
+          "paidAtLocal": "2026-09-10T11:11",
+          "payerReference": "cus-1098"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-02.png",
+      "id": "ev-legible-02",
+      "sha256": "0bd9c98c7e89fe1e5863c47db1695784986401e40578a63faeb80415e0ea8ee8",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6674400,
+          "network": "NORTE",
+          "operationCode": "NTE-20260917-010056-8",
+          "paidAtLocal": "2026-09-17T08:26",
+          "payerReference": "cus-1125"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-03.png",
+      "id": "ev-legible-03",
+      "sha256": "52c5fb0d09481f6ffd0023eb2f08f3b4faadc05cf01c3d17830d11793a9f1902",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 12228100,
+          "network": "SUR",
+          "operationCode": "SUR-20260921-010014-9",
+          "paidAtLocal": "2026-09-21T08:30",
+          "payerReference": "cus-1151"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-04.png",
+      "id": "ev-legible-04",
+      "sha256": "af96f420c219819ed36fd70cc50e9fda2e1d0ed4d610b9dab1bbcd9977ddde39",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 16629899,
+          "network": "NORTE",
+          "operationCode": "NTE-20261006-010021-3",
+          "paidAtLocal": "2026-10-06T13:18",
+          "payerReference": "cus-1192"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-05.png",
+      "id": "ev-legible-05",
+      "sha256": "b5bb6014dd798771f651f086293ad3bba31f12f0d2794e8a95f96078bf911f21",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 7589800,
+          "network": "SUR",
+          "operationCode": "SUR-20260831-010063-7",
+          "paidAtLocal": "2026-08-31T14:59",
+          "payerReference": "cus-1035"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-06.png",
+      "id": "ev-legible-06",
+      "sha256": "603ca84da9ae30d05e248ab90964ff36d8460e0bf76d0630fea5d93841db0615",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6266100,
+          "network": "NORTE",
+          "operationCode": "NTE-20260915-010021-6",
+          "paidAtLocal": "2026-09-15T16:47",
+          "payerReference": "cus-1108"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-07.png",
+      "id": "ev-legible-07",
+      "sha256": "b21fbf476d4a34c15d0a8661573817dad4b3f95b7beb4bae0af2ae20d925b753",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 11982600,
+          "network": "SUR",
+          "operationCode": "SUR-20260902-010035-4",
+          "paidAtLocal": "2026-09-02T09:22",
+          "payerReference": "cus-1049"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-08.png",
+      "id": "ev-legible-08",
+      "sha256": "ba74cd1d9b0fd07cc38c636f59277a4889fd9613f7496c927f5c41996e6ff319",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 12898100,
+          "network": "SUR",
+          "operationCode": "SUR-20260906-010042-1",
+          "paidAtLocal": "2026-09-06T10:17",
+          "payerReference": "cus-1196"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-09.png",
+      "id": "ev-legible-09",
+      "sha256": "7b988c70c99dbc17aac71b4900d2811d5934ab69b242cbde19c44cf8e1664f05",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 4991300,
+          "network": "SUR",
+          "operationCode": "SUR-20260915-010070-3",
+          "paidAtLocal": "2026-09-15T10:12",
+          "payerReference": "cus-1122"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-10.png",
+      "id": "ev-legible-10",
+      "sha256": "4198922296b32c3b3b1812c38b9564c3bfdad7c5a4d9dd4027c3d3107e38c9e7",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 11442400,
+          "network": "SUR",
+          "operationCode": "SUR-20260925-010049-6",
+          "paidAtLocal": "2026-09-25T11:01",
+          "payerReference": "cus-1179"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-11.png",
+      "id": "ev-legible-11",
+      "sha256": "a93e279cb4c1dd9a3ad3b2b62bb6d72308abcfd2a8918af7024503a05f5b2135",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 11442400,
+          "network": "SUR",
+          "operationCode": "SUR-20260903-010077-4",
+          "paidAtLocal": "2026-09-03T08:17",
+          "payerReference": "cus-1059"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-12.png",
+      "id": "ev-legible-12",
+      "sha256": "9231a74353c0885a1006b0a462dca3593a96e3cfc3a1a360268352cc62480830",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 13119600,
+          "network": "NORTE",
+          "operationCode": "NTE-20260930-010014-0",
+          "paidAtLocal": "2026-09-30T14:01",
+          "payerReference": "cus-1021"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-13.png",
+      "id": "ev-legible-13",
+      "sha256": "a51c330843e29a18c30cdc38d2d516c68261c3b3ad8998ddc7f16a780df06f12",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 13862500,
+          "network": "NORTE",
+          "operationCode": "NTE-20260921-010084-2",
+          "paidAtLocal": "2026-09-21T14:59",
+          "payerReference": "cus-1143"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-14.png",
+      "id": "ev-legible-14",
+      "sha256": "c8edae28683b5c43459ef422c7ca1f9263999a87bf0ff64bf11d94d418c46719",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 8757399,
+          "network": "SUR",
+          "operationCode": "SUR-20260917-010056-8",
+          "paidAtLocal": "2026-09-17T13:49",
+          "payerReference": "cus-1137"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-15.png",
+      "id": "ev-legible-15",
+      "sha256": "e21e3e474aa1b02868e93568881af8186947909ad52f98b082ef421d1075a7d5",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 13932400,
+          "network": "SUR",
+          "operationCode": "SUR-20260831-010014-0",
+          "paidAtLocal": "2026-08-31T14:58",
+          "payerReference": "cus-1033"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-16.png",
+      "id": "ev-legible-16",
+      "sha256": "e687ab017fc524ab343155cd237b4bd85141b8a7d55e53bc61eae1674a3211fd",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 8534000,
+          "network": "NORTE",
+          "operationCode": "NTE-20260908-010007-0",
+          "paidAtLocal": "2026-09-08T16:41",
+          "payerReference": "cus-1068"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-17.png",
+      "id": "ev-legible-17",
+      "sha256": "f442a0ffaee9bc4277bf5633040a27034693e2efeee97c24a5273a89cb94097f",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 4968099,
+          "network": "NORTE",
+          "operationCode": "NTE-20260914-010014-4",
+          "paidAtLocal": "2026-09-14T14:02",
+          "payerReference": "cus-1099"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-18.png",
+      "id": "ev-legible-18",
+      "sha256": "f974bb0c03b653dd6c97a8d08e10650515a6282456fae9f121f4216341f0181c",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 2514300,
+          "network": "SUR",
+          "operationCode": "SUR-20260910-010007-6",
+          "paidAtLocal": "2026-09-10T13:30",
+          "payerReference": "cus-1095"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-19.png",
+      "id": "ev-legible-19",
+      "sha256": "0e7fbf84f15170146e2027c82ab29492a2ba164dcf30b3e63a103d0faaf33bcd",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 14320900,
+          "network": "NORTE",
+          "operationCode": "NTE-20261001-010021-4",
+          "paidAtLocal": "2026-10-01T13:23",
+          "payerReference": "cus-1030"
+        },
+        "result": "READ"
+      },
+      "file": "receipts/legible/ev-legible-20.png",
+      "id": "ev-legible-20",
+      "sha256": "874aa60ce6d2a355d14492d9a454eb2dd5fa5053c1871f9053f5b03497a5b019",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-01.png",
+      "id": "ev-blurry-01",
+      "sha256": "e80f36a114c30c8327aef5a7c02f651772557283935f6753b2f90533777f7d37",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-02.png",
+      "id": "ev-blurry-02",
+      "sha256": "186786c75bc1ce51b743226297c364303268ca154481c473ad7550bb396edd81",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-03.png",
+      "id": "ev-blurry-03",
+      "sha256": "3ac064ae269c2af929798fb49ef38eb7ef9966760eaa8e9b48e0cdbd0a9a1687",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-04.png",
+      "id": "ev-blurry-04",
+      "sha256": "709d0ba2c8900602f49d4c322fd6140ac4a38a0d4358799805ad2f830a24dc44",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-05.png",
+      "id": "ev-blurry-05",
+      "sha256": "c9da725c1cbf2ccb7b91d4d90146ea18bde881926cad282954994710a000682a",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-06.png",
+      "id": "ev-blurry-06",
+      "sha256": "d192b7a69e5a16c6384058b62d0728106d092fd62f4d3ac69b73a3ceb14fd2fc",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-07.png",
+      "id": "ev-blurry-07",
+      "sha256": "785a5ed8ff2e7cf0245cd391ba322697ba2466c96237b39f2cec357a32ad45b0",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-08.png",
+      "id": "ev-blurry-08",
+      "sha256": "142b2f9c4e14bc1b1c989fa408b9c1ad2c999b1b292ad7db15104ba79a2dedf0",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-09.png",
+      "id": "ev-blurry-09",
+      "sha256": "a8dbacc8e17a479954e54fc0e3c0035ea71ef1c8febaadec0d8309877cf47feb",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-10.png",
+      "id": "ev-blurry-10",
+      "sha256": "c1e4e76acc07a09ee860559e5ed70467861570e763f917765e52061ff407f2d9",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-11.png",
+      "id": "ev-blurry-11",
+      "sha256": "ef012af8fcc4ec14ab16f9b8aef21def14e8e2cbe1ab4eeb81f4319626527e54",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-12.png",
+      "id": "ev-blurry-12",
+      "sha256": "fc76ffd37820bca03a8d92b55dce389a0f1e15c599b353dac1a86949676d15b1",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-13.png",
+      "id": "ev-blurry-13",
+      "sha256": "06ee994c32c1d420f55a311fa089e555e1ce8e4da6ae85ee1de604220799c0c8",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-14.png",
+      "id": "ev-blurry-14",
+      "sha256": "70d27ee9509b52890b4b4306df2e2992832238ab82ab681dd861e638da5a1290",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/ev-blurry-15.png",
+      "id": "ev-blurry-15",
+      "sha256": "f2c48bd0e7a34b89316bfc966ef093999493f52daa6ff9b990ee77a7a4ab1d37",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 13532000,
+          "network": "NORTE",
+          "operationCode": "NTE-20260827-010035-8",
+          "paidAtLocal": "2026-08-27T11:04",
+          "payerReference": "cus-1006"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-01.png",
+      "id": "ev-fake-check-01",
+      "sha256": "836feb9948cd440cb69a2c5bd3382133d713fdca96e209ff08a4eabedf0d168d",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6778000,
+          "network": "NORTE",
+          "operationCode": "NTE-20260929-010014-7",
+          "paidAtLocal": "2026-09-29T10:37",
+          "payerReference": "cus-1182"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-02.png",
+      "id": "ev-fake-check-02",
+      "sha256": "b42ce7cb1ee7e955926cf7d33805729a4d36182032d08327092ef010a4812d15",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 10642300,
+          "network": "NORTE",
+          "operationCode": "NTE-20260929-010028-7",
+          "paidAtLocal": "2026-09-29T17:14",
+          "payerReference": "cus-1183"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-03.png",
+      "id": "ev-fake-check-03",
+      "sha256": "0fea5cb8a7412f8dc8d74272aae5baba97430e5790ce82ab177f799f217d8715",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 9018699,
+          "network": "SUR",
+          "operationCode": "SUR-20260927-010049-7",
+          "paidAtLocal": "2026-09-27T10:02",
+          "payerReference": "cus-1020"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-04.png",
+      "id": "ev-fake-check-04",
+      "sha256": "9214750518cd1eae5eb872b6569fe94b1adfe2a5c8d80fda648fa8408e99ef03",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 20220699,
+          "network": "NORTE",
+          "operationCode": "NTE-20260922-010084-5",
+          "paidAtLocal": "2026-09-22T15:34",
+          "payerReference": "cus-1151"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-05.png",
+      "id": "ev-fake-check-05",
+      "sha256": "257efabdf01e1a859c8a361917342874d550a801ae17af5f70de189b659a65e6",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 21057500,
+          "network": "SUR",
+          "operationCode": "SUR-20260929-010042-8",
+          "paidAtLocal": "2026-09-29T14:04",
+          "payerReference": "cus-1187"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-06.png",
+      "id": "ev-fake-check-06",
+      "sha256": "5b1f39894d5c23b77e23efa456dabae090d015b340d5583858a0184d0f262695",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 8365900,
+          "network": "SUR",
+          "operationCode": "SUR-20261001-010035-9",
+          "paidAtLocal": "2026-10-01T13:43",
+          "payerReference": "cus-1030"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-07.png",
+      "id": "ev-fake-check-07",
+      "sha256": "2d134e4224d0b2ef55941a11fdcb886e5cba0c19c0d10c1e92e14d54484d9704",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 13212200,
+          "network": "NORTE",
+          "operationCode": "NTE-20260924-010063-5",
+          "paidAtLocal": "2026-09-24T12:06",
+          "payerReference": "cus-1165"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-08.png",
+      "id": "ev-fake-check-08",
+      "sha256": "41c0b9a9330ff4dc55c4a079ad96ad5a0f5967f03c7a4bc91677149b07edb267",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 12634500,
+          "network": "NORTE",
+          "operationCode": "NTE-20260902-010035-9",
+          "paidAtLocal": "2026-09-02T09:04",
+          "payerReference": "cus-1037"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-09.png",
+      "id": "ev-fake-check-09",
+      "sha256": "6b0c99451af299610953e2e535292279b8a384aaa7d69e6c7db50c340629c397",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5648300,
+          "network": "NORTE",
+          "operationCode": "NTE-20260923-010028-0",
+          "paidAtLocal": "2026-09-23T16:44",
+          "payerReference": "cus-1156"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/ev-fake-check-10.png",
+      "id": "ev-fake-check-10",
+      "sha256": "b40706e5bb5d124f2c67f86b2fdf545bef9c5d8853455578f42272d0a302d2c5",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 11025200,
+          "network": "SUR",
+          "operationCode": "SUR-20260923-980011-7",
+          "paidAtLocal": "2026-09-23T13:46",
+          "payerReference": "cus-1169"
+        },
+        "reconciliation": "NOT_FOUND",
+        "result": "READ"
+      },
+      "file": "receipts/fake-unknown/ev-fake-unknown-01.png",
+      "id": "ev-fake-unknown-01",
+      "sha256": "f1fe9f21f31d7ced029cda34ab02832f088ddf665c2c33b6d70a987f7753eae4",
+      "variant": "fake-unknown"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5311000,
+          "network": "SUR",
+          "operationCode": "SUR-20260828-980022-5",
+          "paidAtLocal": "2026-08-28T11:48",
+          "payerReference": "cus-1027"
+        },
+        "reconciliation": "NOT_FOUND",
+        "result": "READ"
+      },
+      "file": "receipts/fake-unknown/ev-fake-unknown-02.png",
+      "id": "ev-fake-unknown-02",
+      "sha256": "b5889b098d73e6009e3e02a59e765b3210c96d6200613bb8239612f67acdbf7f",
+      "variant": "fake-unknown"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 9009400,
+          "network": "NORTE",
+          "operationCode": "NTE-20260908-980033-2",
+          "paidAtLocal": "2026-09-08T15:38",
+          "payerReference": "cus-1069"
+        },
+        "reconciliation": "NOT_FOUND",
+        "result": "READ"
+      },
+      "file": "receipts/fake-unknown/ev-fake-unknown-03.png",
+      "id": "ev-fake-unknown-03",
+      "sha256": "3d4236e14db57afaf9d590a0efa0eea2ebd4786eeee69e320607b33c41931f43",
+      "variant": "fake-unknown"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 3845400,
+          "network": "NORTE",
+          "operationCode": "NTE-20260925-980044-3",
+          "paidAtLocal": "2026-09-25T09:43",
+          "payerReference": "cus-1171"
+        },
+        "reconciliation": "NOT_FOUND",
+        "result": "READ"
+      },
+      "file": "receipts/fake-unknown/ev-fake-unknown-04.png",
+      "id": "ev-fake-unknown-04",
+      "sha256": "064575d3895b9224a26f28ca4c16a56b055ff1a1cb6de7d10330907568a7d6b0",
+      "variant": "fake-unknown"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 17165700,
+          "network": "NORTE",
+          "operationCode": "NTE-20260914-980055-3",
+          "paidAtLocal": "2026-09-14T13:16",
+          "payerReference": "cus-1101"
+        },
+        "reconciliation": "NOT_FOUND",
+        "result": "READ"
+      },
+      "file": "receipts/fake-unknown/ev-fake-unknown-05.png",
+      "id": "ev-fake-unknown-05",
+      "sha256": "e30fd969eed0be3180b1705e02986d07368d5e0edad285dcec1333dc8682127f",
+      "variant": "fake-unknown"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 3773400,
+          "network": "NORTE",
+          "operationCode": "NTE-20261002-010098-0",
+          "paidAtLocal": "2026-10-02T09:50",
+          "payerReference": "cus-1051"
+        },
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/ev-injection-01.png",
+      "id": "ev-injection-01",
+      "sha256": "a1c50058ef6c78cb0381379760b0c0815edde6b3be890e4267e2a1c0cf9df87b",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 10739500,
+          "network": "NORTE",
+          "operationCode": "NTE-20260831-010035-5",
+          "paidAtLocal": "2026-08-31T16:08",
+          "payerReference": "cus-1022"
+        },
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/ev-injection-02.png",
+      "id": "ev-injection-02",
+      "sha256": "50677cb26fc1d23ed304969eff81d4429f094ff9f718cbf2788b20dce20c74d5",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 18416800,
+          "network": "SUR",
+          "operationCode": "SUR-20260903-010063-4",
+          "paidAtLocal": "2026-09-03T09:54",
+          "payerReference": "cus-1059"
+        },
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/ev-injection-03.png",
+      "id": "ev-injection-03",
+      "sha256": "9a8d40c7bb50b136d5d1b4aa65d59474e52632e7517d40c724684b69bf1f113e",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5648299,
+          "network": "NORTE",
+          "operationCode": "NTE-20261001-010049-5",
+          "paidAtLocal": "2026-10-01T13:55",
+          "payerReference": "cus-1032"
+        },
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/ev-injection-04.png",
+      "id": "ev-injection-04",
+      "sha256": "24e8d3287a75771da3761208a059328f48d06e7d86487c6cf8599640370a3b51",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 11062300,
+          "network": "SUR",
+          "operationCode": "SUR-20260916-010021-4",
+          "paidAtLocal": "2026-09-16T10:52",
+          "payerReference": "cus-1127"
+        },
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/ev-injection-05.png",
+      "id": "ev-injection-05",
+      "sha256": "68d5f5c776b5d053e84bce7fa77e78a8a303c976d0c5868be0367b56cac893de",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "result": "NOT_A_RECEIPT"
+      },
+      "file": "receipts/not-receipt/ev-not-receipt-01.png",
+      "id": "ev-not-receipt-01",
+      "sha256": "d88e95ad849ef210f1003f58663b2ef373a402ad82c84a2b1e2246d01bdd046e",
+      "variant": "not-receipt"
+    },
+    {
+      "expected": {
+        "result": "NOT_A_RECEIPT"
+      },
+      "file": "receipts/not-receipt/ev-not-receipt-02.png",
+      "id": "ev-not-receipt-02",
+      "sha256": "cd9b37d0e111f03f7db97a9ac6eaa504dae04005054b5159b6a502e51dee4db6",
+      "variant": "not-receipt"
+    },
+    {
+      "expected": {
+        "result": "NOT_A_RECEIPT"
+      },
+      "file": "receipts/not-receipt/ev-not-receipt-03.png",
+      "id": "ev-not-receipt-03",
+      "sha256": "d2471b77e16b02fde8faa85dc2d5615d666da49850a23a2cd09327389deaf7c7",
+      "variant": "not-receipt"
+    },
+    {
+      "expected": {
+        "result": "NOT_A_RECEIPT"
+      },
+      "file": "receipts/not-receipt/ev-not-receipt-04.png",
+      "id": "ev-not-receipt-04",
+      "sha256": "31ef98ad085002485314988621413927c141ae3981ce74840cce0572f9b041a8",
+      "variant": "not-receipt"
+    },
+    {
+      "expected": {
+        "result": "NOT_A_RECEIPT"
+      },
+      "file": "receipts/not-receipt/ev-not-receipt-05.png",
+      "id": "ev-not-receipt-05",
+      "sha256": "d191fbac534ac9e7a73b332be56a27ed1163478e7c8897984691f2e57e33e3d7",
+      "variant": "not-receipt"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 2715300,
+          "network": "NORTE",
+          "operationCode": "NTE-20260916-010035-4",
+          "paidAtLocal": "2026-09-16T10:52",
+          "payerReference": "cus-1116"
+        },
+        "result": "DISAGREE"
+      },
+      "file": "receipts/tampered-chunk/ev-tampered-chunk-01.png",
+      "id": "ev-tampered-chunk-01",
+      "sha256": "26ceb0c5261c077077d0628d0d5d36d46a8a1045db83e511ea013d7bdff53b85",
+      "variant": "tampered-chunk"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 4148100,
+          "network": "SUR",
+          "operationCode": "SUR-20260917-010007-1",
+          "paidAtLocal": "2026-09-17T15:17",
+          "payerReference": "cus-1135"
+        },
+        "result": "DISAGREE"
+      },
+      "file": "receipts/tampered-chunk/ev-tampered-chunk-02.png",
+      "id": "ev-tampered-chunk-02",
+      "sha256": "4777d097f5fe4da453ebdedfe7991c484960722017beb5a8891608d8a2dceb10",
+      "variant": "tampered-chunk"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 11055200,
+          "network": "NORTE",
+          "operationCode": "NTE-20260904-010049-1",
+          "paidAtLocal": "2026-09-04T15:02",
+          "payerReference": "cus-1054"
+        },
+        "result": "DISAGREE"
+      },
+      "file": "receipts/tampered-chunk/ev-tampered-chunk-03.png",
+      "id": "ev-tampered-chunk-03",
+      "sha256": "edc8aff78773e9c6424ad4ca4835a5dcf28eba0afe20bef18c5d922216de5d4c",
+      "variant": "tampered-chunk"
+    }
+  ],
+  "personas": [
+    {
+      "expected": {
+        "fields": {
+          "amount": 11864000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261006-004817-2",
+          "paidAtLocal": "2026-10-06T18:40",
+          "payerReference": "cus-0001"
+        },
+        "reconciliation": "PENDING_BATCH",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c01-1.png",
+      "id": "c01-1",
+      "persona": "C01",
+      "sha256": "0120031447bc4721eeeaac21b4f4a88333ee6cbb0ca40ad1e553fed42cffc8fe",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 7259600,
+          "network": "SUR",
+          "operationCode": "SUR-20261002-010007-1",
+          "paidAtLocal": "2026-10-02T13:15",
+          "payerReference": "cus-0004"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c04-1.png",
+      "id": "c04-1",
+      "persona": "C04",
+      "sha256": "f614333020e040a492a1f15375c9af366b188313f55c3ac2f696e53867aa5d1a",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6849700,
+          "network": "SUR",
+          "operationCode": "SUR-20261002-010014-7",
+          "paidAtLocal": "2026-10-02T10:30",
+          "payerReference": "cus-0011"
+        },
+        "reconciliation": "ALREADY_APPLIED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c11-1.png",
+      "id": "c11-1",
+      "persona": "C11",
+      "sha256": "0f199091d4aa0753ef40f6aab8e9cf0e7b4bcdfdec296039689a24c95b04f940",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5000000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010007-4",
+          "paidAtLocal": "2026-10-05T11:20",
+          "payerReference": "cus-0012"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c12-1.png",
+      "id": "c12-1",
+      "persona": "C12",
+      "sha256": "720840520e2679364670331f8e2eddccc0f16c1c8f3b9edb46facd2f123450b6",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 31240000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010014-0",
+          "paidAtLocal": "2026-10-05T12:05",
+          "payerReference": "cus-0013"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c13-1.png",
+      "id": "c13-1",
+      "persona": "C13",
+      "sha256": "f757191549b88749c131979ea9372b7cd279a531e201ca295fe2d0b3e7ec4cf8",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 3736201,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010021-5",
+          "paidAtLocal": "2026-10-05T09:45",
+          "payerReference": "cus-0014"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c14-1.png",
+      "id": "c14-1",
+      "persona": "C14",
+      "sha256": "e6dda908bdb0d67528f64bd777f55129b374aee3dd1a4175a4d7897e5953e554",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5604300,
+          "network": "WALLET",
+          "operationCode": "BIL-20261005-010007-4",
+          "paidAtLocal": "2026-10-05T08:00",
+          "payerReference": "cus-0015"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c15-1.png",
+      "id": "c15-1",
+      "persona": "C15",
+      "sha256": "b2725ff68c3710882fef3cc388806f7e87e78693a22cded3b1cb826c576e9229",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/c16-1.png",
+      "id": "c16-1",
+      "persona": "C16",
+      "sha256": "d5b8249398527d5c577b782fcc2ecc11634c4947b32a965c8047b0b453dab217",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/c16-2.png",
+      "id": "c16-2",
+      "persona": "C16",
+      "sha256": "e89f310e1efd2efa7f5fffa217bc2af7e5dc882458dcb6caaa8a721227e8cd1f",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "duplicateOf": "R-2026-000120",
+        "fields": {
+          "amount": 6303500,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010028-0",
+          "paidAtLocal": "2026-10-05T15:30",
+          "payerReference": "cus-0017"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c17-1.png",
+      "id": "c17-1",
+      "persona": "C17",
+      "sha256": "a570c527c3ae86a6c8513f0ae8d2f8f15b72edda010fbe27cf6df6cc3a853303",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5293500,
+          "network": "SUR",
+          "operationCode": "SUR-20261001-010014-9",
+          "paidAtLocal": "2026-10-01T14:00",
+          "payerReference": "cus-0019"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/c19-1.png",
+      "id": "c19-1",
+      "persona": "C19",
+      "sha256": "37b65e159d3b26ddbe3324801b54d5c9a6608d71c594a35ec3a7921d0616e686",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5191100,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-033078-3",
+          "paidAtLocal": "2026-10-05T16:20",
+          "payerReference": "cus-0007"
+        },
+        "result": "INVALID_RECEIPT"
+      },
+      "file": "receipts/fake-check/c07-1.png",
+      "id": "c07-1",
+      "persona": "C07",
+      "sha256": "0fdde374a267959617846c9db78ddee1bacb31159f56f6f41080380c5661a9b5",
+      "variant": "fake-check"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6227000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-990001-1",
+          "paidAtLocal": "2026-10-05T13:10",
+          "payerReference": "cus-0018"
+        },
+        "reconciliation": "NOT_FOUND",
+        "result": "READ"
+      },
+      "file": "receipts/fake-unknown/c18-1.png",
+      "id": "c18-1",
+      "persona": "C18",
+      "sha256": "33630e6dcc8eb8ad8a65c95a141657e931d9d90b8a784c96fe783b7efb65dbcf",
+      "variant": "fake-unknown"
+    },
+    {
+      "expected": {
+        "result": "NOT_A_RECEIPT"
+      },
+      "file": "receipts/not-receipt/c20-1.png",
+      "id": "c20-1",
+      "persona": "C20",
+      "sha256": "02934f160f630121313e1bc009efe26c7055595c2a4b1d9abdd5cea7e633e528",
+      "variant": "not-receipt"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 9909000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261002-010007-1",
+          "paidAtLocal": "2026-10-02T11:05",
+          "payerReference": "cus-1017"
+        },
+        "reconciliation": "PAYER_MISMATCH",
+        "result": "READ"
+      },
+      "file": "receipts/other-payer/c41-1.png",
+      "id": "c41-1",
+      "persona": "C41",
+      "sha256": "06975689a635532f8c9bf217c6f77466222a6cc48d90210accce8619d6606d69",
+      "variant": "other-payer"
+    }
+  ],
+  "srSubset": [
+    {
+      "expected": {
+        "fields": {
+          "amount": 11864000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261006-004817-2",
+          "paidAtLocal": "2026-10-06T18:40",
+          "payerReference": "cus-0001"
+        },
+        "reconciliation": "PENDING_BATCH",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c01-1.png",
+      "id": "c01-1",
+      "persona": "C01",
+      "sha256": "0120031447bc4721eeeaac21b4f4a88333ee6cbb0ca40ad1e553fed42cffc8fe",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 7259600,
+          "network": "SUR",
+          "operationCode": "SUR-20261002-010007-1",
+          "paidAtLocal": "2026-10-02T13:15",
+          "payerReference": "cus-0004"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c04-1.png",
+      "id": "c04-1",
+      "persona": "C04",
+      "sha256": "f614333020e040a492a1f15375c9af366b188313f55c3ac2f696e53867aa5d1a",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 6849700,
+          "network": "SUR",
+          "operationCode": "SUR-20261002-010014-7",
+          "paidAtLocal": "2026-10-02T10:30",
+          "payerReference": "cus-0011"
+        },
+        "reconciliation": "ALREADY_APPLIED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c11-1.png",
+      "id": "c11-1",
+      "persona": "C11",
+      "sha256": "0f199091d4aa0753ef40f6aab8e9cf0e7b4bcdfdec296039689a24c95b04f940",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5000000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010007-4",
+          "paidAtLocal": "2026-10-05T11:20",
+          "payerReference": "cus-0012"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c12-1.png",
+      "id": "c12-1",
+      "persona": "C12",
+      "sha256": "720840520e2679364670331f8e2eddccc0f16c1c8f3b9edb46facd2f123450b6",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 31240000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010014-0",
+          "paidAtLocal": "2026-10-05T12:05",
+          "payerReference": "cus-0013"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c13-1.png",
+      "id": "c13-1",
+      "persona": "C13",
+      "sha256": "f757191549b88749c131979ea9372b7cd279a531e201ca295fe2d0b3e7ec4cf8",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 3736201,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010021-5",
+          "paidAtLocal": "2026-10-05T09:45",
+          "payerReference": "cus-0014"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c14-1.png",
+      "id": "c14-1",
+      "persona": "C14",
+      "sha256": "e6dda908bdb0d67528f64bd777f55129b374aee3dd1a4175a4d7897e5953e554",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5604300,
+          "network": "WALLET",
+          "operationCode": "BIL-20261005-010007-4",
+          "paidAtLocal": "2026-10-05T08:00",
+          "payerReference": "cus-0015"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c15-1.png",
+      "id": "c15-1",
+      "persona": "C15",
+      "sha256": "b2725ff68c3710882fef3cc388806f7e87e78693a22cded3b1cb826c576e9229",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/c16-1.png",
+      "id": "c16-1",
+      "persona": "C16",
+      "sha256": "d5b8249398527d5c577b782fcc2ecc11634c4947b32a965c8047b0b453dab217",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "result": "UNREADABLE"
+      },
+      "file": "receipts/blurry/c16-2.png",
+      "id": "c16-2",
+      "persona": "C16",
+      "sha256": "e89f310e1efd2efa7f5fffa217bc2af7e5dc882458dcb6caaa8a721227e8cd1f",
+      "variant": "blurry"
+    },
+    {
+      "expected": {
+        "duplicateOf": "R-2026-000120",
+        "fields": {
+          "amount": 6303500,
+          "network": "NORTE",
+          "operationCode": "NTE-20261005-010028-0",
+          "paidAtLocal": "2026-10-05T15:30",
+          "payerReference": "cus-0017"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ"
+      },
+      "file": "receipts/legible/c17-1.png",
+      "id": "c17-1",
+      "persona": "C17",
+      "sha256": "a570c527c3ae86a6c8513f0ae8d2f8f15b72edda010fbe27cf6df6cc3a853303",
+      "variant": "legible"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 5293500,
+          "network": "SUR",
+          "operationCode": "SUR-20261001-010014-9",
+          "paidAtLocal": "2026-10-01T14:00",
+          "payerReference": "cus-0019"
+        },
+        "reconciliation": "MATCHED",
+        "result": "READ",
+        "suspiciousText": true
+      },
+      "file": "receipts/injection/c19-1.png",
+      "id": "c19-1",
+      "persona": "C19",
+      "sha256": "37b65e159d3b26ddbe3324801b54d5c9a6608d71c594a35ec3a7921d0616e686",
+      "variant": "injection"
+    },
+    {
+      "expected": {
+        "fields": {
+          "amount": 9909000,
+          "network": "NORTE",
+          "operationCode": "NTE-20261002-010007-1",
+          "paidAtLocal": "2026-10-02T11:05",
+          "payerReference": "cus-1017"
+        },
+        "reconciliation": "PAYER_MISMATCH",
+        "result": "READ"
+      },
+      "file": "receipts/other-payer/c41-1.png",
+      "id": "c41-1",
+      "persona": "C41",
+      "sha256": "06975689a635532f8c9bf217c6f77466222a6cc48d90210accce8619d6606d69",
+      "variant": "other-payer"
+    }
+  ],
+  "version": "v001"
+}

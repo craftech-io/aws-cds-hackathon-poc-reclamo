@@ -1,0 +1,1405 @@
+# core.openapi.yaml · OpenAPI 3.1 contract. Hand-maintained together with the zod schemas of
+# packages/core-contract/src; `npm run core:contract` compares the two.
+openapi: 3.1.1
+info:
+  title: Reclamo en regla · simulated lender core
+  version: 1.0.0
+  description: |-
+    Contract of `CoreMock`, the simulated core of the lender: customers, accounts, wallets, loans, instalments and the ledger rules (docs/architecture-integrations.md §5). Every money route receives the session's `customerId`, refuses a loan, charge, debit or transfer that is not that customer's (403 `FORBIDDEN`) and takes its natural-key claim in the transaction that moves the money: a second attempt gets 409 `CONFLICT` with the existing `actionId`.
+
+    Synthetic data only: Jarilla is a fictitious lender.
+
+    Conventions: every world route carries `worldId` in the path and the world's simulated instant in `X-Sim-Now`; amounts are integer centavos of Argentine pesos; every object is closed (`additionalProperties: false`), so a field this contract does not name never crosses the wire. Success is always 200; every error answers `ErrorBody`.
+
+    The client (`packages/bff`) and the mock parse with the zod schemas of `@reclamo/core-contract`; `npm run core:contract` fails when this file and those schemas differ.
+servers:
+  - url: https://{functionUrlId}.lambda-url.us-east-1.on.aws
+    description: Lambda Function URL (auth type AWS_IAM) of the mock in the `poc` stage.
+    variables:
+      functionUrlId:
+        default: function-url-id
+        description: Id of the Function URL, from the stack outputs.
+security:
+  - sigv4: []
+tags:
+  - name: identity
+    description: Linked phone and identity challenge.
+  - name: accounts
+    description: Customer, account, wallet and operations.
+  - name: loans
+    description: Loans, instalments, early payoff and disbursements.
+  - name: payments
+    description: Payment imputation.
+  - name: charges
+    description: Charge checks and reversals.
+  - name: debits
+    description: Duplicate automatic debits and refunds.
+  - name: wallet
+    description: Outgoing freeze.
+  - name: requests
+    description: Account closure and data changes.
+  - name: health
+    description: Shallow health.
+paths:
+  /v1/{worldId}/customers/by-phone/{phoneHash}:
+    get:
+      operationId: getCustomerByPhone
+      tags: [identity]
+      summary: Customer linked to a phone hash
+      description: 404 `NOT_FOUND` when no customer of the world has that phone.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/PhoneHashPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The linked customer.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CustomerRef'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}:
+    get:
+      operationId: getCustomer
+      tags: [accounts]
+      summary: Customer, account, wallet and loans
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The customer, masked.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Customer'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}/live-recipient:
+    get:
+      operationId: getLiveRecipient
+      tags: [accounts]
+      summary: The customer's live WhatsApp number
+      description: Only the functions that run the outbound gate may call it (403 `CALLER_NOT_ALLOWED` for any other role), and the number is present only in a world that may run live.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The live number, when the customer has one in this world.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LiveRecipient'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}/challenge-check:
+    post:
+      operationId: checkChallenge
+      tags: [identity]
+      summary: Check an identity challenge answer
+      description: 422 `NOT_ELIGIBLE` when the customer has no data for that kind of challenge.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The answer to compare.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ChallengeCheckRequest'}
+      responses:
+        '200':
+          description: Whether the answer matched.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ChallengeCheckResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}/operations:
+    get:
+      operationId: listOperations
+      tags: [accounts]
+      summary: Operations of the customer
+      description: At most 90 days between `from` and `to` (400 `INVALID` otherwise).
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - name: from
+          in: query
+          required: true
+          description: First date of the range (inclusive).
+          schema: {$ref: '#/components/schemas/CalendarDate'}
+        - name: to
+          in: query
+          required: true
+          description: Last date of the range (inclusive).
+          schema: {$ref: '#/components/schemas/CalendarDate'}
+        - name: kind
+          in: query
+          required: false
+          description: Kind of operations; `ALL` when omitted.
+          schema: {$ref: '#/components/schemas/OperationKindFilter'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The operations of the range.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/OperationList'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/loans/{loanId}:
+    get:
+      operationId: getLoan
+      tags: [loans]
+      summary: Loan
+      description: The caller checks that `customerId` is the session's customer.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/LoanIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The loan.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Loan'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/loans/{loanId}/instalments:
+    get:
+      operationId: listInstalments
+      tags: [loans]
+      summary: Instalments of a loan
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/LoanIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: Every instalment with its imputed payments.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/InstalmentList'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/loans/{loanId}/payments:
+    post:
+      operationId: applyPayment
+      tags: [payments]
+      summary: Impute a payment to a loan
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/LoanIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The payment, its evidence and the caller's cap.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PaymentRequest'}
+      responses:
+        '200':
+          description: The imputation.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaymentResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/charges/{chargeId}/check:
+    post:
+      operationId: checkCharge
+      tags: [charges]
+      summary: Check a charge against the fee schedule
+      description: Deterministic; no request body.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/ChargeIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The verdict.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ChargeCheck'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/charges/{chargeId}/reversal:
+    post:
+      operationId: reverseCharge
+      tags: [charges]
+      summary: Reverse a wrong charge
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/ChargeIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The reversal.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ChargeReversalRequest'}
+      responses:
+        '200':
+          description: The reversal and its credit note.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ChargeReversalResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/loans/{loanId}/duplicate-check:
+    post:
+      operationId: checkDuplicateDebit
+      tags: [debits]
+      summary: Detect duplicate automatic debits
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/LoanIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The instalment to check, if any.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DuplicateCheckRequest'}
+      responses:
+        '200':
+          description: The verdict and the debits compared.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DuplicateCheck'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/refunds:
+    post:
+      operationId: refundDuplicateDebit
+      tags: [debits]
+      summary: Refund a duplicate debit to the wallet
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The refund.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RefundRequest'}
+      responses:
+        '200':
+          description: The refund and its credit note.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RefundResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/wallets/{customerId}/freeze:
+    post:
+      operationId: setOutgoingFreeze
+      tags: [wallet]
+      summary: Freeze or lift the wallet's outgoing freeze
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The requested state.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/FreezeRequest'}
+      responses:
+        '200':
+          description: The freeze after the request.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FreezeResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/wallets/{customerId}/transfer-reversals:
+    post:
+      operationId: creditTransferReversal
+      tags: [wallet]
+      summary: Credit the wallet with an outgoing transfer the network reversed
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The reversed transfer.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TransferReversalCreditRequest'}
+      responses:
+        '200':
+          description: The credit of the reversal.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TransferReversalCreditResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/loans/{loanId}/payoff-quote:
+    post:
+      operationId: quoteEarlyPayoff
+      tags: [loans]
+      summary: Quote an early payoff
+      description: 422 `NOT_ELIGIBLE` for a loan that is already cancelled.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/LoanIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The customer of the session.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PayoffQuoteRequest'}
+      responses:
+        '200':
+          description: The quote.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PayoffQuote'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}/whatsapp/opt-out:
+    post:
+      operationId: recordWhatsAppOptOut
+      tags: [requests]
+      summary: Record the customer's WhatsApp opt-out
+      description: Idempotent; an opt-out already recorded answers `changed false` with its instant.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: How the customer opted out.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/WhatsAppOptOutRequest'}
+      responses:
+        '200':
+          description: The opt-out in force.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WhatsAppOptOutResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}/closure:
+    post:
+      operationId: requestClosure
+      tags: [requests]
+      summary: Request the closure of the account
+      description: 409 `CONFLICT` when a closure is already registered (with its `actionId`).
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The closure request.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ClosureRequest'}
+      responses:
+        '200':
+          description: The closure and its conditions.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ClosureResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/customers/{customerId}/data-change:
+    post:
+      operationId: requestDataChange
+      tags: [requests]
+      summary: Request a change of contact data
+      description: 409 `CONFLICT` when a change of the same field is already pending.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/CustomerIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The field and its new value.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DataChangeRequest'}
+      responses:
+        '200':
+          description: The pending change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DataChangeResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/loans/{loanId}/disbursement:
+    get:
+      operationId: getDisbursement
+      tags: [loans]
+      summary: Disbursement of a loan
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/LoanIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The disbursement.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Disbursement'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/health:
+    get:
+      operationId: getCoreHealth
+      tags: [health]
+      summary: Health of the core mock
+      responses:
+        '200':
+          description: The mock is up.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Health'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+components:
+  securitySchemes:
+    sigv4:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'AWS Signature Version 4 for service `lambda`. The Function URL has auth type AWS_IAM: only the application roles listed in docs/architecture.md §14 may invoke it, and every identity policy that allows it requires `lambda:InvokedViaFunctionUrl = true`.'
+  parameters:
+    WorldIdPath:
+      name: worldId
+      in: path
+      required: true
+      description: World the request belongs to.
+      schema: {$ref: '#/components/schemas/WorldId'}
+    CustomerIdPath:
+      name: customerId
+      in: path
+      required: true
+      description: Customer of the session.
+      schema: {$ref: '#/components/schemas/CustomerId'}
+    LoanIdPath:
+      name: loanId
+      in: path
+      required: true
+      description: Loan.
+      schema: {$ref: '#/components/schemas/LoanId'}
+    ChargeIdPath:
+      name: chargeId
+      in: path
+      required: true
+      description: Charge.
+      schema: {$ref: '#/components/schemas/ResourceId'}
+    PhoneHashPath:
+      name: phoneHash
+      in: path
+      required: true
+      description: Phone hash of the sender.
+      schema: {$ref: '#/components/schemas/PhoneHash'}
+    SimNow:
+      name: X-Sim-Now
+      in: header
+      required: true
+      description: "The world's simulated instant at the event being processed. The mocks never read a clock: every time-dependent rule (late interest, quotes, business dates, statuses) is evaluated at this instant."
+      schema: {$ref: '#/components/schemas/SimInstant'}
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Correlation id for the mock's JSON logs.
+      schema: {$ref: '#/components/schemas/CorrelationId'}
+  responses:
+    BadRequest:
+      description: '`INVALID`: the request does not match this contract.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Forbidden:
+      description: "`CALLER_WORLD_DENIED` or `CALLER_NOT_ALLOWED` (the invoking role may not reach this world or route), or `FORBIDDEN` (the resource is not the customer's)."
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    NotFound:
+      description: '`WORLD_NOT_FOUND` or `NOT_FOUND`.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Conflict:
+      description: '`CONFLICT`: the natural-key claim or the state already exists; on a money route `actionId` names the existing action.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Unprocessable:
+      description: '`ABOVE_CAP`, `EXCEEDS_OUTSTANDING` or `NOT_ELIGIBLE`: a rule of the mock refused the action; nothing moved.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Unavailable:
+      description: "`UNAVAILABLE`: temporary failure (or the world's `ERROR_503` fault); retry with backoff."
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+  schemas:
+    WorldId:
+      description: 'World id (docs: `demo`, `g01`…`g99`, `gtest`, `gprobe`, `qamin`, `qa-<runId>-<scenario>`, `sim-<batch>`). The mock also checks that the world exists and that the invoking role may reach it.'
+      type: string
+      pattern: '^[a-z0-9-]{1,24}$'
+    CustomerId:
+      description: Customer id (`cus-0001`; payers that are not personas `cus-1001`…; QA clones `cus-qa-<runId>-<scenario>-<key>`).
+      type: string
+      pattern: '^cus-[a-z0-9]+(?:-[a-z0-9]+)*$'
+      maxLength: 64
+    LoanId:
+      description: Loan id (`L-0001`, `L-0010a`).
+      type: string
+      pattern: '^L-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$'
+      maxLength: 64
+    ResourceId:
+      description: 'Id minted or received by the system: charges, debits, transfers, payments, credit notes, quotes, actions, complaints, reconciliations.'
+      type: string
+      pattern: '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$'
+    IdempotencyKey:
+      description: "Caller's idempotency key: the same key and the same body answer the same result."
+      type: string
+      pattern: '^[A-Za-z0-9][A-Za-z0-9:#/._-]{0,127}$'
+    OperationCode:
+      description: Payment identifier, unique per network (`NTE-20261006-004817-7`). The check digit is validated by the receipt reader, not here.
+      type: string
+      pattern: '^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$'
+      maxLength: 64
+    Cents:
+      description: Amount in integer centavos of Argentine pesos (`11864000` = $ 118.640,00).
+      type: integer
+      minimum: 0
+      maximum: 10000000000
+    PositiveCents:
+      description: Amount in integer centavos of Argentine pesos, greater than zero.
+      type: integer
+      minimum: 1
+      maximum: 10000000000
+    SimInstant:
+      description: ISO 8601 instant with offset, in the world's simulated time.
+      type: string
+      format: date-time
+      pattern: '^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d{1,3})?(Z|[+-]([01]\d|2[0-3]):[0-5]\d)$'
+    CalendarDate:
+      description: Calendar date `YYYY-MM-DD`.
+      type: string
+      format: date
+      pattern: '^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$'
+    CorrelationId:
+      description: Correlation id copied into the mock's JSON logs.
+      type: string
+      pattern: '^[A-Za-z0-9._:-]{1,128}$'
+    InstalmentNumber:
+      description: Instalment number of a loan (loans have 3 to 18 instalments).
+      type: integer
+      minimum: 1
+      maximum: 18
+    ContractErrorCode:
+      description: "`INVALID` 400 · `WORLD_NOT_FOUND`, `NOT_FOUND` 404 · `FORBIDDEN` (the resource is not the customer's), `CALLER_NOT_ALLOWED`, `CALLER_WORLD_DENIED` 403 · `CONFLICT` 409 · `ABOVE_CAP`, `EXCEEDS_OUTSTANDING`, `NOT_ELIGIBLE` 422 · `UNAVAILABLE` 503."
+      type: string
+      enum: [INVALID, WORLD_NOT_FOUND, NOT_FOUND, FORBIDDEN, CALLER_NOT_ALLOWED, CALLER_WORLD_DENIED, CONFLICT, ABOVE_CAP, EXCEEDS_OUTSTANDING, NOT_ELIGIBLE, UNAVAILABLE]
+    ErrorBody:
+      description: Error answer. `message` is fixed text of the mock, never personal data.
+      type: object
+      properties:
+        code: {$ref: '#/components/schemas/ContractErrorCode'}
+        message:
+          type: string
+          minLength: 1
+          maxLength: 300
+        actionId:
+          $ref: '#/components/schemas/ResourceId'
+          description: 'Only with `CONFLICT` on a money route: the action that already holds the natural-key claim.'
+      required: [code, message]
+      additionalProperties: false
+    HealthService:
+      description: Which mock answered.
+      type: string
+      enum: [core, networks]
+    Health:
+      description: 'Shallow health: it touches no table.'
+      type: object
+      properties:
+        status:
+          type: string
+          const: ok
+        service: {$ref: '#/components/schemas/HealthService'}
+        contractVersion:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          description: Version of this contract that the deployed mock implements.
+      required: [status, service, contractVersion]
+      additionalProperties: false
+    PhoneHash:
+      description: HMAC-SHA256 (hex) of the E.164 phone number with the `phone-hash` subkey of `PhoneHashKey`.
+      type: string
+      pattern: '^[0-9a-f]{64}$'
+    CustomerRef:
+      description: The customer linked to a phone hash.
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+      required: [customerId]
+      additionalProperties: false
+    LiveRecipient:
+      description: The live WhatsApp number of a customer (E.164), present only in a world that may run live and only when the seed set one.
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        e164: {type: string, pattern: '^\+\d{8,15}$'}
+      required: [customerId]
+      additionalProperties: false
+    AccountStatus:
+      description: Status of the customer's account.
+      type: string
+      enum: [ACTIVE, BLOCKED, CLOSING, CLOSED]
+    BlockCategory:
+      description: Category of an account block; the text shown to the customer comes from the application's copy.
+      type: string
+      enum: [SECURITY_REVIEW, IDENTITY_VALIDATION, EXTERNAL_ORDER, INACTIVITY]
+    LoanStatus:
+      description: '`CANCELLED` = paid in full; `EARLY_CANCELLED` = paid off before the last due date.'
+      type: string
+      enum: [ACTIVE, IN_ARREARS, CANCELLED, EARLY_CANCELLED]
+    PresenterDocument:
+      description: Identity document of the customer, masked; the complaints register records it.
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [DNI]
+        numberMasked:
+          type: string
+          pattern: '^•{4}\d{4}$'
+          description: Last four digits of a synthetic document number.
+      required: [type, numberMasked]
+      additionalProperties: false
+    WhatsAppConsent:
+      description: WhatsApp opt-in and opt-out of the customer.
+      type: object
+      properties:
+        optedIn:
+          type: boolean
+        optedInAtSim: {$ref: '#/components/schemas/SimInstant'}
+        optInMedium:
+          type: string
+          enum: [SIGNED_ONBOARDING, IN_CHAT]
+        optInTextVersion:
+          type: string
+          pattern: '^v\d{3}$'
+          description: Version of the consent text the customer accepted.
+        optedOut:
+          type: boolean
+        optedOutAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [optedIn, optedOut]
+      additionalProperties: false
+    Account:
+      description: Account of the customer.
+      type: object
+      properties:
+        status: {$ref: '#/components/schemas/AccountStatus'}
+        blockCategory: {$ref: '#/components/schemas/BlockCategory'}
+        closureRequestedAtSim:
+          $ref: '#/components/schemas/SimInstant'
+          description: When a closure was requested (the account stays `CLOSING` while a loan is active).
+      required: [status]
+      additionalProperties: false
+    Wallet:
+      description: Wallet of the customer.
+      type: object
+      properties:
+        balance: {$ref: '#/components/schemas/Cents'}
+        cvuMasked:
+          type: string
+          pattern: '^•{4} \d{4}$'
+          description: Last four digits of the synthetic CVU (22 digits starting with `9990`).
+        outgoingFrozen:
+          type: boolean
+          description: 'Outgoing freeze: blocks outgoing transfers and payments from the wallet; only staff lifts it.'
+        frozenAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [balance, cvuMasked, outgoingFrozen]
+      additionalProperties: false
+    LoanSummary:
+      description: Loan as listed in the customer's account.
+      type: object
+      properties:
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+          description: Short label of the loan, as the customer knows it.
+        status: {$ref: '#/components/schemas/LoanStatus'}
+        outstanding: {$ref: '#/components/schemas/Cents'}
+      required: [loanId, label, status, outstanding]
+      additionalProperties: false
+    Customer:
+      description: Customer, account, wallet and loans. Never carries the live phone number, the full document, the full email or a challenge answer.
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 60
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 60
+        document: {$ref: '#/components/schemas/PresenterDocument'}
+        phoneMasked:
+          type: string
+          minLength: 1
+          maxLength: 32
+        emailMasked:
+          type: string
+          minLength: 1
+          maxLength: 120
+        whatsapp: {$ref: '#/components/schemas/WhatsAppConsent'}
+        account: {$ref: '#/components/schemas/Account'}
+        wallet: {$ref: '#/components/schemas/Wallet'}
+        loans:
+          type: array
+          maxItems: 10
+          items: {$ref: '#/components/schemas/LoanSummary'}
+      required: [customerId, firstName, lastName, document, phoneMasked, emailMasked, whatsapp, account, wallet, loans]
+      additionalProperties: false
+    ChallengeKind:
+      description: 'Identity challenge: due date of the last due instalment, amount of the last instalment, or amount of the last wallet movement (customers without loans).'
+      type: string
+      enum: [LAST_DUE_DATE, LAST_INSTALMENT_AMOUNT, LAST_MOVEMENT_AMOUNT]
+    ChallengeCheckRequest:
+      description: Answer of the customer as written; the core compares it after deterministic normalisation of dates and amounts.
+      type: object
+      properties:
+        kind: {$ref: '#/components/schemas/ChallengeKind'}
+        answer:
+          type: string
+          minLength: 1
+          maxLength: 40
+      required: [kind, answer]
+      additionalProperties: false
+    ChallengeCheckResult:
+      description: Whether the answer matched. The expected value never leaves the core; the attempts are counted by the caller.
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]
+      additionalProperties: false
+    OperationKind:
+      description: Kind of an operation of the customer.
+      type: string
+      enum: [PAYMENT, CHARGE, TRANSFER_IN, TRANSFER_OUT, DISBURSEMENT, DEBIT, CREDIT]
+    OperationKindFilter:
+      description: Kind filter of the operations list; `ALL` (the default when omitted) returns every kind.
+      type: string
+      enum: [PAYMENT, CHARGE, TRANSFER_IN, TRANSFER_OUT, DISBURSEMENT, DEBIT, CREDIT, ALL]
+    OperationStatus:
+      description: Status of an operation.
+      type: string
+      enum: [COMPLETED, PENDING, REJECTED, REVERSED]
+    OperationRef:
+      description: Ids the operation refers to.
+      type: object
+      properties:
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        instalment: {$ref: '#/components/schemas/InstalmentNumber'}
+        chargeId: {$ref: '#/components/schemas/ResourceId'}
+        debitId: {$ref: '#/components/schemas/ResourceId'}
+        transferId: {$ref: '#/components/schemas/ResourceId'}
+        paymentId: {$ref: '#/components/schemas/ResourceId'}
+        creditNoteId: {$ref: '#/components/schemas/ResourceId'}
+      additionalProperties: false
+    Operation:
+      description: Operation of the customer (payments, charges, transfers, disbursements, automatic debits, credits).
+      type: object
+      properties:
+        operationId: {$ref: '#/components/schemas/ResourceId'}
+        kind: {$ref: '#/components/schemas/OperationKind'}
+        atSim: {$ref: '#/components/schemas/SimInstant'}
+        amount: {$ref: '#/components/schemas/Cents'}
+        direction:
+          type: string
+          enum: [IN, OUT]
+        description:
+          type: string
+          minLength: 1
+          maxLength: 140
+          description: 'Free text of the core: callers treat it as data and escape it before it reaches a model.'
+        status: {$ref: '#/components/schemas/OperationStatus'}
+        ref: {$ref: '#/components/schemas/OperationRef'}
+      required: [operationId, kind, atSim, amount, direction, description, status, ref]
+      additionalProperties: false
+    OperationList:
+      description: Operations of a range of at most 90 days, newest first, at most 100.
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        from: {$ref: '#/components/schemas/CalendarDate'}
+        to: {$ref: '#/components/schemas/CalendarDate'}
+        operations:
+          type: array
+          maxItems: 100
+          items: {$ref: '#/components/schemas/Operation'}
+        truncated:
+          type: boolean
+          description: True when the range had more than 100 operations.
+      required: [customerId, from, to, operations, truncated]
+      additionalProperties: false
+    FreezeRequest:
+      description: 'Freeze (`active: true`, always allowed) or lift (`active: false`, only with `by: STAFF`, otherwise 403 `FORBIDDEN`) the outgoing freeze of the wallet.'
+      type: object
+      properties:
+        active:
+          type: boolean
+        reason:
+          type: string
+          enum: [UNKNOWN_OPERATION, CUSTOMER_REQUEST, STAFF_DECISION]
+        by:
+          type: string
+          enum: [AGENT, STAFF, SYSTEM]
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+      required: [active, reason, by, idempotencyKey]
+      additionalProperties: false
+    TransferReversalCreditRequest:
+      description: 'Wallet credit of an outgoing transfer of the customer that the network reversed (422 `NOT_ELIGIBLE` unless the core sees it rejected and not returned). The core credits its own amount with the claim `TRV#<transferId>`: a second complaint about the same transfer gets 409 `CONFLICT`, never a second credit.'
+      type: object
+      properties:
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        transferId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+      required: [complaintId, transferId, idempotencyKey]
+      additionalProperties: false
+    TransferReversalCreditResult:
+      description: The reversal credited to the wallet.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        transferId: {$ref: '#/components/schemas/ResourceId'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        creditedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, transferId, amount, creditedAtSim]
+      additionalProperties: false
+    FreezeResult:
+      description: State of the outgoing freeze after the request.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        outgoingFrozen:
+          type: boolean
+        changed:
+          type: boolean
+          description: False when the wallet already was in the requested state.
+        atSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, outgoingFrozen, changed, atSim]
+      additionalProperties: false
+    WhatsAppOptOutRequest:
+      description: The customer's WhatsApp opt-out, by keyword or by button.
+      type: object
+      properties:
+        via:
+          type: string
+          enum: [KEYWORD, BUTTON]
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+      required: [via, idempotencyKey]
+      additionalProperties: false
+    WhatsAppOptOutResult:
+      description: The opt-out in force after the request.
+      type: object
+      properties:
+        optedOut:
+          type: boolean
+          const: true
+        changed:
+          type: boolean
+          description: False when the customer had already opted out.
+        optedOutAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [optedOut, changed, optedOutAtSim]
+      additionalProperties: false
+    ClosureRequest:
+      description: Closure of the customer's account, registered on the spot.
+      type: object
+      properties:
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+      required: [complaintId, idempotencyKey]
+      additionalProperties: false
+    ClosureCondition:
+      description: What keeps the account `CLOSING` instead of closed.
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [ACTIVE_LOAN, WALLET_BALANCE, PENDING_TRANSFER]
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        amount: {$ref: '#/components/schemas/Cents'}
+      required: [code]
+      additionalProperties: false
+    ClosureResult:
+      description: The account is `CLOSING` until the conditions are cleared.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        accountStatusAfter:
+          type: string
+          const: CLOSING
+        conditions:
+          type: array
+          maxItems: 10
+          items: {$ref: '#/components/schemas/ClosureCondition'}
+        requestedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, accountStatusAfter, conditions, requestedAtSim]
+      additionalProperties: false
+    DataChangeField:
+      description: Contact data the customer asks to change.
+      type: string
+      enum: [EMAIL, ADDRESS, PHONE]
+    DataChangeRequest:
+      description: Change of contact data.
+      type: object
+      properties:
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+        field: {$ref: '#/components/schemas/DataChangeField'}
+        newValue:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: New address or email, extracted by code from the customer's message. Not needed for `PHONE`.
+      required: [complaintId, idempotencyKey, field]
+      additionalProperties: false
+    DataChangeResult:
+      description: '`PENDING_CONFIRMATION`: a confirmation goes to the current address. `REFERRED`: needs human verification (phone, or an account under review).'
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        field: {$ref: '#/components/schemas/DataChangeField'}
+        status:
+          type: string
+          enum: [PENDING_CONFIRMATION, REFERRED]
+        confirmationToMasked:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Masked current email the confirmation goes to.
+      required: [actionId, field, status]
+      additionalProperties: false
+    PaymentNetwork:
+      description: 'Where a payment came from: a collection network, a transfer or the wallet.'
+      type: string
+      enum: [NORTE, SUR, TRANSFER, WALLET]
+    InstalmentStatus:
+      description: Status of an instalment.
+      type: string
+      enum: [DUE, PAID, PARTIALLY_PAID, OVERDUE]
+    ClauseId:
+      description: Clause of the synthetic product terms (`T-3.4`), of the complaint rights (`D-2`) or of the data policy (`P-1`).
+      type: string
+      pattern: '^(T-\d+\.\d+|D-\d+|P-\d+)$'
+    FeeCode:
+      description: Code of the synthetic fee schedule (`FEE-ORIG`, `FEE-PUNIT`, `FEE-CARD-REPL`, `FEE-EARLY`, `FEE-INS`).
+      type: string
+      pattern: '^FEE-[A-Z]+(-[A-Z]+)*$'
+    NextDue:
+      description: Next instalment due.
+      type: object
+      properties:
+        number: {$ref: '#/components/schemas/InstalmentNumber'}
+        dueDate: {$ref: '#/components/schemas/CalendarDate'}
+        amount: {$ref: '#/components/schemas/Cents'}
+      required: [number, dueDate, amount]
+      additionalProperties: false
+    Loan:
+      description: Personal loan in pesos, 3 to 18 monthly instalments, French amortisation.
+      type: object
+      properties:
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+        principal: {$ref: '#/components/schemas/PositiveCents'}
+        instalmentsCount:
+          type: integer
+          minimum: 3
+          maximum: 18
+        paidCount:
+          type: integer
+          minimum: 0
+          maximum: 18
+          description: Instalments fully paid.
+        annualRate:
+          type: number
+          minimum: 0
+          maximum: 10
+          description: Nominal annual rate as a fraction (`0.87` = 87 %).
+        status: {$ref: '#/components/schemas/LoanStatus'}
+        outstanding: {$ref: '#/components/schemas/Cents'}
+        disbursedAtSim: {$ref: '#/components/schemas/SimInstant'}
+        cancelledAtSim: {$ref: '#/components/schemas/SimInstant'}
+        nextDue: {$ref: '#/components/schemas/NextDue'}
+      required: [loanId, customerId, label, principal, instalmentsCount, paidCount, annualRate, status, outstanding]
+      additionalProperties: false
+    AppliedPayment:
+      description: Payment imputed to an instalment.
+      type: object
+      properties:
+        paymentId: {$ref: '#/components/schemas/ResourceId'}
+        network: {$ref: '#/components/schemas/PaymentNetwork'}
+        operationCode: {$ref: '#/components/schemas/OperationCode'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        paidAtSim: {$ref: '#/components/schemas/SimInstant'}
+        appliedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [paymentId, network, operationCode, amount, paidAtSim, appliedAtSim]
+      additionalProperties: false
+    Instalment:
+      description: 'Instalment of a loan: principal + interest + VAT on interest = amount.'
+      type: object
+      properties:
+        number: {$ref: '#/components/schemas/InstalmentNumber'}
+        dueDate: {$ref: '#/components/schemas/CalendarDate'}
+        principal: {$ref: '#/components/schemas/Cents'}
+        interest: {$ref: '#/components/schemas/Cents'}
+        vat: {$ref: '#/components/schemas/Cents'}
+        amount: {$ref: '#/components/schemas/Cents'}
+        lateInterest:
+          $ref: '#/components/schemas/Cents'
+          description: Late interest accrued on the instalment (none within the tolerance of clause `T-3.4`).
+        outstanding: {$ref: '#/components/schemas/Cents'}
+        status: {$ref: '#/components/schemas/InstalmentStatus'}
+        payments:
+          type: array
+          maxItems: 20
+          items: {$ref: '#/components/schemas/AppliedPayment'}
+      required: [number, dueDate, principal, interest, vat, amount, lateInterest, outstanding, status, payments]
+      additionalProperties: false
+    InstalmentList:
+      description: Every instalment of a loan.
+      type: object
+      properties:
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        instalments:
+          type: array
+          minItems: 3
+          maxItems: 18
+          items: {$ref: '#/components/schemas/Instalment'}
+      required: [loanId, customerId, instalments]
+      additionalProperties: false
+    PaymentSource:
+      description: 'Evidence behind a payment imputation: a settlement line, a wallet movement or a transfer.'
+      type: string
+      enum: [SETTLEMENT, WALLET, TRANSFER]
+    PaymentRequest:
+      description: Imputation of a payment. The loan must be the customer's (403 `FORBIDDEN`); the core takes the claim `OPC#<network>#<operationCode>` in the same transaction (409 `CONFLICT` with the existing `actionId`); `amount` must not exceed `cap` (422 `ABOVE_CAP`) nor the loan's outstanding balance (422 `EXCEEDS_OUTSTANDING`). The payment goes to the oldest instalment first.
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        reconciliationId: {$ref: '#/components/schemas/ResourceId'}
+        network: {$ref: '#/components/schemas/PaymentNetwork'}
+        operationCode: {$ref: '#/components/schemas/OperationCode'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        paidAtSim:
+          $ref: '#/components/schemas/SimInstant'
+          description: When the customer paid (late interest follows clause `T-3.4`).
+        source: {$ref: '#/components/schemas/PaymentSource'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+        cap:
+          $ref: '#/components/schemas/Cents'
+          description: The caller's cap for this action, from the world's settings.
+      required: [customerId, complaintId, reconciliationId, network, operationCode, amount, paidAtSim, source, idempotencyKey, cap]
+      additionalProperties: false
+    Allocation:
+      description: Part of a payment imputed to one instalment.
+      type: object
+      properties:
+        instalment: {$ref: '#/components/schemas/InstalmentNumber'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        statusAfter: {$ref: '#/components/schemas/InstalmentStatus'}
+      required: [instalment, amount, statusAfter]
+      additionalProperties: false
+    PaymentResult:
+      description: Result of an imputation. A loan left at zero is `CANCELLED`.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        paymentId: {$ref: '#/components/schemas/ResourceId'}
+        applied: {$ref: '#/components/schemas/PositiveCents'}
+        lateInterest:
+          $ref: '#/components/schemas/Cents'
+          description: Late interest charged by this imputation.
+        allocations:
+          type: array
+          minItems: 1
+          maxItems: 18
+          items: {$ref: '#/components/schemas/Allocation'}
+        loanStatusAfter: {$ref: '#/components/schemas/LoanStatus'}
+        outstandingAfter: {$ref: '#/components/schemas/Cents'}
+      required: [actionId, paymentId, applied, lateInterest, allocations, loanStatusAfter, outstandingAfter]
+      additionalProperties: false
+    ChargeVerdict:
+      description: Verdict of a charge against the fee schedule in force at its date.
+      type: string
+      enum: [CORRECT, WRONG, UNDETERMINED]
+    ChargeCheckReason:
+      description: Deterministic reason of the verdict; the text comes from the application's copy.
+      type: string
+      enum: [MATCHES_SCHEDULE, NOT_REQUESTED, NOT_CHARGEABLE, DUPLICATED, AMOUNT_DIFFERS, WITHIN_TOLERANCE, NO_RULE]
+    AppliedChargeReversal:
+      description: The reversal a charge already had (claim `REV#<chargeId>` taken), with the complaint that took it.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        creditNoteId: {$ref: '#/components/schemas/ResourceId'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        compensatoryInterest: {$ref: '#/components/schemas/Cents'}
+        creditedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, complaintId, creditNoteId, amount, compensatoryInterest, creditedAtSim]
+      additionalProperties: false
+    ChargeCheck:
+      description: Evaluation of a charge against the fee schedule in force at its date.
+      type: object
+      properties:
+        chargeId: {$ref: '#/components/schemas/ResourceId'}
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        feeCode: {$ref: '#/components/schemas/FeeCode'}
+        charged: {$ref: '#/components/schemas/PositiveCents'}
+        chargedAtSim: {$ref: '#/components/schemas/SimInstant'}
+        verdict: {$ref: '#/components/schemas/ChargeVerdict'}
+        expectedAmount:
+          $ref: '#/components/schemas/Cents'
+          description: What the fee schedule allows for this charge (0 when it should not have been charged).
+        clauseIds:
+          type: array
+          maxItems: 8
+          items: {$ref: '#/components/schemas/ClauseId'}
+        reason: {$ref: '#/components/schemas/ChargeCheckReason'}
+        scheduleVersion:
+          type: string
+          pattern: '^v\d{3}$'
+          description: Version of the fee schedule applied.
+        reversal:
+          $ref: '#/components/schemas/AppliedChargeReversal'
+          description: Present when the charge was already reversed; the verdict still tells what the schedule says.
+      required: [chargeId, customerId, feeCode, charged, chargedAtSim, verdict, expectedAmount, clauseIds, reason, scheduleVersion]
+      additionalProperties: false
+    ChargeReversalRequest:
+      description: Reversal of a `WRONG` charge of the customer (422 `NOT_ELIGIBLE` otherwise). Claim `REV#<chargeId>`, once per charge whatever the complaint (409 `CONFLICT`). `cap` applies to the reversed amount (422 `ABOVE_CAP`).
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+        cap: {$ref: '#/components/schemas/Cents'}
+        referenceRate:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 5
+          description: Synthetic reference rate for the compensatory interest, as a fraction (an assumption, labelled on the credit note).
+      required: [customerId, complaintId, idempotencyKey, cap, referenceRate]
+      additionalProperties: false
+    ChargeReversalResult:
+      description: Reversal credited to the wallet with its credit note. Compensatory interest = 1.5 × reference rate × days / 365.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        chargeId: {$ref: '#/components/schemas/ResourceId'}
+        creditNoteId: {$ref: '#/components/schemas/ResourceId'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        compensatoryInterest: {$ref: '#/components/schemas/Cents'}
+        days:
+          type: integer
+          minimum: 0
+          maximum: 3650
+          description: Days between the charge and the credit.
+        referenceRate:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 5
+        creditedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, chargeId, creditNoteId, amount, compensatoryInterest, days, referenceRate, creditedAtSim]
+      additionalProperties: false
+    DuplicateCheckRequest:
+      description: Duplicate check of the automatic debits of a loan; without `instalment`, every instalment.
+      type: object
+      properties:
+        instalment: {$ref: '#/components/schemas/InstalmentNumber'}
+      additionalProperties: false
+    Debit:
+      description: Automatic debit of an instalment.
+      type: object
+      properties:
+        debitId: {$ref: '#/components/schemas/ResourceId'}
+        instalment: {$ref: '#/components/schemas/InstalmentNumber'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        atSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [debitId, instalment, amount, atSim]
+      additionalProperties: false
+    DuplicateCheck:
+      description: Duplicate = same instalment, same amount, within 72 h.
+      type: object
+      properties:
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        verdict:
+          type: string
+          enum: [DUPLICATE, NOT_DUPLICATE]
+        debits:
+          type: array
+          maxItems: 10
+          items: {$ref: '#/components/schemas/Debit'}
+        duplicateDebitId:
+          $ref: '#/components/schemas/ResourceId'
+          description: The debit to refund when the verdict is `DUPLICATE`.
+        refundable: {$ref: '#/components/schemas/Cents'}
+      required: [loanId, customerId, verdict, debits, refundable]
+      additionalProperties: false
+    RefundRequest:
+      description: 'Refund of a detected duplicate debit of the customer to the wallet (422 `NOT_ELIGIBLE` otherwise). Claim `RFD#<debitId>`: a second complaint about the same debit gets 409 `CONFLICT`, never a second refund.'
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        debitId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+        cap: {$ref: '#/components/schemas/Cents'}
+      required: [customerId, complaintId, debitId, idempotencyKey, cap]
+      additionalProperties: false
+    RefundResult:
+      description: Refund credited to the wallet with its credit note.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        debitId: {$ref: '#/components/schemas/ResourceId'}
+        creditNoteId: {$ref: '#/components/schemas/ResourceId'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        creditedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, debitId, creditNoteId, amount, creditedAtSim]
+      additionalProperties: false
+    PayoffQuoteRequest:
+      description: Quote requested for the customer's loan (403 `FORBIDDEN` if it is not theirs).
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+      required: [customerId]
+      additionalProperties: false
+    PayoffQuote:
+      description: 'Early payoff quote: outstanding principal + accrued interest + `FEE-EARLY` when clause `T-6.2` applies. Valid until the end of the business day.'
+      type: object
+      properties:
+        quoteId: {$ref: '#/components/schemas/ResourceId'}
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        principal: {$ref: '#/components/schemas/Cents'}
+        accruedInterest: {$ref: '#/components/schemas/Cents'}
+        fee: {$ref: '#/components/schemas/Cents'}
+        feeClauseId: {$ref: '#/components/schemas/ClauseId'}
+        total: {$ref: '#/components/schemas/Cents'}
+        asOfSim: {$ref: '#/components/schemas/SimInstant'}
+        validUntilSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [quoteId, loanId, customerId, principal, accruedInterest, fee, total, asOfSim, validUntilSim]
+      additionalProperties: false
+    DisbursementStatus:
+      description: Status of a loan disbursement to the wallet.
+      type: string
+      enum: [PENDING, CREDITED, FAILED_RETURNED, HELD_REVIEW]
+    Disbursement:
+      description: 'Disbursement of a loan: gross principal, origination fee and the net credited.'
+      type: object
+      properties:
+        loanId: {$ref: '#/components/schemas/LoanId'}
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        status: {$ref: '#/components/schemas/DisbursementStatus'}
+        gross: {$ref: '#/components/schemas/PositiveCents'}
+        originationFee: {$ref: '#/components/schemas/Cents'}
+        net: {$ref: '#/components/schemas/Cents'}
+        creditedAtSim: {$ref: '#/components/schemas/SimInstant'}
+        expectedBySim: {$ref: '#/components/schemas/SimInstant'}
+        returnedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [loanId, customerId, status, gross, originationFee, net]
+      additionalProperties: false

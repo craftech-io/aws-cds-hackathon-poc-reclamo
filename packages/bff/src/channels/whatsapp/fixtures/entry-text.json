@@ -1,0 +1,14 @@
+{
+  "id": "1234567890123456",
+  "changes": [
+    {
+      "field": "messages",
+      "value": {
+        "messaging_product": "whatsapp",
+        "metadata": { "display_phone_number": "5491100009999", "phone_number_id": "1098765432109876" },
+        "contacts": [{ "profile": { "name": "Contacto" }, "wa_id": "__FROM__" }],
+        "messages": [{ "from": "__FROM__", "id": "__WAMID__", "timestamp": "1791378900", "type": "text", "text": { "body": "__TEXT__" } }]
+      }
+    }
+  ]
+}

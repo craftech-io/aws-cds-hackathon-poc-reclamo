@@ -1,0 +1,21 @@
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "5491100009001",
+  "type": "interactive",
+  "interactive": {
+    "type": "list",
+    "body": { "text": "Tenés más de un préstamo. ¿Sobre cuál es tu reclamo?" },
+    "action": {
+      "button": "Elegir préstamo",
+      "sections": [
+        {
+          "rows": [
+            { "id": "01K6ZT0000NONCE0000000003", "title": "Préstamo personal 0001", "description": "12 cuotas" },
+            { "id": "01K6ZT0000NONCE0000000004", "title": "Préstamo express 0002" }
+          ]
+        }
+      ]
+    }
+  }
+}

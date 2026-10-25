@@ -1,0 +1,41 @@
+{
+  // Base for every package, scripts/, tests/ and infra/. "Bundler" resolution is deliberate: Lambdas
+  // are bundled by SST (esbuild), the console by Vite, and SST's own platform sources (which the
+  // infra program includes through .sst/platform/config.d.ts) are written for it.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@reclamo/shared": ["./packages/shared/src/index.ts"],
+      "@reclamo/shared/*": ["./packages/shared/src/*"]
+    }
+  },
+  "include": [
+    "sst-env.d.ts",
+    "vitest.config.ts",
+    "scripts/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": [
+    "tests/agent",
+    "node_modules",
+    "packages",
+    "infra",
+    ".sst",
+    "dist"
+  ]
+}

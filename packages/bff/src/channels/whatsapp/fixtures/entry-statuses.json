@@ -1,0 +1,33 @@
+{
+  "id": "1234567890123456",
+  "changes": [
+    {
+      "field": "messages",
+      "value": {
+        "messaging_product": "whatsapp",
+        "metadata": { "display_phone_number": "5491100009999", "phone_number_id": "1098765432109876" },
+        "statuses": [
+          {
+            "id": "__SENT_ID__",
+            "status": "sent",
+            "timestamp": "1791378900",
+            "recipient_id": "__FROM__",
+            "conversation": { "id": "c0ffee00c0ffee00c0ffee00c0ffee00", "origin": { "type": "utility" } },
+            "pricing": { "billable": true, "pricing_model": "PMP", "category": "utility" }
+          },
+          { "id": "__SENT_ID__", "status": "delivered", "timestamp": "1791378902", "recipient_id": "__FROM__", "pricing": { "billable": true, "pricing_model": "PMP", "category": "utility" } },
+          { "id": "__SENT_ID__", "status": "read", "timestamp": "1791378960", "recipient_id": "__FROM__" },
+          { "id": "__SENT_ID__", "status": "deleted", "timestamp": "1791378961", "recipient_id": "__FROM__" },
+          { "id": "__MARKETING_ID__", "status": "delivered", "timestamp": "1791378903", "recipient_id": "__FROM__", "pricing": { "billable": true, "pricing_model": "PMP", "category": "marketing" } },
+          {
+            "id": "__FAILED_ID__",
+            "status": "failed",
+            "timestamp": "1791378904",
+            "recipient_id": "__FROM__",
+            "errors": [{ "code": 131047, "title": "Re-engagement message", "message": "Re-engagement message" }]
+          }
+        ]
+      }
+    }
+  ]
+}

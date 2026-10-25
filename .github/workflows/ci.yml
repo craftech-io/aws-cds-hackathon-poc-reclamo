@@ -1,0 +1,143 @@
+# Checks for every pull request and for every push to a branch other than main (a push to main runs
+# deploy.yml, which repeats these checks before deploying): docs/architecture.md §18.
+#
+# Checks whose script is not in the repository yet (later work packages of docs/build-plan.md) print
+# a notice and pass; they run for real as soon as the file exists. The guards never skip: the
+# forbidden-terms check fails closed without the FORBIDDEN_TERMS secret, and the SES-receiving and
+# single-way-out guards always run. Actions are pinned by commit sha. No AWS credentials: nothing
+# here touches the account.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  SST_TELEMETRY_DISABLED: "1"
+
+jobs:
+  checks:
+    name: Lint, typecheck, tests and repository guards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout (full history, the commit messages are checked too)
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node (exact version of .nvmrc)
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: "Guard: no local-only files are committed"
+        run: |
+          offenders="$(git ls-files | grep -E '\.local\.[^/]+$' || true)"
+          if [ -n "$offenders" ]; then
+            echo "::error::Local-only files are committed (see .gitignore):"
+            echo "$offenders"
+            exit 1
+          fi
+          echo "No *.local.* files tracked."
+
+      - name: Install dependencies
+        # postinstall runs `sst install --stage poc`: it downloads the pinned providers and writes
+        # .sst/platform, which the infra typecheck needs. It uses no AWS credentials.
+        run: npm ci
+
+      - name: Lint (400-line budget, no Intl in the seed generator)
+        run: npm run lint
+
+      - name: Duplicated code
+        run: npm run lint:duplicates
+
+      - name: Typecheck (root, infra and every package)
+        run: npm run typecheck
+
+      - name: Tests (vitest)
+        run: npm test
+
+      - name: Seed invariants (seed:validate)
+        # The seed texts are checked against the forbidden terms too (fails closed without them).
+        env:
+          FORBIDDEN_TERMS: ${{ secrets.FORBIDDEN_TERMS }}
+        run: |
+          if [ ! -f scripts/seed/validate.ts ]; then
+            echo "::notice::seed:validate skipped: scripts/seed/validate.ts is not in the repository yet (WP-14)."
+            exit 0
+          fi
+          npm run seed:validate
+
+      - name: Flow catalog and traceability matrix (flows:check)
+        run: npm run flows:check
+
+      - name: Guided tour matches the README (tour:check)
+        run: |
+          if [ ! -f scripts/tour/check.ts ]; then
+            echo "::notice::tour:check skipped: scripts/tour/check.ts is not in the repository yet (WP-43)."
+            exit 0
+          fi
+          npm run tour:check
+
+      - name: One owner per file and wave (lint:wp-ownership)
+        run: npm run lint:wp-ownership
+
+      - name: "Guard: single way out (lint:chokepoint)"
+        run: npm run lint:chokepoint
+
+      - name: "Guard: this app never receives email (lint:no-ses-receiving)"
+        run: npm run lint:no-ses-receiving
+
+      - name: Gateway tool schemas build (tools:build-schemas)
+        run: |
+          if [ ! -f packages/bff/src/agent-tools/common/build-schemas.ts ]; then
+            echo "::notice::tools:build-schemas skipped: build-schemas.ts is not in the repository yet (WP-24)."
+            exit 0
+          fi
+          npm run tools:build-schemas
+
+      - name: Live WhatsApp worlds need an explicit approval (channels:check-modes)
+        run: npm run channels:check-modes
+
+      - name: Core and network contracts (core:contract)
+        run: |
+          if [ ! -f scripts/core/contract-check.ts ]; then
+            echo "::notice::core:contract skipped: scripts/core/contract-check.ts is not in the repository yet (WP-09)."
+            exit 0
+          fi
+          npm run core:contract
+
+      - name: Build the console
+        run: npm run build -w packages/web
+
+      - name: Install the Playwright browser (GitHub runner only; locally E2E_BROWSER_CHANNEL=chrome uses an installed Chrome)
+        run: npx playwright install --with-deps chromium
+
+      - name: Console UI tests (Playwright, test:ui)
+        run: npm run test:ui
+
+      - name: Forbidden terms (tree, commit messages, PDFs, images, seed and web build)
+        # Fails closed: without the FORBIDDEN_TERMS secret the job fails. Terms are never printed.
+        env:
+          FORBIDDEN_TERMS: ${{ secrets.FORBIDDEN_TERMS }}
+        run: |
+          npm run lint:forbidden
+          npm run lint:forbidden -- --dist
+
+      - name: "Guard: neutral surfaces (lint:neutral-surfaces, visible sources and web build)"
+        # ADR-0019: nothing a visitor can see names the contest or the app's technical id.
+        run: |
+          npm run lint:neutral-surfaces
+          npm run lint:neutral-surfaces -- --dist

@@ -1,0 +1,500 @@
+{
+  "version": 2,
+  "video": null,
+  "architecture": {
+    "es": {
+      "width": 3840,
+      "height": 2320,
+      "avif": [
+        {
+          "src": "/landing/architecture/es-1920.avif",
+          "w": 1920
+        },
+        {
+          "src": "/landing/architecture/es-3840.avif",
+          "w": 3840
+        }
+      ],
+      "webp": [
+        {
+          "src": "/landing/architecture/es-1920.webp",
+          "w": 1920
+        },
+        {
+          "src": "/landing/architecture/es-3840.webp",
+          "w": 3840
+        }
+      ],
+      "png": "/landing/architecture/es.png"
+    },
+    "en": {
+      "width": 3840,
+      "height": 2320,
+      "avif": [
+        {
+          "src": "/landing/architecture/en-1920.avif",
+          "w": 1920
+        },
+        {
+          "src": "/landing/architecture/en-3840.avif",
+          "w": 3840
+        }
+      ],
+      "webp": [
+        {
+          "src": "/landing/architecture/en-1920.webp",
+          "w": 1920
+        },
+        {
+          "src": "/landing/architecture/en-3840.webp",
+          "w": 3840
+        }
+      ],
+      "png": "/landing/architecture/en.png"
+    },
+    "alt": {
+      "es": "Arquitectura en AWS: WhatsApp y Amazon SES como canales, eventos ordenados por cliente en colas FIFO, el agente en Amazon Bedrock AgentCore con sus tools, la compuerta de salida por la que pasa todo emisor y los datos con su registro anclado",
+      "en": "AWS architecture: WhatsApp and Amazon SES as channels, events ordered per customer in FIFO queues, the agent on Amazon Bedrock AgentCore with its tools, the outbound gate every sender goes through and the data with its anchored register"
+    },
+    "renderedAt": "2026-10-25"
+  },
+  "measured": null,
+  "media": {
+    "tour-01-whatsapp": {
+      "status": "capture",
+      "desktop": {
+        "width": 896,
+        "height": 412,
+        "avif": [
+          {
+            "src": "/landing/tour-01-whatsapp/desktop-448.avif",
+            "w": 448
+          },
+          {
+            "src": "/landing/tour-01-whatsapp/desktop-896.avif",
+            "w": 896
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-01-whatsapp/desktop-448.webp",
+            "w": 448
+          },
+          {
+            "src": "/landing/tour-01-whatsapp/desktop-896.webp",
+            "w": 896
+          }
+        ],
+        "png": "/landing/tour-01-whatsapp/desktop.png"
+      },
+      "mobile": {
+        "width": 684,
+        "height": 412,
+        "avif": [
+          {
+            "src": "/landing/tour-01-whatsapp/mobile-342.avif",
+            "w": 342
+          },
+          {
+            "src": "/landing/tour-01-whatsapp/mobile-684.avif",
+            "w": 684
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-01-whatsapp/mobile-342.webp",
+            "w": 342
+          },
+          {
+            "src": "/landing/tour-01-whatsapp/mobile-684.webp",
+            "w": 684
+          }
+        ],
+        "png": "/landing/tour-01-whatsapp/mobile.png"
+      },
+      "alt": {
+        "es": "Mensaje de WhatsApp donde Valeria reporta que su pago no se refleja",
+        "en": "WhatsApp message where Valeria reports her payment isn't showing"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-10",
+      "commit": "d3f83b9"
+    },
+    "tour-02-ack": {
+      "status": "capture",
+      "desktop": {
+        "width": 896,
+        "height": 1096,
+        "avif": [
+          {
+            "src": "/landing/tour-02-ack/desktop-448.avif",
+            "w": 448
+          },
+          {
+            "src": "/landing/tour-02-ack/desktop-896.avif",
+            "w": 896
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-02-ack/desktop-448.webp",
+            "w": 448
+          },
+          {
+            "src": "/landing/tour-02-ack/desktop-896.webp",
+            "w": 896
+          }
+        ],
+        "png": "/landing/tour-02-ack/desktop.png"
+      },
+      "mobile": {
+        "width": 684,
+        "height": 1096,
+        "avif": [
+          {
+            "src": "/landing/tour-02-ack/mobile-342.avif",
+            "w": 342
+          },
+          {
+            "src": "/landing/tour-02-ack/mobile-684.avif",
+            "w": 684
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-02-ack/mobile-342.webp",
+            "w": 342
+          },
+          {
+            "src": "/landing/tour-02-ack/mobile-684.webp",
+            "w": 684
+          }
+        ],
+        "png": "/landing/tour-02-ack/mobile.png"
+      },
+      "alt": {
+        "es": "Acuse automático con el número de reclamo y el plazo",
+        "en": "Automatic acknowledgement with the complaint number and deadline"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-10",
+      "commit": "d3f83b9"
+    },
+    "tour-03-evidence": {
+      "status": "capture",
+      "desktop": {
+        "width": 1328,
+        "height": 1512,
+        "avif": [
+          {
+            "src": "/landing/tour-03-evidence/desktop-664.avif",
+            "w": 664
+          },
+          {
+            "src": "/landing/tour-03-evidence/desktop-1328.avif",
+            "w": 1328
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-03-evidence/desktop-664.webp",
+            "w": 664
+          },
+          {
+            "src": "/landing/tour-03-evidence/desktop-1328.webp",
+            "w": 1328
+          }
+        ],
+        "png": "/landing/tour-03-evidence/desktop.png"
+      },
+      "mobile": {
+        "width": 572,
+        "height": 2354,
+        "avif": [
+          {
+            "src": "/landing/tour-03-evidence/mobile-286.avif",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-03-evidence/mobile-572.avif",
+            "w": 572
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-03-evidence/mobile-286.webp",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-03-evidence/mobile-572.webp",
+            "w": 572
+          }
+        ],
+        "png": "/landing/tour-03-evidence/mobile.png"
+      },
+      "alt": {
+        "es": "Comprobante leído junto a la línea de rendición que lo confirma",
+        "en": "Read receipt next to the settlement line that confirms it"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-10",
+      "commit": "dce7df8"
+    },
+    "tour-04-email": {
+      "status": "capture",
+      "desktop": {
+        "width": 1132,
+        "height": 1480,
+        "avif": [
+          {
+            "src": "/landing/tour-04-email/desktop-566.avif",
+            "w": 566
+          },
+          {
+            "src": "/landing/tour-04-email/desktop-1132.avif",
+            "w": 1132
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-04-email/desktop-566.webp",
+            "w": 566
+          },
+          {
+            "src": "/landing/tour-04-email/desktop-1132.webp",
+            "w": 1132
+          }
+        ],
+        "png": "/landing/tour-04-email/desktop.png"
+      },
+      "mobile": {
+        "width": 572,
+        "height": 2184,
+        "avif": [
+          {
+            "src": "/landing/tour-04-email/mobile-286.avif",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-04-email/mobile-572.avif",
+            "w": 572
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-04-email/mobile-286.webp",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-04-email/mobile-572.webp",
+            "w": 572
+          }
+        ],
+        "png": "/landing/tour-04-email/mobile.png"
+      },
+      "alt": {
+        "es": "Respuesta escrita por email con el PDF adjunto y la constancia de entrega",
+        "en": "Written answer by email with the attached PDF and delivery proof"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-10",
+      "commit": "8a4de75"
+    },
+    "tour-05-blocked": {
+      "status": "capture",
+      "desktop": {
+        "width": 1132,
+        "height": 968,
+        "avif": [
+          {
+            "src": "/landing/tour-05-blocked/desktop-566.avif",
+            "w": 566
+          },
+          {
+            "src": "/landing/tour-05-blocked/desktop-1132.avif",
+            "w": 1132
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-05-blocked/desktop-566.webp",
+            "w": 566
+          },
+          {
+            "src": "/landing/tour-05-blocked/desktop-1132.webp",
+            "w": 1132
+          }
+        ],
+        "png": "/landing/tour-05-blocked/desktop.png"
+      },
+      "mobile": {
+        "width": 572,
+        "height": 1384,
+        "avif": [
+          {
+            "src": "/landing/tour-05-blocked/mobile-286.avif",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-05-blocked/mobile-572.avif",
+            "w": 572
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-05-blocked/mobile-286.webp",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-05-blocked/mobile-572.webp",
+            "w": 572
+          }
+        ],
+        "png": "/landing/tour-05-blocked/mobile.png"
+      },
+      "alt": {
+        "es": "Intento de cobranza por WhatsApp bloqueado y reencaminado a un aviso formal por email",
+        "en": "Attempted WhatsApp collection message blocked and rerouted to a formal email notice"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-10",
+      "commit": "8a4de75"
+    },
+    "tour-06-register": {
+      "status": "capture",
+      "desktop": {
+        "width": 1132,
+        "height": 1024,
+        "avif": [
+          {
+            "src": "/landing/tour-06-register/desktop-566.avif",
+            "w": 566
+          },
+          {
+            "src": "/landing/tour-06-register/desktop-1132.avif",
+            "w": 1132
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-06-register/desktop-566.webp",
+            "w": 566
+          },
+          {
+            "src": "/landing/tour-06-register/desktop-1132.webp",
+            "w": 1132
+          }
+        ],
+        "png": "/landing/tour-06-register/desktop.png"
+      },
+      "mobile": {
+        "width": 572,
+        "height": 1480,
+        "avif": [
+          {
+            "src": "/landing/tour-06-register/mobile-286.avif",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-06-register/mobile-572.avif",
+            "w": 572
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/tour-06-register/mobile-286.webp",
+            "w": 286
+          },
+          {
+            "src": "/landing/tour-06-register/mobile-572.webp",
+            "w": 572
+          }
+        ],
+        "png": "/landing/tour-06-register/mobile.png"
+      },
+      "alt": {
+        "es": "Registro de reclamos exportado con su cadena de hash verificada",
+        "en": "Complaint register exported with its verified hash chain"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-10",
+      "commit": "8a4de75"
+    },
+    "tour-07-metrics": {
+      "status": "render",
+      "component": "StatTile",
+      "replacedBy": "tour-07-metrics",
+      "due": "2026-10-23"
+    },
+    "gallery-console-inbox": {
+      "status": "capture",
+      "desktop": {
+        "width": 2560,
+        "height": 1600,
+        "avif": [
+          {
+            "src": "/landing/gallery-console-inbox/desktop-1280.avif",
+            "w": 1280
+          },
+          {
+            "src": "/landing/gallery-console-inbox/desktop-2560.avif",
+            "w": 2560
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/gallery-console-inbox/desktop-1280.webp",
+            "w": 1280
+          },
+          {
+            "src": "/landing/gallery-console-inbox/desktop-2560.webp",
+            "w": 2560
+          }
+        ],
+        "png": "/landing/gallery-console-inbox/desktop.png"
+      },
+      "alt": {
+        "es": "Bandeja de reclamos con el plazo restante de cada uno",
+        "en": "Complaint inbox with each one's remaining deadline"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-09",
+      "commit": "dfbf2f7"
+    },
+    "gallery-console-approvals": {
+      "status": "capture",
+      "desktop": {
+        "width": 2560,
+        "height": 1600,
+        "avif": [
+          {
+            "src": "/landing/gallery-console-approvals/desktop-1280.avif",
+            "w": 1280
+          },
+          {
+            "src": "/landing/gallery-console-approvals/desktop-2560.avif",
+            "w": 2560
+          }
+        ],
+        "webp": [
+          {
+            "src": "/landing/gallery-console-approvals/desktop-1280.webp",
+            "w": 1280
+          },
+          {
+            "src": "/landing/gallery-console-approvals/desktop-2560.webp",
+            "w": 2560
+          }
+        ],
+        "png": "/landing/gallery-console-approvals/desktop.png"
+      },
+      "alt": {
+        "es": "Pedido de aprobación sobre el tope del agente",
+        "en": "An approval request above the agent's cap"
+      },
+      "origin": "local",
+      "capturedAt": "2026-10-09",
+      "commit": "dfbf2f7"
+    }
+  }
+}

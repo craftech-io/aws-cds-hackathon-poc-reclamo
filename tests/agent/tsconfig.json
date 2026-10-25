@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["../../sst-env.d.ts", "./**/*.ts", "../flows/**/*.ts"],
+  "exclude": ["../../node_modules"]
+}

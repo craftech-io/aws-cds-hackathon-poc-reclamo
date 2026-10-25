@@ -1,0 +1,21 @@
+{
+  "name": "@reclamo/core-contract",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAPI 3.1 contracts of the simulated lender core and payment networks, and their zod schemas",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --root ../.. packages/core-contract"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "yaml": "2.9.1"
+  }
+}

@@ -1,0 +1,141 @@
+// The audit actions of a case's timeline as an operator reads them (docs/design-brief.md §9): the tools
+// the agent called, the console's actions and what the system did on its own, with their outcomes.
+// A code without a label is shown as a generic entry; the code itself stays only in the tooltip.
+import { TIMER_KIND_LABEL } from "../../copy/console-labels";
+
+const ACTION_LABEL: Readonly<Record<string, string>> = {
+  IDENTIFY_CUSTOMER: "Identificó al cliente",
+  VERIFY_CHALLENGE: "Verificó el desafío de identidad",
+  IDENTIFIED: "Cliente identificado",
+  CHALLENGE_FAILED: "Desafío de identidad fallido",
+  CHALLENGE_LOCKED: "Desafío de identidad bloqueado",
+  CHALLENGE_UNLOCKED: "Desafío de identidad desbloqueado",
+  CHALLENGE_ANSWER_REFUSED: "Respuesta al desafío rechazada",
+  GET_ACCOUNT: "Consultó la cuenta",
+  LIST_OPERATIONS: "Consultó los movimientos",
+  GET_LOAN: "Consultó el préstamo",
+  GET_INSTALMENTS: "Consultó las cuotas",
+  GET_FEE_RULES: "Consultó el cuadro de cargos",
+  GET_TERMS: "Consultó las condiciones",
+  QUOTE_EARLY_PAYOFF: "Cotizó la cancelación anticipada",
+  READ_RECEIPT: "Leyó el comprobante",
+  RECEIPT_READ: "Comprobante leído",
+  RECONCILE_PAYMENT: "Buscó el pago en la rendición",
+  CHECK_CHARGE: "Controló el cargo",
+  CHECK_DUPLICATE_DEBIT: "Controló el débito duplicado",
+  GET_TRANSFER_STATUS: "Consultó la red de transferencias",
+  GET_DISBURSEMENT: "Consultó el desembolso",
+  APPLY_PAYMENT: "Imputación del pago",
+  REVERSE_CHARGE: "Reversión del cargo",
+  REFUND_DUPLICATE: "Reintegro del débito duplicado",
+  REFUND_DUPLICATE_DEBIT: "Reintegro del débito duplicado",
+  REQUEST_TRANSFER_REVERSAL: "Pidió la reversión de la transferencia",
+  TRANSFER_REVERSAL: "Reversión de la transferencia",
+  FREEZE_OUTGOING: "Congeló los envíos salientes",
+  REQUEST_ACCOUNT_CLOSURE: "Pidió el cierre de la cuenta",
+  ACCOUNT_CLOSURE: "Cierre de la cuenta",
+  REQUEST_DATA_CHANGE: "Pidió el cambio de datos",
+  DATA_CHANGE: "Cambio de datos",
+  REGISTER_COMPLAINT: "Registró el reclamo",
+  COMPLAINT_REGISTERED: "Reclamo registrado",
+  UPDATE_COMPLAINT: "Actualizó el reclamo",
+  ANSWER_COMPLAINT_IN_WRITING: "Respondió por escrito",
+  WRITTEN_ANSWER: "Respuesta escrita",
+  ANSWER: "Respuesta escrita desde la consola",
+  SEND_WHATSAPP: "Mandó un WhatsApp",
+  ESCALATE_TO_HUMAN: "Derivó a una persona",
+  ESCALATED: "Derivado a una persona",
+  REQUEST_OPERATOR_APPROVAL: "Pidió la aprobación de una persona",
+  APPROVAL_REQUESTED: "Aprobación pedida",
+  APPROVE: "Aprobación decidida",
+  APPROVED: "Aprobado",
+  APPROVAL_EXPIRED: "Aprobación vencida",
+  EMAIL_CONSENT: "Consentimiento de email",
+  EMAIL_EVENT: "Evento del email (SES)",
+  EMAIL_EVENT_REJECTED: "Evento del email descartado",
+  TIMER_FIRED: "Hito disparado",
+  SLA_REMINDER: "Recordatorio del plazo",
+  SLA_OVERDUE: "Plazo vencido",
+  SUPERVISOR_ALERT: "Aviso a supervisión",
+  AUTO_CLOSED: "Cierre automático",
+  MEDIA_ACCEPTED: "Imagen aceptada",
+  MEDIA_REJECTED: "Imagen descartada",
+  MALWARE: "Imagen con amenazas",
+  SCAN_RESOLVED: "Escaneo resuelto",
+  SCAN_NOT_COMPLETED: "Escaneo no completado",
+  SCAN_WAIT_SKIPPED_SEED: "Comprobante de muestra: sin esperar escaneo",
+  SUSPICIOUS_RECEIPT_TEXT: "Texto sospechoso en el comprobante",
+  PAYER_MISMATCH: "El pagador no coincide",
+  GUARDRAIL_INTERVENED: "Intervino la barrera de contenido",
+  INTAKE_CLASSIFIED: "Mensaje clasificado",
+  BLOCKED: "Envío bloqueado",
+  VIOLATION: "Violación de la política de canal",
+  DEFERRED_SEND_ALLOWED: "Envío diferido permitido",
+  DEFERRED_SEND_DEFERRED: "Envío diferido otra vez",
+  OPT_OUT: "Baja de mensajes",
+  OPT_IN: "Alta de mensajes",
+  CLOCK_FORCED: "Reloj movido a mano",
+  ABOVE_CAP: "Por encima del tope",
+};
+
+const OUTCOME_LABEL: Readonly<Record<string, string>> = {
+  IN_FAVOUR: "A favor",
+  PARTIALLY_IN_FAVOUR: "Parcialmente a favor",
+  NOT_IN_FAVOUR: "En contra",
+  INFORMATIONAL: "Informativo",
+  WITHDRAWN: "Desistido",
+  APPLIED: "Aplicado",
+  EXECUTED: "Ejecutado",
+  CONFLICT: "En conflicto",
+  REJECTED: "Rechazado",
+  APPROVED: "Aprobado",
+  DUPLICATE: "Repetido",
+  SENT: "Enviado",
+  DELIVERED: "Entregado",
+  BLOCKED: "Bloqueado",
+  DEFERRED: "Diferido",
+  ESCALATED: "Derivado",
+  HANDOFF: "Derivado",
+  HUMAN_TASK: "Tarea humana",
+  QUOTED: "Cotizado",
+  READ: "Leído",
+  REGISTERED: "Registrado",
+  COMPLETED: "Completado",
+  PENDING: "Pendiente",
+  PUBLISHED: "Publicado",
+  OK: "Correcto",
+  MATCHED: "Coincide",
+  PENDING_BATCH: "Lote pendiente",
+  RECONCILED_BY_CODE: "Conciliado por código",
+  NO_MATCH: "Sin coincidencia",
+  AUTO_CLOSE: "Cierre automático",
+  SCHEDULER: "Por el programador",
+  FIRE: "Disparado",
+  NO_THREATS_FOUND: "Sin amenazas",
+  RATE_LIMITED: "Tope alcanzado",
+  GUARDRAIL: "Barrera de contenido",
+  RECEIPT_DOUBT: "Comprobante dudoso",
+  FRAUD: "Posible fraude",
+  REFUSED: "Rechazado",
+  UNCHANGED: "Sin cambios",
+  CHALLENGE_NOT_ASKED: "Desafío no enviado",
+  ANSWER_NOT_WRITTEN: "Respuesta no escrita por el cliente",
+  ANSWER_ALREADY_USED: "Respuesta ya usada",
+};
+
+export const actionCopy = { generic: "Registro del sistema", timer: "Hito" };
+
+/** A timer's kind as a label (never the raw code). */
+export function timerKindText(kind: string): string {
+  return TIMER_KIND_LABEL[kind] ?? actionCopy.timer;
+}
+
+/** What the operator reads for an audit action (never the raw code). */
+export function actionText(code: string): string {
+  return ACTION_LABEL[code] ?? actionCopy.generic;
+}
+
+/** The outcome as a label, or undefined when there is no label for it (then it is not shown). */
+export function outcomeText(code: string | null): string | undefined {
+  return code === null ? undefined : OUTCOME_LABEL[code];
+}

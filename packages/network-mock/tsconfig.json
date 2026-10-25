@@ -1,0 +1,6 @@
+{
+  // No rootDir: `@reclamo/*` resolves to the sibling packages' sources through the root `paths`.
+  "extends": "../../tsconfig.json",
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

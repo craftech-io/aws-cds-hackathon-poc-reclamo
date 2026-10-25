@@ -1,0 +1,9 @@
+Reclamo en regla
+Copyright 2026 Craftech
+
+This product includes the AWS Architecture Icons from the MIT-licensed aws-icons package
+(docs/assets/architecture/icons/LICENSE-aws-icons).
+
+The project skills under .claude/skills/ (grill-with-docs, grilling, domain-modeling) are adapted
+from github.com/mattpocock/skills, MIT License, Copyright (c) 2026 Matt Pocock
+(.claude/skills/LICENSE-mattpocock-skills).

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@reclamo/shared": ["../shared/src/index.ts"],
+      "@reclamo/shared/*": ["../shared/src/*"],
+      "@reclamo/bff": ["../bff/src/index.ts"],
+      "@reclamo/bff/*": ["../bff/src/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts", "sst-env.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

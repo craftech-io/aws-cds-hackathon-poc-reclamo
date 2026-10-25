@@ -1,0 +1,9 @@
+{
+  "demoRecipients": {
+    "emails": ["nombre.apellido@craftech.io"]
+  },
+  "personaPhones": {
+    "C01": "+5491100000000"
+  },
+  "budgetEmail": "nombre.apellido@craftech.io"
+}

@@ -1,0 +1,7 @@
+{
+  // Lambda sources. No rootDir: `@reclamo/shared` resolves to the sibling package's sources through
+  // the root `paths`, and nothing is emitted (SST bundles with esbuild).
+  "extends": "../../tsconfig.json",
+  "include": ["src", "sst-env.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

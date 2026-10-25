@@ -1,0 +1,528 @@
+# networks.openapi.yaml · OpenAPI 3.1 contract. Hand-maintained together with the zod schemas of
+# packages/core-contract/src; `npm run core:contract` compares the two.
+openapi: 3.1.1
+info:
+  title: Reclamo en regla · simulated networks
+  version: 1.0.0
+  description: |-
+    Contract of `NetworkMock`: the collection networks "Red de cobro Norte" (`NORTE`) and "Red de cobro Sur" (`SUR`) with their settlement files, and the transfer network with its status API (docs/architecture-integrations.md §6). Same world authorization as the core; nobody invokes it outside its Function URL.
+
+    Synthetic data only: Jarilla is a fictitious lender.
+
+    Conventions: every world route carries `worldId` in the path and the world's simulated instant in `X-Sim-Now`; amounts are integer centavos of Argentine pesos; every object is closed (`additionalProperties: false`), so a field this contract does not name never crosses the wire. Success is always 200; every error answers `ErrorBody`.
+
+    The client (`packages/bff`) and the mock parse with the zod schemas of `@reclamo/core-contract`; `npm run core:contract` fails when this file and those schemas differ.
+servers:
+  - url: https://{functionUrlId}.lambda-url.us-east-1.on.aws
+    description: Lambda Function URL (auth type AWS_IAM) of the mock in the `poc` stage.
+    variables:
+      functionUrlId:
+        default: function-url-id
+        description: Id of the Function URL, from the stack outputs.
+security:
+  - sigv4: []
+tags:
+  - name: collections
+    description: In-person payments.
+  - name: settlements
+    description: Settlement batches and their publication.
+  - name: transfers
+    description: Transfer status, reversals and scheduled transitions.
+  - name: health
+    description: Shallow health.
+paths:
+  /v1/{worldId}/collections:
+    post:
+      operationId: registerCollection
+      tags: [collections]
+      summary: Register an in-person payment
+      description: Used by the world factory and the QA driver. 409 `CONFLICT` when the operation code already exists in the network.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The payment.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CollectionRequest'}
+      responses:
+        '200':
+          description: Where the payment settles.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CollectionResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/settlements/{network}/{businessDate}/publish:
+    post:
+      operationId: publishSettlement
+      tags: [settlements]
+      summary: Publish a settlement batch
+      description: Invoked by `ScheduleDispatch` when the `SETTLEMENT_PUBLISH` timer fires. Writes the CSV to the `Settlements` bucket and marks the batch `PUBLISHED` with `sha256` and `lineCount`. Idempotent. No request body.
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/NetworkPath'}
+        - {$ref: '#/components/parameters/BusinessDatePath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The batch after the request.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PublishResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/settlements/{network}:
+    get:
+      operationId: listSettlements
+      tags: [settlements]
+      summary: Settlement batches of a network
+      description: Business dates from `from` to `to` (at most 31 days).
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/NetworkPath'}
+        - name: from
+          in: query
+          required: true
+          description: First date of the range (inclusive).
+          schema: {$ref: '#/components/schemas/CalendarDate'}
+        - name: to
+          in: query
+          required: true
+          description: Last date of the range (inclusive).
+          schema: {$ref: '#/components/schemas/CalendarDate'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The batches of the range.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SettlementBatchList'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/transfers/{transferId}:
+    get:
+      operationId: getTransfer
+      tags: [transfers]
+      summary: Status of a transfer
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/TransferIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      responses:
+        '200':
+          description: The status (`UNKNOWN` when the network does not know the transfer).
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TransferStatus'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/transfers/{transferId}/reversal-request:
+    post:
+      operationId: requestTransferReversal
+      tags: [transfers]
+      summary: Request the reversal of a rejected transfer
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/TransferIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The reversal.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TransferReversalRequest'}
+      responses:
+        '200':
+          description: The reversal confirmed by the network.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TransferReversalResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/{worldId}/transfers/{transferId}/transition:
+    post:
+      operationId: transitionTransfer
+      tags: [transfers]
+      summary: Scheduled status change of a transfer
+      parameters:
+        - {$ref: '#/components/parameters/WorldIdPath'}
+        - {$ref: '#/components/parameters/TransferIdPath'}
+        - {$ref: '#/components/parameters/SimNow'}
+        - {$ref: '#/components/parameters/CorrelationId'}
+      requestBody:
+        required: true
+        description: The target status.
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TransitionRequest'}
+      responses:
+        '200':
+          description: The status after the change.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TransferStatus'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/health:
+    get:
+      operationId: getNetworksHealth
+      tags: [health]
+      summary: Health of the networks mock
+      responses:
+        '200':
+          description: The mock is up.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Health'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+components:
+  securitySchemes:
+    sigv4:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'AWS Signature Version 4 for service `lambda`. The Function URL has auth type AWS_IAM: only the application roles listed in docs/architecture.md §14 may invoke it, and every identity policy that allows it requires `lambda:InvokedViaFunctionUrl = true`.'
+  parameters:
+    WorldIdPath:
+      name: worldId
+      in: path
+      required: true
+      description: World the request belongs to.
+      schema: {$ref: '#/components/schemas/WorldId'}
+    TransferIdPath:
+      name: transferId
+      in: path
+      required: true
+      description: Transfer.
+      schema: {$ref: '#/components/schemas/ResourceId'}
+    NetworkPath:
+      name: network
+      in: path
+      required: true
+      description: Collection network.
+      schema: {$ref: '#/components/schemas/CollectionNetwork'}
+    BusinessDatePath:
+      name: businessDate
+      in: path
+      required: true
+      description: Business date of the batch.
+      schema: {$ref: '#/components/schemas/CalendarDate'}
+    SimNow:
+      name: X-Sim-Now
+      in: header
+      required: true
+      description: "The world's simulated instant at the event being processed. The mocks never read a clock: every time-dependent rule (late interest, quotes, business dates, statuses) is evaluated at this instant."
+      schema: {$ref: '#/components/schemas/SimInstant'}
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Correlation id for the mock's JSON logs.
+      schema: {$ref: '#/components/schemas/CorrelationId'}
+  responses:
+    BadRequest:
+      description: '`INVALID`: the request does not match this contract.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Forbidden:
+      description: "`CALLER_WORLD_DENIED` or `CALLER_NOT_ALLOWED` (the invoking role may not reach this world or route), or `FORBIDDEN` (the resource is not the customer's)."
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    NotFound:
+      description: '`WORLD_NOT_FOUND` or `NOT_FOUND`.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Conflict:
+      description: '`CONFLICT`: the natural-key claim or the state already exists; on a money route `actionId` names the existing action.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Unprocessable:
+      description: '`ABOVE_CAP`, `EXCEEDS_OUTSTANDING` or `NOT_ELIGIBLE`: a rule of the mock refused the action; nothing moved.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+    Unavailable:
+      description: "`UNAVAILABLE`: temporary failure (or the world's `ERROR_503` fault); retry with backoff."
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorBody'}
+  schemas:
+    WorldId:
+      description: 'World id (docs: `demo`, `g01`…`g99`, `gtest`, `gprobe`, `qamin`, `qa-<runId>-<scenario>`, `sim-<batch>`). The mock also checks that the world exists and that the invoking role may reach it.'
+      type: string
+      pattern: '^[a-z0-9-]{1,24}$'
+    CustomerId:
+      description: Customer id (`cus-0001`; payers that are not personas `cus-1001`…; QA clones `cus-qa-<runId>-<scenario>-<key>`).
+      type: string
+      pattern: '^cus-[a-z0-9]+(?:-[a-z0-9]+)*$'
+      maxLength: 64
+    LoanId:
+      description: Loan id (`L-0001`, `L-0010a`).
+      type: string
+      pattern: '^L-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$'
+      maxLength: 64
+    ResourceId:
+      description: 'Id minted or received by the system: charges, debits, transfers, payments, credit notes, quotes, actions, complaints, reconciliations.'
+      type: string
+      pattern: '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$'
+    IdempotencyKey:
+      description: "Caller's idempotency key: the same key and the same body answer the same result."
+      type: string
+      pattern: '^[A-Za-z0-9][A-Za-z0-9:#/._-]{0,127}$'
+    OperationCode:
+      description: Payment identifier, unique per network (`NTE-20261006-004817-7`). The check digit is validated by the receipt reader, not here.
+      type: string
+      pattern: '^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$'
+      maxLength: 64
+    Cents:
+      description: Amount in integer centavos of Argentine pesos (`11864000` = $ 118.640,00).
+      type: integer
+      minimum: 0
+      maximum: 10000000000
+    PositiveCents:
+      description: Amount in integer centavos of Argentine pesos, greater than zero.
+      type: integer
+      minimum: 1
+      maximum: 10000000000
+    SimInstant:
+      description: ISO 8601 instant with offset, in the world's simulated time.
+      type: string
+      format: date-time
+      pattern: '^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d{1,3})?(Z|[+-]([01]\d|2[0-3]):[0-5]\d)$'
+    CalendarDate:
+      description: Calendar date `YYYY-MM-DD`.
+      type: string
+      format: date
+      pattern: '^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$'
+    CorrelationId:
+      description: Correlation id copied into the mock's JSON logs.
+      type: string
+      pattern: '^[A-Za-z0-9._:-]{1,128}$'
+    InstalmentNumber:
+      description: Instalment number of a loan (loans have 3 to 18 instalments).
+      type: integer
+      minimum: 1
+      maximum: 18
+    ContractErrorCode:
+      description: "`INVALID` 400 · `WORLD_NOT_FOUND`, `NOT_FOUND` 404 · `FORBIDDEN` (the resource is not the customer's), `CALLER_NOT_ALLOWED`, `CALLER_WORLD_DENIED` 403 · `CONFLICT` 409 · `ABOVE_CAP`, `EXCEEDS_OUTSTANDING`, `NOT_ELIGIBLE` 422 · `UNAVAILABLE` 503."
+      type: string
+      enum: [INVALID, WORLD_NOT_FOUND, NOT_FOUND, FORBIDDEN, CALLER_NOT_ALLOWED, CALLER_WORLD_DENIED, CONFLICT, ABOVE_CAP, EXCEEDS_OUTSTANDING, NOT_ELIGIBLE, UNAVAILABLE]
+    ErrorBody:
+      description: Error answer. `message` is fixed text of the mock, never personal data.
+      type: object
+      properties:
+        code: {$ref: '#/components/schemas/ContractErrorCode'}
+        message:
+          type: string
+          minLength: 1
+          maxLength: 300
+        actionId:
+          $ref: '#/components/schemas/ResourceId'
+          description: 'Only with `CONFLICT` on a money route: the action that already holds the natural-key claim.'
+      required: [code, message]
+      additionalProperties: false
+    HealthService:
+      description: Which mock answered.
+      type: string
+      enum: [core, networks]
+    Health:
+      description: 'Shallow health: it touches no table.'
+      type: object
+      properties:
+        status:
+          type: string
+          const: ok
+        service: {$ref: '#/components/schemas/HealthService'}
+        contractVersion:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          description: Version of this contract that the deployed mock implements.
+      required: [status, service, contractVersion]
+      additionalProperties: false
+    CollectionNetwork:
+      description: 'Collection network: `NORTE` (cut-off 18:00, settles D+1 business day at 08:30) or `SUR` (cut-off 16:00, D+2 at 11:00).'
+      type: string
+      enum: [NORTE, SUR]
+    Terminal:
+      description: Terminal of the collection network where the customer paid.
+      type: string
+      pattern: '^T-\d{4}$'
+    Sha256Hex:
+      description: SHA-256 in lowercase hex.
+      type: string
+      pattern: '^[0-9a-f]{64}$'
+    SettlementKey:
+      description: 'Key of the settlement file in the `Settlements` bucket: `<world root>/<network>/<businessDate>/batch-<seq>.csv`.'
+      type: string
+      pattern: '^[A-Za-z0-9][A-Za-z0-9/_.-]{0,500}\/(NORTE|SUR)\/\d{4}-\d{2}-\d{2}\/batch-\d+\.csv$'
+    SettlementLine:
+      description: 'One row of a settlement file (CSV, UTF-8 without BOM, `;` separator, header `network;businessDate;operationCode;paidAt;amount;customerRef;loanRef;instalment;terminal`, `amount` written in pesos with two decimals). Not a JSON body: the file format that reconciliation reads, at most 5,000 lines and 1 MB.'
+      type: object
+      properties:
+        network: {$ref: '#/components/schemas/CollectionNetwork'}
+        businessDate: {$ref: '#/components/schemas/CalendarDate'}
+        operationCode: {$ref: '#/components/schemas/OperationCode'}
+        paidAt: {$ref: '#/components/schemas/SimInstant'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        customerRef: {$ref: '#/components/schemas/CustomerId'}
+        loanRef: {$ref: '#/components/schemas/LoanId'}
+        instalment: {$ref: '#/components/schemas/InstalmentNumber'}
+        terminal: {$ref: '#/components/schemas/Terminal'}
+      required: [network, businessDate, operationCode, paidAt, amount, customerRef, loanRef, instalment, terminal]
+      additionalProperties: false
+    CollectionRequest:
+      description: In-person payment at a collection network. The mock computes the business date from the cut-off and adds the payment to that date's batch.
+      type: object
+      properties:
+        network: {$ref: '#/components/schemas/CollectionNetwork'}
+        operationCode: {$ref: '#/components/schemas/OperationCode'}
+        paidAtSim: {$ref: '#/components/schemas/SimInstant'}
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        customerRef: {$ref: '#/components/schemas/CustomerId'}
+        loanRef: {$ref: '#/components/schemas/LoanId'}
+        instalment: {$ref: '#/components/schemas/InstalmentNumber'}
+        terminal: {$ref: '#/components/schemas/Terminal'}
+      required: [network, operationCode, paidAtSim, amount, customerRef, loanRef, instalment, terminal]
+      additionalProperties: false
+    BatchStatus:
+      description: '`PENDING` until the network publishes the settlement file.'
+      type: string
+      enum: [PENDING, PUBLISHED]
+    SettlementBatch:
+      description: Settlement batch of a network and business date. `s3Key`, `lineCount`, `sha256` and `publishedAtSim` once `PUBLISHED`.
+      type: object
+      properties:
+        network: {$ref: '#/components/schemas/CollectionNetwork'}
+        businessDate: {$ref: '#/components/schemas/CalendarDate'}
+        status: {$ref: '#/components/schemas/BatchStatus'}
+        publishAtSim: {$ref: '#/components/schemas/SimInstant'}
+        publishedAtSim: {$ref: '#/components/schemas/SimInstant'}
+        s3Key: {$ref: '#/components/schemas/SettlementKey'}
+        lineCount:
+          type: integer
+          minimum: 0
+          maximum: 5000
+        sha256: {$ref: '#/components/schemas/Sha256Hex'}
+      required: [network, businessDate, status, publishAtSim]
+      additionalProperties: false
+    CollectionResult:
+      description: Where the payment will settle. When `batchCreated`, the caller creates the `SETTLEMENT_PUBLISH` timer at `batch.publishAtSim`.
+      type: object
+      properties:
+        network: {$ref: '#/components/schemas/CollectionNetwork'}
+        operationCode: {$ref: '#/components/schemas/OperationCode'}
+        businessDate: {$ref: '#/components/schemas/CalendarDate'}
+        batch: {$ref: '#/components/schemas/SettlementBatch'}
+        batchCreated:
+          type: boolean
+      required: [network, operationCode, businessDate, batch, batchCreated]
+      additionalProperties: false
+    PublishResult:
+      description: "`DEFERRED`: the world's `LATE_PUBLISH` fault moved `publishAtSim` later and the batch is still `PENDING`."
+      type: object
+      properties:
+        outcome:
+          type: string
+          enum: [PUBLISHED, ALREADY_PUBLISHED, DEFERRED]
+        batch: {$ref: '#/components/schemas/SettlementBatch'}
+      required: [outcome, batch]
+      additionalProperties: false
+    SettlementBatchList:
+      description: Batches of a network in a range of business dates.
+      type: object
+      properties:
+        network: {$ref: '#/components/schemas/CollectionNetwork'}
+        batches:
+          type: array
+          maxItems: 100
+          items: {$ref: '#/components/schemas/SettlementBatch'}
+      required: [network, batches]
+      additionalProperties: false
+    TransferState:
+      description: Status of a transfer in the transfer network; `UNKNOWN` when the network does not know it.
+      type: string
+      enum: [COMPLETED, PENDING, REJECTED_REVERSED, REJECTED_NOT_REVERSED, UNKNOWN]
+    TransferStatus:
+      description: Status of a transfer.
+      type: object
+      properties:
+        transferId: {$ref: '#/components/schemas/ResourceId'}
+        status: {$ref: '#/components/schemas/TransferState'}
+        traceId:
+          type: string
+          pattern: '^[A-Z0-9]+(-[A-Z0-9]+)*$'
+          maxLength: 40
+          description: Id the network gives a completed transfer; the customer can quote it.
+        completedAtSim: {$ref: '#/components/schemas/SimInstant'}
+        expectedBySim: {$ref: '#/components/schemas/SimInstant'}
+        rejectReason:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: 'Free text of the network: callers treat it as data and escape it before it reaches a model.'
+        reversedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [transferId, status]
+      additionalProperties: false
+    TransferReversalRequest:
+      description: Reversal of a `REJECTED_NOT_REVERSED` transfer of the customer (422 `NOT_ELIGIBLE` otherwise). One reversal per transfer, claim `TRV#<transferId>` (409 `CONFLICT`); `cap` applies to the amount (422 `ABOVE_CAP`).
+      type: object
+      properties:
+        customerId: {$ref: '#/components/schemas/CustomerId'}
+        complaintId: {$ref: '#/components/schemas/ResourceId'}
+        idempotencyKey: {$ref: '#/components/schemas/IdempotencyKey'}
+        cap: {$ref: '#/components/schemas/Cents'}
+      required: [customerId, complaintId, idempotencyKey, cap]
+      additionalProperties: false
+    TransferReversalResult:
+      description: Reversal confirmed by the network.
+      type: object
+      properties:
+        actionId: {$ref: '#/components/schemas/ResourceId'}
+        transferId: {$ref: '#/components/schemas/ResourceId'}
+        status:
+          type: string
+          const: REJECTED_REVERSED
+        amount: {$ref: '#/components/schemas/PositiveCents'}
+        reversedAtSim: {$ref: '#/components/schemas/SimInstant'}
+      required: [actionId, transferId, status, amount, reversedAtSim]
+      additionalProperties: false
+    TransitionRequest:
+      description: Scheduled status change of a transfer (a `NETWORK_TRANSITION` timer, or the QA driver). An impossible transition is 409 `CONFLICT`.
+      type: object
+      properties:
+        to:
+          type: string
+          enum: [COMPLETED, REJECTED_REVERSED, REJECTED_NOT_REVERSED]
+        rejectReason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required: [to]
+      additionalProperties: false

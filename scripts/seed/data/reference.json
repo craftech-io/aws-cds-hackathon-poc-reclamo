@@ -1,0 +1,1074 @@
+{
+  "blockCategories": {
+    "EXTERNAL_ORDER": "Tu cuenta tiene una restricción por una orden de un organismo externo. Una persona del equipo te explica los pasos.",
+    "IDENTITY_VALIDATION": "Tu cuenta está bloqueada hasta validar tu identidad. La validación la hace una persona del equipo; por este chat nunca te vamos a pedir documentos.",
+    "INACTIVITY": "Tu cuenta se bloqueó por inactividad prolongada. Una persona del equipo la puede reactivar después de verificar tu identidad.",
+    "SECURITY_REVIEW": "Tu cuenta está en revisión de seguridad. Mientras dura, una persona del equipo revisa los movimientos y te escribe por este medio."
+  },
+  "channelRuleSet": {
+    "params": {
+      "contactHours": {
+        "holidays": null,
+        "saturday": {
+          "from": "09:00",
+          "to": "13:00"
+        },
+        "sunday": null,
+        "weekday": {
+          "from": "08:00",
+          "to": "20:00"
+        }
+      },
+      "formalNoticeEveryDays": 7,
+      "formalNoticeHours": {
+        "weekday": {
+          "from": "09:00",
+          "to": "18:00"
+        }
+      },
+      "label": "supuesto · nuestra lectura de las reglas, no asesoramiento legal",
+      "maxProactivePerDay": 3,
+      "whatsappWindowHours": 24
+    },
+    "rules": [
+      "CH-SENDER",
+      "CH-CONTROL",
+      "CH-KIND-CHANNEL",
+      "CH-WA-NO-COLLECTION",
+      "CH-WA-NO-PAYMENT-REQUEST",
+      "CH-NO-CREDIT-OFFER",
+      "CH-RECIPIENT-FENCE",
+      "CH-OPTIN",
+      "CH-OPTOUT",
+      "CH-WA-CUSTOMER-INITIATED",
+      "CH-WA-24H",
+      "CH-CONTACT-HOURS",
+      "CH-MAX-PER-DAY",
+      "CH-NO-SENSITIVE-ASK",
+      "CH-NO-FOREIGN-LINKS",
+      "CH-FORMAL-CONTENT"
+    ],
+    "version": "v001"
+  },
+  "collectionLexicon": {
+    "categories": [
+      "PAYMENT_EXHORTATION",
+      "CONSEQUENCE_THREAT",
+      "DEBT_REMINDER",
+      "PAYMENT_INSTRUMENT",
+      "NEGOTIATION"
+    ],
+    "corpus": "evals/collection-corpus.json",
+    "version": "v001"
+  },
+  "fees": {
+    "fees": [
+      {
+        "base": "3 % del capital (+ IVA)",
+        "clauseIds": [
+          "T-1.6"
+        ],
+        "code": "FEE-ORIG",
+        "concept": "Comisión de otorgamiento",
+        "when": "Una vez, al desembolsar"
+      },
+      {
+        "base": "50 % de la tasa compensatoria, diario, sobre el saldo de la cuota no pagada a su vencimiento",
+        "clauseIds": [
+          "T-3.2",
+          "T-3.4"
+        ],
+        "code": "FEE-PUNIT",
+        "concept": "Interés punitorio",
+        "when": "Desde el día siguiente al vencimiento, salvo la tolerancia de 2 días"
+      },
+      {
+        "base": "$ 2.500 fijo",
+        "clauseIds": [
+          "T-4.6"
+        ],
+        "code": "FEE-CARD-REPL",
+        "concept": "Reposición de tarjeta prepaga",
+        "when": "Solo si el cliente la pidió"
+      },
+      {
+        "base": "2 % del capital cancelado",
+        "clauseIds": [
+          "T-6.2"
+        ],
+        "code": "FEE-EARLY",
+        "concept": "Cancelación anticipada",
+        "when": "Solo si pasó menos del 25 % del plazo"
+      },
+      {
+        "base": "$ 0 (a cargo del prestamista)",
+        "clauseIds": [
+          "T-1.5"
+        ],
+        "code": "FEE-INS",
+        "concept": "Seguro sobre saldo",
+        "when": "Nunca se cobra al cliente"
+      }
+    ],
+    "version": "v001"
+  },
+  "holidays": {
+    "entries": [
+      {
+        "date": "2026-01-01",
+        "kind": "FIXED",
+        "name": "Año Nuevo",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-02-16",
+        "kind": "FIXED",
+        "name": "Carnaval",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-02-17",
+        "kind": "FIXED",
+        "name": "Carnaval",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "assumption": "Día no laborable con fines turísticos: lo contamos como no hábil (supuesto)",
+        "date": "2026-03-23",
+        "kind": "BRIDGE",
+        "name": "Día no laborable con fines turísticos",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-03-24",
+        "kind": "FIXED",
+        "name": "Día Nacional de la Memoria por la Verdad y la Justicia",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-04-02",
+        "kind": "FIXED",
+        "name": "Día del Veterano y de los Caídos en la Guerra de Malvinas",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-04-03",
+        "kind": "FIXED",
+        "name": "Viernes Santo",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-05-01",
+        "kind": "FIXED",
+        "name": "Día del Trabajador",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-05-25",
+        "kind": "FIXED",
+        "name": "Día de la Revolución de Mayo",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-06-15",
+        "kind": "MOVABLE",
+        "name": "Paso a la Inmortalidad del Gral. Martín Miguel de Güemes (trasladado del 17/6)",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-06-20",
+        "kind": "FIXED",
+        "name": "Paso a la Inmortalidad del Gral. Manuel Belgrano",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-07-09",
+        "kind": "FIXED",
+        "name": "Día de la Independencia",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "assumption": "Día no laborable con fines turísticos: lo contamos como no hábil (supuesto)",
+        "date": "2026-07-10",
+        "kind": "BRIDGE",
+        "name": "Día no laborable con fines turísticos",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-08-17",
+        "kind": "MOVABLE",
+        "name": "Paso a la Inmortalidad del Gral. José de San Martín",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-10-12",
+        "kind": "MOVABLE",
+        "name": "Día del Respeto a la Diversidad Cultural",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-11-09",
+        "kind": "FIXED",
+        "name": "Feriado nacional por la visita papal",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-11-23",
+        "kind": "MOVABLE",
+        "name": "Día de la Soberanía Nacional (trasladado del 20/11)",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "assumption": "Día no laborable con fines turísticos: lo contamos como no hábil (supuesto)",
+        "date": "2026-12-07",
+        "kind": "BRIDGE",
+        "name": "Día no laborable con fines turísticos",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-12-08",
+        "kind": "FIXED",
+        "name": "Inmaculada Concepción de María",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2026-12-25",
+        "kind": "FIXED",
+        "name": "Navidad",
+        "source": "Calendario oficial de feriados nacionales 2026 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      },
+      {
+        "date": "2027-01-01",
+        "kind": "FIXED",
+        "name": "Año Nuevo",
+        "source": "Calendario oficial de feriados nacionales 2027 (argentina.gob.ar/interior/feriados)",
+        "verifiedAt": "2026-10-06"
+      }
+    ],
+    "scope": "AR"
+  },
+  "lender": {
+    "address": "Av. de los Tilos 1400, Ciudad Ficticia",
+    "cuit": "30-99999999-5",
+    "cuitLabel": "sintético",
+    "label": "prestamista ficticio",
+    "name": "Jarilla — préstamos y billetera",
+    "products": [
+      "Préstamo personal en pesos de 3 a 18 cuotas mensuales",
+      "Billetera con CVU sintético"
+    ],
+    "serviceName": "Servicio de atención al usuario de Jarilla (ficticio)"
+  },
+  "nameCheck": [
+    {
+      "checkedAt": "2026-09-26",
+      "kind": "LENDER",
+      "name": "Jarilla",
+      "result": "Sin prestamistas, billeteras ni fintechs con ese nombre en búsquedas de préstamos, billeteras, crédito y fintech"
+    },
+    {
+      "checkedAt": "2026-09-26",
+      "kind": "NETWORK",
+      "name": "Red de cobro Norte",
+      "result": "Descriptivo, sin marca"
+    },
+    {
+      "checkedAt": "2026-09-26",
+      "kind": "NETWORK",
+      "name": "Red de cobro Sur",
+      "result": "Descriptivo, sin marca"
+    },
+    {
+      "checkedAt": "2026-09-26",
+      "kind": "NETWORK",
+      "name": "Red de transferencias",
+      "result": "Descriptivo, sin marca"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PLACE",
+      "name": "Ciudad Ficticia",
+      "result": "Descriptivo, sin marca"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Abril Coria",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Agustina Romero",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Ana Belén Ruiz",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Andrés Figueroa",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Antonella Vera",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Benjamín Ojeda",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Brenda Acosta",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Bruno Bustos",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Camila Ledesma",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Camila Ojeda",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Carla Méndez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Catalina Cáceres",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Daniela Moreno",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Delfina Albornoz",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Diego Arrieta",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Elías Luna",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Emilia Robles",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Ezequiel Navarro",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Facundo Ortiz",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Federico Luna",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Felipe Molina",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Florencia Ledesma",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Franco Benítez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Gael Díaz",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Gustavo Paz",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Hernán Sosa",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Ian Juárez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Ignacio Rivas",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Jazmín Toledo",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Joaquina Herrera",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Joaquín Herrera",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Julia Ibáñez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Julieta Benítez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Julián Acevedo",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Lara Arce",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Lautaro Campos",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Leandro Cabrera",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Lisandro Núñez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Lorena Castro",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Lucas Domínguez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Malena Godoy",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Marcos Peralta",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Martina Silva",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Martín Olmedo",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Mateo Salinas",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Maximiliano Ríos",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Micaela Torres",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Milagros Duarte",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Morena Zalazar",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Natalia Ferreyra",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Nicolás Medina",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Olivia Vera",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Pablo Giménez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Paloma Rojas",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Paula Vidal",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Pilar Ferreira",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Ramiro Aguirre",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Ramiro Funes",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Renata Escobar",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Rocío Gutiérrez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Rocío Vallejos",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Santino Sosa",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Sebastián Molina",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Simón Ponce",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Sofía Maidana",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Thiago Gallo",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Tobías Quinteros",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Tomás Villalba",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Valeria Quiroga",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Victoria Suárez",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    },
+    {
+      "checkedAt": "2026-10-06",
+      "kind": "PERSON",
+      "name": "Zoe Urquiza",
+      "result": "Nombre y apellido de listas genéricas; validado contra la lista externa de términos prohibidos en seed:validate"
+    }
+  ],
+  "networks": {
+    "NORTE": {
+      "cutoff": "18:00",
+      "name": "Red de cobro Norte",
+      "publishAt": "08:30",
+      "settlement": "D+1 hábil"
+    },
+    "SUR": {
+      "cutoff": "16:00",
+      "name": "Red de cobro Sur",
+      "publishAt": "11:00",
+      "settlement": "D+2 hábiles"
+    },
+    "TRANSFER": {
+      "name": "Red de transferencias"
+    }
+  },
+  "referenceRate": {
+    "annualRate": 0.38,
+    "label": "Tasa de referencia sintética (supuesto)"
+  },
+  "templateStatusPhrases": {
+    "ANSWER_SENT": "te mandamos la respuesta escrita por email",
+    "APPROVAL_PENDING": "la acción espera la aprobación de una persona",
+    "CHARGE_REVERSED": "revertimos el cargo que reclamaste",
+    "DISBURSEMENT_CREDITED": "el desembolso ya figura acreditado en tu billetera",
+    "HUMAN_REVIEWED": "una persona revisó tu caso",
+    "NETWORK_PENDING": "seguimos esperando la confirmación de la red",
+    "PAYMENT_REFLECTED": "tu pago ya se refleja en tu cuenta",
+    "REFUND_CREDITED": "el reintegro ya figura acreditado en tu billetera",
+    "SETTLEMENT_PUBLISHED": "ya tenemos la rendición de la red",
+    "TRANSFER_CREDITED": "la transferencia ya figura acreditada",
+    "TRANSFER_REVERSED": "la transferencia rechazada ya volvió a tu billetera"
+  },
+  "terms": {
+    "clauses": [
+      {
+        "id": "T-1.1",
+        "text": "El préstamo personal es en pesos y se otorga a clientes con la billetera de Jarilla activa.",
+        "topic": "Préstamo"
+      },
+      {
+        "id": "T-1.2",
+        "text": "El préstamo se devuelve en 3 a 18 cuotas mensuales; nunca en un único pago.",
+        "topic": "Préstamo"
+      },
+      {
+        "id": "T-1.3",
+        "text": "Las cuotas se calculan por el sistema francés sobre el capital otorgado.",
+        "topic": "Préstamo"
+      },
+      {
+        "id": "T-1.4",
+        "text": "La cuota es fija e incluye capital, interés compensatorio e IVA sobre el interés.",
+        "topic": "Préstamo"
+      },
+      {
+        "id": "T-1.5",
+        "text": "El seguro sobre el saldo del préstamo está a cargo de Jarilla y nunca se cobra al cliente.",
+        "topic": "Préstamo"
+      },
+      {
+        "id": "T-1.6",
+        "text": "El desembolso se acredita en la billetera neto de la comisión de otorgamiento del 3 % del capital más IVA, que se cobra una sola vez.",
+        "topic": "Préstamo"
+      },
+      {
+        "id": "T-2.1",
+        "text": "Las cuotas se pagan en las redes de cobro, desde la billetera o por transferencia al CVU de la billetera.",
+        "topic": "Pagos"
+      },
+      {
+        "id": "T-2.2",
+        "text": "Cada pago se imputa a la cuota pendiente más antigua del préstamo que indica el cliente.",
+        "topic": "Pagos"
+      },
+      {
+        "id": "T-2.3",
+        "text": "Cada red de cobro tiene un horario de corte: un pago posterior al corte corresponde al día hábil siguiente.",
+        "topic": "Pagos"
+      },
+      {
+        "id": "T-2.4",
+        "text": "Un pago en una red de cobro se acredita cuando la red publica su rendición del día.",
+        "topic": "Pagos"
+      },
+      {
+        "id": "T-2.5",
+        "text": "La fecha de pago que vale es la del comprobante de la red, aunque la acreditación sea posterior.",
+        "topic": "Pagos"
+      },
+      {
+        "id": "T-3.1",
+        "text": "Una cuota no pagada al vencimiento queda atrasada desde el día siguiente.",
+        "topic": "Atraso"
+      },
+      {
+        "id": "T-3.2",
+        "text": "Sobre el saldo de una cuota no pagada a su vencimiento corre un interés punitorio diario del 50 % de la tasa compensatoria.",
+        "topic": "Atraso"
+      },
+      {
+        "id": "T-3.3",
+        "text": "El interés punitorio se informa en el detalle de la cuota y en el estado de cuenta.",
+        "topic": "Atraso"
+      },
+      {
+        "id": "T-3.4",
+        "text": "Si el pago se hizo dentro de los 2 días corridos posteriores al vencimiento no corre interés punitorio, aunque la red lo rinda después.",
+        "topic": "Atraso"
+      },
+      {
+        "id": "T-3.5",
+        "text": "Jarilla nunca reclama deudas por WhatsApp; los avisos formales de deuda se envían por email.",
+        "topic": "Atraso"
+      },
+      {
+        "id": "T-4.1",
+        "text": "La billetera muestra el saldo disponible y los movimientos de los últimos 90 días.",
+        "topic": "Billetera"
+      },
+      {
+        "id": "T-4.2",
+        "text": "Cada billetera tiene un CVU propio para recibir transferencias.",
+        "topic": "Billetera"
+      },
+      {
+        "id": "T-4.3",
+        "text": "Las transferencias entre cuentas no tienen costo.",
+        "topic": "Billetera"
+      },
+      {
+        "id": "T-4.4",
+        "text": "Ante una operación que el cliente no reconoce, Jarilla puede bloquear las salidas de la billetera como protección.",
+        "topic": "Billetera"
+      },
+      {
+        "id": "T-4.5",
+        "text": "El bloqueo de salidas lo levanta solo una persona del equipo después de revisar el caso.",
+        "topic": "Billetera"
+      },
+      {
+        "id": "T-4.6",
+        "text": "La reposición de la tarjeta prepaga cuesta $ 2.500 y se cobra solo si el cliente la pidió.",
+        "topic": "Billetera"
+      },
+      {
+        "id": "T-5.1",
+        "text": "El débito automático de la cuota se hace el día del vencimiento.",
+        "topic": "Débitos automáticos"
+      },
+      {
+        "id": "T-5.2",
+        "text": "Si el débito falla por falta de saldo, se reintenta una sola vez a las 48 horas.",
+        "topic": "Débitos automáticos"
+      },
+      {
+        "id": "T-5.3",
+        "text": "Un débito duplicado de la misma cuota se reintegra a la billetera.",
+        "topic": "Débitos automáticos"
+      },
+      {
+        "id": "T-5.4",
+        "text": "El cliente puede pedir la baja del débito automático en cualquier momento.",
+        "topic": "Débitos automáticos"
+      },
+      {
+        "id": "T-6.1",
+        "text": "El cliente puede cancelar el préstamo en forma total o parcial en cualquier momento.",
+        "topic": "Cancelación anticipada"
+      },
+      {
+        "id": "T-6.2",
+        "text": "La cancelación anticipada tiene una comisión del 2 % del capital cancelado solo si pasó menos del 25 % del plazo del préstamo.",
+        "topic": "Cancelación anticipada"
+      },
+      {
+        "id": "T-6.3",
+        "text": "La cotización de la cancelación vale hasta el fin del día hábil en que se emite.",
+        "topic": "Cancelación anticipada"
+      },
+      {
+        "id": "T-6.4",
+        "text": "Cancelado el préstamo, Jarilla emite el libre deuda sin costo.",
+        "topic": "Cancelación anticipada"
+      },
+      {
+        "id": "T-7.1",
+        "text": "La baja de la cuenta se puede pedir por cualquier canal de atención.",
+        "topic": "Baja de la cuenta"
+      },
+      {
+        "id": "T-7.2",
+        "text": "Pedir la baja es tan simple como fue el alta y no exige trámites adicionales.",
+        "topic": "Baja de la cuenta"
+      },
+      {
+        "id": "T-7.3",
+        "text": "Con un préstamo vigente, la cuenta queda en baja en curso hasta que el préstamo se cancele.",
+        "topic": "Baja de la cuenta"
+      },
+      {
+        "id": "T-7.4",
+        "text": "Jarilla confirma la baja por escrito con su número de registro.",
+        "topic": "Baja de la cuenta"
+      },
+      {
+        "id": "T-8.1",
+        "text": "El cambio de domicilio o de email se confirma escribiendo a la dirección vigente.",
+        "topic": "Cambio de datos"
+      },
+      {
+        "id": "T-8.2",
+        "text": "El cambio de teléfono se hace solo con la verificación de una persona del equipo.",
+        "topic": "Cambio de datos"
+      },
+      {
+        "id": "T-8.3",
+        "text": "Jarilla nunca pide claves, códigos ni documentos por chat para cambiar datos.",
+        "topic": "Cambio de datos"
+      },
+      {
+        "id": "D-1",
+        "text": "Todo reclamo recibe un número en el momento en que se presenta.",
+        "topic": "Derechos del reclamo"
+      },
+      {
+        "id": "D-2",
+        "text": "Jarilla responde por escrito dentro de los 10 días hábiles de presentado el reclamo.",
+        "topic": "Derechos del reclamo"
+      },
+      {
+        "id": "D-3",
+        "text": "La respuesta escrita puede llegar por email si el cliente lo acepta al presentar el reclamo.",
+        "topic": "Derechos del reclamo"
+      },
+      {
+        "id": "D-4",
+        "text": "El cliente puede pedir en cualquier momento que lo atienda una persona.",
+        "topic": "Derechos del reclamo"
+      },
+      {
+        "id": "D-5",
+        "text": "Si la respuesta no lo satisface, el cliente puede presentar su reclamo ante el Banco Central de la República Argentina.",
+        "topic": "Derechos del reclamo"
+      },
+      {
+        "id": "P-1",
+        "text": "Jarilla nunca pide claves, PIN, códigos de verificación ni datos de tarjetas por ningún canal.",
+        "topic": "Datos y canales"
+      },
+      {
+        "id": "P-2",
+        "text": "WhatsApp se usa solo para atención: nunca para cobrar deudas ni para ofrecer productos.",
+        "topic": "Datos y canales"
+      },
+      {
+        "id": "P-3",
+        "text": "Los datos personales se usan solo para atender la cuenta y los reclamos del cliente.",
+        "topic": "Datos y canales"
+      }
+    ],
+    "version": "v001"
+  },
+  "whatsappTemplates": {
+    "reclamo_derivado": {
+      "body": "Tu reclamo {{1}} lo sigue una persona del equipo de atención. El plazo de respuesta vence el {{2}}.",
+      "buttons": [],
+      "category": "UTILITY",
+      "examples": [
+        "R-2026-000123",
+        "jueves 22/10"
+      ],
+      "language": "es_AR",
+      "name": "reclamo_derivado",
+      "params": [
+        "COMPLAINT_NUMBER",
+        "DEADLINE_TEXT"
+      ]
+    },
+    "reclamo_novedad": {
+      "body": "Hola {{1}}, hay una novedad en tu reclamo {{2}}: {{3}}. Podés responder por acá.",
+      "buttons": [
+        "SEE_DETAIL",
+        "TALK_TO_HUMAN"
+      ],
+      "category": "UTILITY",
+      "examples": [
+        "Valeria",
+        "R-2026-000123",
+        "ya tenemos la rendición de la red"
+      ],
+      "language": "es_AR",
+      "name": "reclamo_novedad",
+      "params": [
+        "FIRST_NAME",
+        "COMPLAINT_NUMBER",
+        "STATUS_PHRASE"
+      ]
+    },
+    "reclamo_respuesta_no_entregada": {
+      "body": "No pudimos entregar la respuesta escrita de tu reclamo {{1}} en tu email. Una persona se va a contactar por este medio.",
+      "buttons": [
+        "TALK_TO_HUMAN"
+      ],
+      "category": "UTILITY",
+      "examples": [
+        "R-2026-000123"
+      ],
+      "language": "es_AR",
+      "name": "reclamo_respuesta_no_entregada",
+      "params": [
+        "COMPLAINT_NUMBER"
+      ]
+    },
+    "reclamo_resuelto": {
+      "body": "Tu reclamo {{1}} fue resuelto. Te mandamos la respuesta escrita por email a {{2}}.",
+      "buttons": [
+        "HAVE_A_QUESTION",
+        "TALK_TO_HUMAN"
+      ],
+      "category": "UTILITY",
+      "examples": [
+        "R-2026-000123",
+        "v•••@…"
+      ],
+      "language": "es_AR",
+      "name": "reclamo_resuelto",
+      "params": [
+        "COMPLAINT_NUMBER",
+        "EMAIL_MASKED"
+      ]
+    }
+  }
+}

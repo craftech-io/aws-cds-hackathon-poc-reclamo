@@ -1,0 +1,935 @@
+{
+  "entries": [
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-01",
+      "text": "Pagué la cuota en la red de cobro y en la app sigue como impaga"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-02",
+      "text": "Hice el pago el lunes y no aparece acreditado"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-03",
+      "text": "Ya pagué la cuota 5, ¿por qué figura atrasada?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-04",
+      "text": "Pagué en efectivo en la Red de cobro Sur y no se refleja el pago"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-05",
+      "text": "Les mandé el comprobante y la cuota sigue vencida"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-06",
+      "text": "Aboné la cuota hace tres días y me siguen cobrando punitorios"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-07",
+      "text": "Pagué desde la billetera y el préstamo no se actualizó"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-08",
+      "text": "Transferí la cuota al CVU y no la imputaron"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-09",
+      "text": "Mi pago de ayer no figura en el préstamo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-10",
+      "text": "Pagué dos cuotas juntas y solo me tomaron una"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-11",
+      "text": "Hice un pago parcial y no se descontó nada"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-12",
+      "text": "Pagué la última cuota y el préstamo sigue activo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-13",
+      "text": "El viernes pagué en la Red de cobro Norte y todavía no impacta"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYMENT_NOT_REFLECTED"
+      },
+      "id": "cls-payment-not-reflected-14",
+      "text": "Tengo el ticket de pago pero la cuota figura impaga"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-01",
+      "text": "Necesito el libre deuda del préstamo que cancelé"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-02",
+      "text": "¿Me pueden enviar el certificado de libre deuda?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-03",
+      "text": "Terminé de pagar y quiero la constancia de cancelación"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-04",
+      "text": "Pedí el libre deuda hace una semana y no me llegó"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-05",
+      "text": "Necesito un comprobante de que no debo nada del préstamo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-06",
+      "text": "Quiero el libre deuda para presentar en otro lado"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-07",
+      "text": "¿Dónde consigo la constancia de que el préstamo está saldado?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "PAYOFF_CERTIFICATE"
+      },
+      "id": "cls-payoff-certificate-08",
+      "text": "Mandame el libre deuda por favor, ya pagué todo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-01",
+      "text": "Me cobraron una comisión que no reconozco"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-02",
+      "text": "Apareció un cargo de seguro que nunca contraté"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-03",
+      "text": "Me debitaron $ 2.500 por una tarjeta que no pedí"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-04",
+      "text": "Hay un cargo en la billetera que no sé qué es"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-05",
+      "text": "Me cobraron intereses de más en la cuota"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-06",
+      "text": "Me cobraron dos veces la comisión de otorgamiento"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-07",
+      "text": "No entiendo por qué me cobraron punitorios si pagué a tiempo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-08",
+      "text": "Me descontaron un cargo de mantenimiento que no corresponde"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNRECOGNIZED_CHARGE"
+      },
+      "id": "cls-unrecognized-charge-09",
+      "text": "Tengo un cargo de reposición que yo no solicité"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-01",
+      "text": "Me debitaron dos veces la misma cuota"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-02",
+      "text": "La cuota de este mes se debitó duplicada"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-03",
+      "text": "Veo dos débitos iguales de la cuota 6"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-04",
+      "text": "Me sacaron la plata de la cuota dos veces de la billetera"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-05",
+      "text": "El débito automático se hizo doble"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-06",
+      "text": "Me cobraron la cuota el lunes y otra vez el martes"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-07",
+      "text": "Tengo un débito repetido del préstamo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DUPLICATE_DEBIT"
+      },
+      "id": "cls-duplicate-debit-08",
+      "text": "Se debitó la cuota y después se volvió a debitar"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-01",
+      "text": "Hice una transferencia y no le llegó a la otra persona"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-02",
+      "text": "Me transfirieron plata y no la veo en la billetera"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-03",
+      "text": "La transferencia que mandé figura pendiente desde ayer"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-04",
+      "text": "Me rechazaron una transferencia y no volvió el dinero"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-05",
+      "text": "Mandé dinero a un CVU y dicen que no lo recibieron"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-06",
+      "text": "La transferencia salió pero no se acreditó en destino"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-07",
+      "text": "Me debían transferir y no aparece nada"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-08",
+      "text": "Envié $ 30.000 y no los recibieron"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "TRANSFER_NOT_CREDITED"
+      },
+      "id": "cls-transfer-not-credited-09",
+      "text": "Tengo una transferencia rechazada que no se devolvió"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-01",
+      "text": "Me aprobaron el préstamo y no me depositaron la plata"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-02",
+      "text": "El préstamo figura aprobado pero no tengo el dinero en la billetera"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-03",
+      "text": "¿Cuándo me acreditan el préstamo que pedí ayer?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-04",
+      "text": "Me dijeron que el desembolso estaba hecho y no lo veo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-05",
+      "text": "Me acreditaron menos plata de la que pedí"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-06",
+      "text": "El dinero del préstamo nunca llegó"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-07",
+      "text": "Pedí el préstamo y sigue sin acreditarse"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DISBURSEMENT_NOT_RECEIVED"
+      },
+      "id": "cls-disbursement-not-received-08",
+      "text": "Me devolvieron el desembolso y no sé por qué"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-01",
+      "text": "Hay una transferencia que yo no hice"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-02",
+      "text": "Me sacaron plata de la billetera sin mi permiso"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-03",
+      "text": "Veo un movimiento que no reconozco"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-04",
+      "text": "Alguien usó mi cuenta para transferir"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-05",
+      "text": "Hay una compra que no hice"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-06",
+      "text": "Me robaron la plata de la billetera"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-07",
+      "text": "Apareció una operación desconocida a la madrugada"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "UNKNOWN_OPERATION"
+      },
+      "id": "cls-unknown-operation-08",
+      "text": "No reconozco un débito de $ 80.000"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-01",
+      "text": "Me bloquearon la cuenta y no puedo entrar"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-02",
+      "text": "Mi billetera está bloqueada, ¿por qué?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-03",
+      "text": "No puedo transferir, dice cuenta restringida"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-04",
+      "text": "Me suspendieron la cuenta sin aviso"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-05",
+      "text": "Mi usuario está bloqueado desde ayer"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-06",
+      "text": "No me deja operar, figura la cuenta inhabilitada"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "ACCOUNT_BLOCKED"
+      },
+      "id": "cls-account-blocked-07",
+      "text": "Quiero que me desbloqueen la cuenta"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-01",
+      "text": "Quiero cancelar el préstamo por adelantado"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-02",
+      "text": "¿Cuánto tengo que pagar para saldar todo hoy?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-03",
+      "text": "Quiero dar de baja la cuenta"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-04",
+      "text": "Necesito cerrar mi cuenta de Jarilla"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-05",
+      "text": "¿Puedo pagar el préstamo entero ahora?"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-06",
+      "text": "Quiero darme de baja"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-07",
+      "text": "Quiero adelantar cuotas y cancelar el préstamo"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "CLOSURE_OR_EARLY_PAYOFF"
+      },
+      "id": "cls-closure-or-early-payoff-08",
+      "text": "Pedí la baja de la cuenta y sigue activa"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-01",
+      "text": "Me mudé y quiero cambiar el domicilio"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-02",
+      "text": "Quiero actualizar mi email"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-03",
+      "text": "Cambié de número de teléfono"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-04",
+      "text": "Mi dirección está mal cargada"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-05",
+      "text": "Necesito corregir mi email porque no me llegan los correos"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-06",
+      "text": "Quiero cambiar el teléfono asociado a la cuenta"
+    },
+    {
+      "expected": {
+        "kind": "RECLAMO",
+        "type": "DATA_CHANGE"
+      },
+      "id": "cls-data-change-07",
+      "text": "El domicilio que figura es el viejo"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-01",
+      "text": "¿Cuánto me falta pagar del préstamo?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-02",
+      "text": "¿Cuándo vence la próxima cuota?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-03",
+      "text": "¿Cuál es el saldo de mi billetera?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-04",
+      "text": "¿Cuántas cuotas me quedan?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-05",
+      "text": "¿De cuánto es mi próxima cuota?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-06",
+      "text": "¿Qué tasa tiene mi préstamo?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-07",
+      "text": "¿Cuál es mi CVU?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-08",
+      "text": "¿En qué horario rinde la Red de cobro Norte?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-09",
+      "text": "¿Cuánto tarda en acreditarse un pago en la red?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA"
+      },
+      "id": "cls-consulta-10",
+      "text": "¿En cuánto tiempo me tienen que contestar un reclamo?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA",
+        "type": "INFORMATION_REQUEST"
+      },
+      "id": "cls-information-request-01",
+      "text": "Necesito el detalle de todos los pagos del año"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA",
+        "type": "INFORMATION_REQUEST"
+      },
+      "id": "cls-information-request-02",
+      "text": "Quiero un resumen de los movimientos de los últimos seis meses"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA",
+        "type": "INFORMATION_REQUEST"
+      },
+      "id": "cls-information-request-03",
+      "text": "¿Me pueden mandar el historial completo de cuotas pagadas?"
+    },
+    {
+      "expected": {
+        "kind": "CONSULTA",
+        "type": "INFORMATION_REQUEST"
+      },
+      "id": "cls-information-request-04",
+      "text": "Necesito un estado de cuenta del préstamo para presentar"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-01",
+      "text": "¿Me dan otro préstamo?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-02",
+      "text": "¿Puedo refinanciar mi préstamo?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-03",
+      "text": "Quiero un préstamo más grande"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-04",
+      "text": "¿Qué me conviene, plazo fijo o dólares?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-05",
+      "text": "¿Les puedo hacer juicio?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-06",
+      "text": "Escribime un poema"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-07",
+      "text": "¿Quién gana el partido del domingo?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-08",
+      "text": "¿Me recomendás un abogado?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-09",
+      "text": "Quiero que me suban el límite"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-10",
+      "text": "¿Tienen tarjeta de crédito?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-11",
+      "text": "¿Dónde invierto la plata?"
+    },
+    {
+      "expected": {
+        "kind": "OUT_OF_SCOPE"
+      },
+      "id": "cls-out-of-scope-12",
+      "text": "Contame un chiste"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-01",
+      "text": "Hola"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-02",
+      "text": "Buenas"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-03",
+      "text": "Una consulta"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-04",
+      "text": "Necesito ayuda"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-05",
+      "text": "?"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-06",
+      "text": "Gracias"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-07",
+      "text": "Ok"
+    },
+    {
+      "expected": {
+        "kind": "UNCLEAR"
+      },
+      "id": "cls-unclear-08",
+      "text": "Hola, ¿hay alguien?"
+    }
+  ],
+  "version": "v001"
+}

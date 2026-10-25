@@ -1,0 +1,93 @@
+# Scenario suites against the deployed stage `poc` (docs/test-plan.md), on demand. The runner drives
+# every flow through the QA driver Lambda with the qa-runner role of the bootstrap (ADR-0009); no
+# human credentials, and QA worlds only (never `demo`, a guest world or `gtest`). Only `main` can
+# assume the role, so dispatch it from main.
+#
+#   smoke   SC-00, the same one deploy.yml runs with DEPLOY_CHECKS=on
+#   full    the SR subset of EV-2 first (it aborts the run unless it passes), then every scenario of
+#           docs/test-plan.md ("100 % probada")
+#   eval    EV-1, EV-2 and EV-3 with the thresholds of docs/seed-spec.md §12 (N and date in the report)
+#   batch   the real-agent metrics batch (`batch.run`, 30 presentations) behind SC-20's batch tab
+#
+# Every suite spends Bedrock: it runs only with the CTO's OK, which is the dispatch itself plus
+# `max_usd`, the ceiling the run must fit in (the runner prices the run and refuses to start when the
+# ceiling does not cover the high estimate; eval and batch also get `--confirm-spend` from here).
+name: Scenarios poc
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Suite to run
+        type: choice
+        options:
+          - full
+          - smoke
+          - eval
+          - batch
+        default: full
+      max_usd:
+        description: Spend ceiling in USD approved by the CTO for this run (must cover the run's high estimate)
+        type: number
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: scenarios-poc
+  cancel-in-progress: false
+
+env:
+  CI: "true"
+  AWS_REGION: us-east-1
+
+jobs:
+  scenarios:
+    name: Scenario suite
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Set up Node (exact version of .nvmrc)
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Assume the qa-runner role (OIDC, no access keys)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_QA_RUNNER_ROLE_ARN || 'arn:aws:iam::776805327629:role/aws-cds-hackathon-poc-reclamo-qa-runner' }}
+          role-session-name: github-scenarios-${{ github.run_id }}
+          aws-region: us-east-1
+
+      - name: Run the suite
+        env:
+          SUITE: ${{ inputs.suite }}
+          MAX_USD: ${{ inputs.max_usd }}
+        run: |
+          if [ ! -f scripts/scenarios/run.ts ]; then
+            echo "::notice::scenarios skipped: scripts/scenarios/run.ts is not in the repository yet (WP-47)."
+            exit 0
+          fi
+          case "${SUITE}" in
+            eval)  npm run scenarios -- --suite eval -- --eval all --confirm-spend --max-usd "${MAX_USD}" ;;
+            batch) npm run scenarios -- --suite batch --confirm-spend --max-cost-usd "${MAX_USD}" ;;
+            *)     npm run scenarios -- --suite "${SUITE}" --max-cost-usd "${MAX_USD}" ;;
+          esac
+
+      - name: Keep the reports (no PII; ids, codes, counts and durations only)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: scenario-reports-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 30

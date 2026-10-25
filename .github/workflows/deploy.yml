@@ -1,0 +1,175 @@
+# Deploys stage `poc` on every push to main. This is the only place `sst deploy` ever runs.
+#
+# Credentials come from GitHub's OIDC token exchanged for the deploy role created once by
+# infra/bootstrap/ci-role.yaml (aws-cds-hackathon-poc-reclamo-github-deploy); the smoke assumes the
+# qa-runner role of the same template. No access keys exist for this app. Secrets (`sst.Secret`)
+# must already be loaded for `poc` by the operator (docs/architecture.md §15 step 3): a secret
+# without a value stops the deploy.
+#
+# Both roles trust the `sub` of a push to main plus the numeric repository and owner ids and the
+# `job_workflow_ref` of this file. That is why the job declares NO `environment:`: with one, GitHub
+# emits `sub = repo:<org>/<repo>:environment:<name>` and AssumeRoleWithWebIdentity fails. The fix is
+# never a wildcard in the trust policy.
+#
+# Order (docs/architecture.md §15 step 5): every guard of ci.yml BEFORE any credential, then assume
+# the deploy role, prove who we are, deploy, load the seed (idempotent), check that no staff account has
+# a verified email, then the smoke. SC-00 (assume qa-runner, `--suite smoke`) spends Bedrock, so it runs
+# only when the repository variable DEPLOY_CHECKS is `on`, set by the CTO (unset = off; CTO decision:
+# no deployed-stage scenario run without the CTO's OK); otherwise the interim smoke, which calls no
+# model, runs instead.
+# Email is outbound only (ADR-0003): there is no step about receipt rules, and
+# `lint:no-ses-receiving` stops the run before the deploy if the code ever declares one. Steps whose
+# script is not in the repository yet print a notice and pass (never the guards).
+name: Deploy poc
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+# One deploy at a time; a queued run waits instead of racing the previous one for the SST lock.
+concurrency:
+  group: deploy-poc
+  cancel-in-progress: false
+
+env:
+  CI: "true"
+  SST_TELEMETRY_DISABLED: "1"
+  AWS_REGION: us-east-1
+  APP_URL: https://reclamo.demo.craftech.io
+
+jobs:
+  deploy:
+    name: Checks, then sst deploy --stage poc
+    runs-on: ubuntu-24.04
+    # Deploy (~25 min) plus SC-00: the malware plan up to 600 s, a guest world created and reset (600 s
+    # each at most) and the WAF metric of SMK/10 (up to 300 s).
+    timeout-minutes: 90
+    steps:
+      - name: Checkout (full history, the commit messages are checked too)
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node (exact version of .nvmrc)
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: "Guard: no local-only files are committed"
+        run: |
+          offenders="$(git ls-files | grep -E '\.local\.[^/]+$' || true)"
+          if [ -n "$offenders" ]; then
+            echo "::error::Local-only files are committed (see .gitignore):"
+            echo "$offenders"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint, duplicates, typecheck and tests
+        run: |
+          npm run lint
+          npm run lint:duplicates
+          npm run typecheck
+          npm test
+
+      - name: Seed, flows, tour, ownership, guards, tool schemas, channel modes and contracts
+        # seed:validate checks the seed texts against the forbidden terms too (fails closed without them).
+        env:
+          FORBIDDEN_TERMS: ${{ secrets.FORBIDDEN_TERMS }}
+        run: |
+          run_if() { if [ -f "$1" ]; then npm run "$2"; else echo "::notice::$2 skipped: $1 is not in the repository yet."; fi; }
+          run_if scripts/seed/validate.ts seed:validate
+          npm run flows:check
+          run_if scripts/tour/check.ts tour:check
+          npm run lint:wp-ownership
+          npm run lint:chokepoint
+          npm run lint:no-ses-receiving
+          run_if packages/bff/src/agent-tools/common/build-schemas.ts tools:build-schemas
+          npm run channels:check-modes
+          run_if scripts/core/contract-check.ts core:contract
+
+      - name: Build the console
+        run: npm run build -w packages/web
+
+      - name: Forbidden terms (tree, commit messages, PDFs, images, seed and web build)
+        # Fails closed: without the FORBIDDEN_TERMS secret the job fails. Terms are never printed.
+        env:
+          FORBIDDEN_TERMS: ${{ secrets.FORBIDDEN_TERMS }}
+        run: |
+          npm run lint:forbidden
+          npm run lint:forbidden -- --dist
+
+      - name: "Guard: neutral surfaces (lint:neutral-surfaces, visible sources and web build)"
+        # ADR-0019: nothing a visitor can see names the contest or the app's technical id.
+        run: |
+          npm run lint:neutral-surfaces
+          npm run lint:neutral-surfaces -- --dist
+
+      - name: Assume the deploy role (OIDC, no access keys)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN || 'arn:aws:iam::776805327629:role/aws-cds-hackathon-poc-reclamo-github-deploy' }}
+          role-session-name: github-deploy-${{ github.run_id }}
+          aws-region: us-east-1
+
+      - name: Who am I (proves the role was assumed without access keys)
+        run: aws sts get-caller-identity
+
+      # A changed tool schema reaches its Gateway target here, through UpdateGatewayTarget, before the
+      # deploy attaches Cedar statements that name its tools: Pulumi ignores the targets' schemas once they
+      # exist (docs/architecture.md §16). Nothing to do before the first deploy created the gateway.
+      - name: Push the Gateway tool schemas that changed
+        run: npx tsx scripts/agent/push-gateway-schemas.ts --apply
+
+      - name: Deploy stage poc
+        run: npx sst deploy --stage poc
+
+      - name: Publish the deployed URL in the run summary
+        run: |
+          {
+            echo "### Stage \`poc\` deployed"
+            echo ""
+            echo "- Console: ${APP_URL}"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Load the synthetic seed into poc (idempotent)
+        run: |
+          if [ ! -f scripts/seed/load.ts ]; then
+            echo "::notice::seed:load skipped: scripts/seed/load.ts is not in the repository yet (WP-34)."
+            exit 0
+          fi
+          npm run seed:load
+
+      # Read only, with the deploy role: no account without `@` may recover a password by email
+      # (docs/architecture-guests.md §2). Prints only usernames without `@`; exits 1 if any is verified.
+      # The QaDriver never runs this read: a self-signup's username is the lead's email.
+      - name: "Check: no staff account with a verified email (console:unverify-staff --check)"
+        run: npm run console:unverify-staff -- --check
+
+      # No model call: what runs whenever SC-00 does not.
+      - name: Interim smoke (no scenario runner, or DEPLOY_CHECKS off)
+        if: ${{ hashFiles('scripts/scenarios/run.ts') == '' || vars.DEPLOY_CHECKS != 'on' }}
+        run: npx tsx scripts/smoke/interim.ts --base-url "${APP_URL}"
+
+      # SC-00 spends Bedrock (warm-up turns, a complaint through the autopilot, a guest world): it runs only
+      # when the CTO sets the repository variable DEPLOY_CHECKS to `on`. Unset, it is off.
+      - name: Assume the qa-runner role (OIDC)
+        if: ${{ hashFiles('scripts/scenarios/run.ts') != '' && vars.DEPLOY_CHECKS == 'on' }}
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_QA_RUNNER_ROLE_ARN || 'arn:aws:iam::776805327629:role/aws-cds-hackathon-poc-reclamo-qa-runner' }}
+          role-session-name: github-qa-${{ github.run_id }}
+          aws-region: us-east-1
+
+      - name: Smoke scenarios (SC-00)
+        if: ${{ hashFiles('scripts/scenarios/run.ts') != '' && vars.DEPLOY_CHECKS == 'on' }}
+        run: npm run scenarios -- --suite smoke

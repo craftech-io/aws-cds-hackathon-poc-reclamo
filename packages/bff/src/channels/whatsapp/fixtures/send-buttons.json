@@ -1,0 +1,16 @@
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "5491100009001",
+  "type": "interactive",
+  "interactive": {
+    "type": "button",
+    "body": { "text": "¿Querés dejar de recibir mensajes por WhatsApp o dar de baja tu cuenta de Jarilla?" },
+    "action": {
+      "buttons": [
+        { "type": "reply", "reply": { "id": "01K6ZT0000NONCE0000000001", "title": "No recibir mensajes" } },
+        { "type": "reply", "reply": { "id": "01K6ZT0000NONCE0000000002", "title": "Baja de mi cuenta" } }
+      ]
+    }
+  }
+}

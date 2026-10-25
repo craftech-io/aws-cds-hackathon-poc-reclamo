@@ -1,0 +1,1011 @@
+{
+  "entries": [
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-01",
+      "label": "COLLECTION",
+      "text": "Pagá tu cuota hoy."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-02",
+      "label": "COLLECTION",
+      "text": "Aboná el saldo vencido antes del viernes."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-03",
+      "label": "COLLECTION",
+      "text": "Regularizá tu situación cuanto antes."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-04",
+      "label": "COLLECTION",
+      "text": "Cancelá tu deuda para seguir operando."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-05",
+      "label": "COLLECTION",
+      "text": "Te pedimos que pagues la cuota atrasada."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-06",
+      "label": "COLLECTION",
+      "text": "Pagala hoy así no se acumula."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-07",
+      "label": "COLLECTION",
+      "text": "Necesitamos que abones la cuota 3 esta semana."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-08",
+      "label": "COLLECTION",
+      "text": "Ponete al día con tu préstamo."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-09",
+      "label": "COLLECTION",
+      "text": "Realizá el pago de tu cuota vencida."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-10",
+      "label": "COLLECTION",
+      "text": "Acordate de pagar lo que debés."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-11",
+      "label": "COLLECTION",
+      "text": "Saldá la deuda pendiente lo antes posible."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-12",
+      "label": "COLLECTION",
+      "text": "Cubrí el monto adeudado hoy mismo."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-13",
+      "label": "COLLECTION",
+      "text": "Por favor, abone la cuota vencida."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-14",
+      "label": "COLLECTION",
+      "text": "Le solicitamos regularizar su deuda."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-15",
+      "label": "COLLECTION",
+      "text": "Pagá ya el saldo de tu préstamo."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-payment-exhortation-16",
+      "label": "COLLECTION",
+      "text": "Hacé el pago hoy y te quedás tranquilo."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-01",
+      "label": "COLLECTION",
+      "text": "Pagala hoy para evitar recargos."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-02",
+      "label": "COLLECTION",
+      "text": "Si no pagás, informaremos tu deuda."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-03",
+      "label": "COLLECTION",
+      "text": "Iniciaremos acciones legales si no regularizás."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-04",
+      "label": "COLLECTION",
+      "text": "Evitá recargos pagando antes del viernes."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-05",
+      "label": "COLLECTION",
+      "text": "Tu deuda pasará a gestión judicial."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-06",
+      "label": "COLLECTION",
+      "text": "Si no abonás, vamos a informarte a las centrales de riesgo."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-07",
+      "label": "COLLECTION",
+      "text": "De no regularizar, perderá los beneficios de su cuenta."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-08",
+      "label": "COLLECTION",
+      "text": "Evitá que tu deuda crezca con más intereses."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-09",
+      "label": "COLLECTION",
+      "text": "Si seguís sin pagar, bloquearemos tu billetera."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-10",
+      "label": "COLLECTION",
+      "text": "Tu caso será derivado a un estudio de cobranzas."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-11",
+      "label": "COLLECTION",
+      "text": "Te vamos a embargar si no pagás."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-12",
+      "label": "COLLECTION",
+      "text": "Evitá ser informado como deudor moroso."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-13",
+      "label": "COLLECTION",
+      "text": "Si no pagás hoy, se suman punitorios."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-14",
+      "label": "COLLECTION",
+      "text": "Último aviso antes de iniciar acciones legales."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-15",
+      "label": "COLLECTION",
+      "text": "La falta de pago va a tener consecuencias."
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-consequence-threat-16",
+      "label": "COLLECTION",
+      "text": "Evite inconvenientes regularizando su deuda."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-01",
+      "label": "COLLECTION",
+      "text": "Te recordamos que tu cuota está vencida."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-02",
+      "label": "COLLECTION",
+      "text": "Tenés una cuota impaga desde el 25/09."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-03",
+      "label": "COLLECTION",
+      "text": "Recordá que debés $ 64.210,00 de la cuota 3."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-04",
+      "label": "COLLECTION",
+      "text": "Tu préstamo registra un atraso de 12 días."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-05",
+      "label": "COLLECTION",
+      "text": "Aún no recibimos el pago de tu cuota vencida."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-06",
+      "label": "COLLECTION",
+      "text": "Te escribimos porque tenés un saldo vencido."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-07",
+      "label": "COLLECTION",
+      "text": "Recordatorio: tu cuota venció ayer."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-08",
+      "label": "COLLECTION",
+      "text": "Tu cuenta tiene una deuda pendiente."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-09",
+      "label": "COLLECTION",
+      "text": "Seguís debiendo la cuota de septiembre."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-10",
+      "label": "COLLECTION",
+      "text": "Te recordamos tu deuda con Jarilla."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-11",
+      "label": "COLLECTION",
+      "text": "Su préstamo se encuentra en mora."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-12",
+      "label": "COLLECTION",
+      "text": "Tenés dos cuotas atrasadas sin pagar."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-13",
+      "label": "COLLECTION",
+      "text": "Hola, tu cuota sigue sin pagar."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-14",
+      "label": "COLLECTION",
+      "text": "Recordatorio de mora: cuota 3 vencida."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-15",
+      "label": "COLLECTION",
+      "text": "Detectamos que no pagaste la última cuota."
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-debt-reminder-16",
+      "label": "COLLECTION",
+      "text": "Te avisamos que tu deuda sigue vigente."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-01",
+      "label": "COLLECTION",
+      "text": "Podés pagar el saldo al CVU 9990000001000000000001."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-02",
+      "label": "COLLECTION",
+      "text": "Pagá desde este link de pago."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-03",
+      "label": "COLLECTION",
+      "text": "Usá el código de pago 4471 en cualquier red de cobro."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-04",
+      "label": "COLLECTION",
+      "text": "Transferí el monto adeudado a este CVU."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-05",
+      "label": "COLLECTION",
+      "text": "Te dejamos el link para pagar tu cuota."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-06",
+      "label": "COLLECTION",
+      "text": "Escaneá el QR para abonar la deuda."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-07",
+      "label": "COLLECTION",
+      "text": "Pagá con el código de barras que te enviamos."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-08",
+      "label": "COLLECTION",
+      "text": "Depositá el saldo en la cuenta que te indicamos."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-09",
+      "label": "COLLECTION",
+      "text": "Abrí este enlace para cancelar tu deuda."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-10",
+      "label": "COLLECTION",
+      "text": "Tu código para pagar en la red de cobro es 99812."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-11",
+      "label": "COLLECTION",
+      "text": "Hacé la transferencia al alias de cobranzas."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-12",
+      "label": "COLLECTION",
+      "text": "Para pagar, tocá el botón Pagar ahora."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-13",
+      "label": "COLLECTION",
+      "text": "Te mandamos el cupón de pago de la cuota vencida."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-14",
+      "label": "COLLECTION",
+      "text": "Pagá online con tu tarjeta desde este link."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-15",
+      "label": "COLLECTION",
+      "text": "Cargá saldo en la billetera para que debitemos la cuota vencida."
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-payment-instrument-16",
+      "label": "COLLECTION",
+      "text": "Podés abonar en efectivo con este número de referencia de pago."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-01",
+      "label": "COLLECTION",
+      "text": "Te ofrecemos un plan de pagos para tu deuda."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-02",
+      "label": "COLLECTION",
+      "text": "Podemos hacerte una quita si pagás hoy."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-03",
+      "label": "COLLECTION",
+      "text": "Refinanciá tu deuda en 6 cuotas."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-04",
+      "label": "COLLECTION",
+      "text": "Aprovechá el descuento por pago contado de tu deuda."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-05",
+      "label": "COLLECTION",
+      "text": "Te proponemos un acuerdo de pago."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-06",
+      "label": "COLLECTION",
+      "text": "Si cancelás hoy, te condonamos los punitorios."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-07",
+      "label": "COLLECTION",
+      "text": "Tenemos un plan especial para deudores."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-08",
+      "label": "COLLECTION",
+      "text": "Podés regularizar en cuotas sin interés."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-09",
+      "label": "COLLECTION",
+      "text": "Ofrecemos una reestructuración de tu préstamo atrasado."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-10",
+      "label": "COLLECTION",
+      "text": "Aceptamos un pago parcial para frenar la mora."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-11",
+      "label": "COLLECTION",
+      "text": "Te bonificamos el 30 % si saldás la deuda."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-12",
+      "label": "COLLECTION",
+      "text": "Consultá nuestras opciones de financiación de deuda."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-13",
+      "label": "COLLECTION",
+      "text": "Armamos un plan a tu medida para que pagues."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-14",
+      "label": "COLLECTION",
+      "text": "Pagá la mitad y refinanciamos el resto."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-15",
+      "label": "COLLECTION",
+      "text": "Acordemos una fecha para que abones la deuda."
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-negotiation-16",
+      "label": "COLLECTION",
+      "text": "Te damos una quita especial por única vez."
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-01",
+      "label": "COLLECTION",
+      "text": "Pa­gá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-02",
+      "label": "COLLECTION",
+      "text": "Pa​gá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-03",
+      "label": "COLLECTION",
+      "text": "ｐａｇá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-04",
+      "label": "COLLECTION",
+      "text": "P4gá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-05",
+      "label": "COLLECTION",
+      "text": "Ab⁠oná la cuota vencida"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-06",
+      "label": "COLLECTION",
+      "text": "Pаgá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-07",
+      "label": "COLLECTION",
+      "text": "Abоná la cuota hoy"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-08",
+      "label": "COLLECTION",
+      "text": "Abοná la cuota hoy"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-09",
+      "label": "COLLECTION",
+      "text": "Paㅤgá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-10",
+      "label": "COLLECTION",
+      "text": "Pa⠀gá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-11",
+      "label": "COLLECTION",
+      "text": "Paﾠgá hoy la cuota"
+    },
+    {
+      "category": "PAYMENT_EXHORTATION",
+      "id": "col-adv-payment-exhortation-12",
+      "label": "COLLECTION",
+      "text": "P@gá hoy la cuota"
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-adv-consequence-threat-01",
+      "label": "COLLECTION",
+      "text": "Ev1tá recargos pagando hoy"
+    },
+    {
+      "category": "CONSEQUENCE_THREAT",
+      "id": "col-adv-consequence-threat-02",
+      "label": "COLLECTION",
+      "text": "Еvitá recargos pagando hoy"
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-adv-debt-reminder-01",
+      "label": "COLLECTION",
+      "text": "No te olvides de tu cuota de este mes"
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-adv-debt-reminder-02",
+      "label": "COLLECTION",
+      "text": "No olvides la cuota de octubre"
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-adv-debt-reminder-03",
+      "label": "COLLECTION",
+      "text": "No queremos que tu deuda siga creciendo"
+    },
+    {
+      "category": "DEBT_REMINDER",
+      "id": "col-adv-debt-reminder-04",
+      "label": "COLLECTION",
+      "text": "Tu cuota está sin pagar"
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-adv-payment-instrument-01",
+      "label": "COLLECTION",
+      "text": "Podés p​agar con este link"
+    },
+    {
+      "category": "PAYMENT_INSTRUMENT",
+      "id": "col-adv-payment-instrument-02",
+      "label": "COLLECTION",
+      "text": "Podés pаgаr con este link"
+    },
+    {
+      "category": "NEGOTIATION",
+      "id": "col-adv-negotiation-01",
+      "label": "COLLECTION",
+      "text": "Te ofrecemos un p­lan de pagos"
+    },
+    {
+      "id": "svc-01",
+      "label": "SERVICE",
+      "text": "Tu cuota ya no figura atrasada."
+    },
+    {
+      "id": "svc-02",
+      "label": "SERVICE",
+      "text": "Tu saldo pendiente es $ 237.280,00."
+    },
+    {
+      "id": "svc-03",
+      "label": "SERVICE",
+      "text": "Registré tu reclamo R-2026-000123."
+    },
+    {
+      "id": "svc-04",
+      "label": "SERVICE",
+      "text": "La respuesta escrita te llega a más tardar el jueves 22/10."
+    },
+    {
+      "id": "svc-05",
+      "label": "SERVICE",
+      "text": "Ya tenemos la rendición de la red."
+    },
+    {
+      "id": "svc-06",
+      "label": "SERVICE",
+      "text": "Tu pago ya se refleja en tu cuenta."
+    },
+    {
+      "id": "svc-07",
+      "label": "SERVICE",
+      "text": "Imputamos tu pago a la cuota 4."
+    },
+    {
+      "id": "svc-08",
+      "label": "SERVICE",
+      "text": "Revertimos el cargo que reclamaste."
+    },
+    {
+      "id": "svc-09",
+      "label": "SERVICE",
+      "text": "El reintegro ya figura acreditado en tu billetera."
+    },
+    {
+      "id": "svc-10",
+      "label": "SERVICE",
+      "text": "La transferencia ya figura acreditada."
+    },
+    {
+      "id": "svc-11",
+      "label": "SERVICE",
+      "text": "Mandame una foto del comprobante, así lo reviso."
+    },
+    {
+      "id": "svc-12",
+      "label": "SERVICE",
+      "text": "Una persona del equipo sigue tu reclamo."
+    },
+    {
+      "id": "svc-13",
+      "label": "SERVICE",
+      "text": "Tu próxima cuota vence el 15/10."
+    },
+    {
+      "id": "svc-14",
+      "label": "SERVICE",
+      "text": "Te mandamos el libre deuda por email."
+    },
+    {
+      "id": "svc-15",
+      "label": "SERVICE",
+      "text": "Tu préstamo quedó cancelado."
+    },
+    {
+      "id": "svc-16",
+      "label": "SERVICE",
+      "text": "La cotización para cancelar el préstamo vale hasta el fin del día hábil."
+    },
+    {
+      "id": "svc-17",
+      "label": "SERVICE",
+      "text": "Registramos tu pedido de baja."
+    },
+    {
+      "id": "svc-18",
+      "label": "SERVICE",
+      "text": "Te confirmamos el cambio de domicilio por email a tu dirección registrada."
+    },
+    {
+      "id": "svc-19",
+      "label": "SERVICE",
+      "text": "Bloqueamos las salidas de tu billetera como protección."
+    },
+    {
+      "id": "svc-20",
+      "label": "SERVICE",
+      "text": "Nunca te vamos a pedir claves ni códigos."
+    },
+    {
+      "id": "svc-21",
+      "label": "SERVICE",
+      "text": "Para ver tu cuenta, decime la fecha de vencimiento de tu última cuota."
+    },
+    {
+      "id": "svc-22",
+      "label": "SERVICE",
+      "text": "Estamos revisando tu reclamo; te escribimos apenas tengamos novedades."
+    },
+    {
+      "id": "svc-23",
+      "label": "SERVICE",
+      "text": "El desembolso ya figura acreditado en tu billetera."
+    },
+    {
+      "id": "svc-24",
+      "label": "SERVICE",
+      "text": "El desembolso se acredita dentro de 1 día hábil."
+    },
+    {
+      "id": "svc-25",
+      "label": "SERVICE",
+      "text": "La transferencia rechazada ya volvió a tu billetera."
+    },
+    {
+      "id": "svc-26",
+      "label": "SERVICE",
+      "text": "Seguimos esperando la confirmación de la red."
+    },
+    {
+      "id": "svc-27",
+      "label": "SERVICE",
+      "text": "Tu reclamo fue resuelto."
+    },
+    {
+      "id": "svc-28",
+      "label": "SERVICE",
+      "text": "Te paso con una persona del equipo."
+    },
+    {
+      "id": "svc-29",
+      "label": "SERVICE",
+      "text": "Tenés derecho a una respuesta escrita en 10 días hábiles."
+    },
+    {
+      "id": "svc-30",
+      "label": "SERVICE",
+      "text": "Si la respuesta no te satisface, podés presentar tu reclamo ante el BCRA."
+    },
+    {
+      "id": "svc-31",
+      "label": "SERVICE",
+      "text": "El cargo de reposición de tarjeta corresponde a tu pedido del 26/09."
+    },
+    {
+      "id": "svc-32",
+      "label": "SERVICE",
+      "text": "El interés punitorio se calculó por 5 días de atraso de la cuota 2."
+    },
+    {
+      "id": "svc-33",
+      "label": "SERVICE",
+      "text": "Tu cuenta está bloqueada hasta validar tu identidad."
+    },
+    {
+      "id": "svc-34",
+      "label": "SERVICE",
+      "text": "No encontramos el pago en la rendición publicada; lo revisa una persona."
+    },
+    {
+      "id": "svc-35",
+      "label": "SERVICE",
+      "text": "No pude leer bien la foto; mandame otra."
+    },
+    {
+      "id": "svc-36",
+      "label": "SERVICE",
+      "text": "La red rinde el pago el jueves a las 8:30."
+    },
+    {
+      "id": "svc-37",
+      "label": "SERVICE",
+      "text": "Tu pago se hizo dentro de la tolerancia, sin interés punitorio."
+    },
+    {
+      "id": "svc-38",
+      "label": "SERVICE",
+      "text": "Te mandamos el estado de cuenta actualizado por email."
+    },
+    {
+      "id": "svc-39",
+      "label": "SERVICE",
+      "text": "Tu consulta quedó registrada con número."
+    },
+    {
+      "id": "svc-40",
+      "label": "SERVICE",
+      "text": "El débito duplicado se reintegró a tu billetera."
+    },
+    {
+      "id": "svc-41",
+      "label": "SERVICE",
+      "text": "Los dos débitos corresponden a cuotas distintas."
+    },
+    {
+      "id": "svc-42",
+      "label": "SERVICE",
+      "text": "Tu billetera tiene un saldo disponible de $ 12.400,00."
+    },
+    {
+      "id": "svc-43",
+      "label": "SERVICE",
+      "text": "Tu préstamo tiene 3 cuotas por vencer."
+    },
+    {
+      "id": "svc-44",
+      "label": "SERVICE",
+      "text": "La cuota 5 quedó pagada."
+    },
+    {
+      "id": "svc-45",
+      "label": "SERVICE",
+      "text": "El pago parcial se imputó a la cuota 5 y el resto de la cuota queda en $ 37.400,00."
+    },
+    {
+      "id": "svc-46",
+      "label": "SERVICE",
+      "text": "La operación que no reconocés es una transferencia del 07/10 a las 06:12."
+    },
+    {
+      "id": "svc-47",
+      "label": "SERVICE",
+      "text": "Recibimos tu foto del comprobante."
+    },
+    {
+      "id": "svc-48",
+      "label": "SERVICE",
+      "text": "No puedo ayudarte con préstamos nuevos por este medio."
+    },
+    {
+      "id": "svc-49",
+      "label": "SERVICE",
+      "text": "Tu reclamo sigue abierto y lo estamos revisando."
+    },
+    {
+      "id": "svc-50",
+      "label": "SERVICE",
+      "text": "Hay una novedad en tu reclamo."
+    },
+    {
+      "id": "svc-51",
+      "label": "SERVICE",
+      "text": "La aprobación la decide una persona del equipo."
+    },
+    {
+      "id": "svc-52",
+      "label": "SERVICE",
+      "text": "La acción espera la aprobación de una persona."
+    },
+    {
+      "id": "svc-53",
+      "label": "SERVICE",
+      "text": "La respuesta escrita salió por email."
+    },
+    {
+      "id": "svc-54",
+      "label": "SERVICE",
+      "text": "No pudimos entregar la respuesta a tu email; una persona te contacta."
+    },
+    {
+      "id": "svc-55",
+      "label": "SERVICE",
+      "text": "Listo, no te vamos a mandar más mensajes por WhatsApp."
+    },
+    {
+      "id": "svc-56",
+      "label": "SERVICE",
+      "text": "¿Querés dejar de recibir mensajes por WhatsApp o dar de baja tu cuenta?"
+    },
+    {
+      "id": "svc-57",
+      "label": "SERVICE",
+      "text": "El saldo para cancelar tu préstamo hoy es de $ 474.560,00."
+    },
+    {
+      "id": "svc-58",
+      "label": "SERVICE",
+      "text": "Tu préstamo no tiene cuotas vencidas."
+    },
+    {
+      "id": "svc-59",
+      "label": "SERVICE",
+      "text": "La transferencia está pendiente en la red y se acredita dentro de 48 horas."
+    },
+    {
+      "id": "svc-60",
+      "label": "SERVICE",
+      "text": "El cambio de teléfono lo verifica una persona del equipo."
+    },
+    {
+      "id": "svc-61",
+      "label": "SERVICE",
+      "text": "Te confirmamos que el pago llegó."
+    },
+    {
+      "id": "svc-62",
+      "label": "SERVICE",
+      "text": "Cuando lo cancelés, lo emitimos."
+    },
+    {
+      "id": "svc-63",
+      "label": "SERVICE",
+      "text": "La rendición de la Red de cobro Norte se publica mañana a las 8:30."
+    },
+    {
+      "id": "svc-64",
+      "label": "SERVICE",
+      "text": "Te adjuntamos la nota de crédito."
+    },
+    {
+      "id": "svc-65",
+      "label": "SERVICE",
+      "text": "El interés compensatorio del reintegro usa una tasa de referencia sintética."
+    },
+    {
+      "id": "svc-66",
+      "label": "SERVICE",
+      "text": "Recibimos tu pedido de detalle anual de pagos."
+    },
+    {
+      "id": "svc-67",
+      "label": "SERVICE",
+      "text": "Tu reclamo pasó a una persona por la operación que no reconocés."
+    },
+    {
+      "id": "svc-68",
+      "label": "SERVICE",
+      "text": "Tu respuesta escrita está en el PDF adjunto."
+    },
+    {
+      "id": "svc-69",
+      "label": "SERVICE",
+      "text": "Gracias por escribirnos."
+    },
+    {
+      "id": "svc-70",
+      "label": "SERVICE",
+      "text": "¿En qué te puedo ayudar con tu cuenta?"
+    },
+    {
+      "id": "svc-71",
+      "label": "SERVICE",
+      "text": "Tu identidad quedó verificada."
+    },
+    {
+      "id": "svc-72",
+      "label": "SERVICE",
+      "text": "Ese dato no coincide con lo que tenemos; te pregunto una vez más."
+    },
+    {
+      "id": "svc-73",
+      "label": "SERVICE",
+      "text": "Tu cuenta sigue activa: esto no es una baja."
+    },
+    {
+      "id": "svc-74",
+      "label": "SERVICE",
+      "text": "El plazo de respuesta vence el 22/10."
+    },
+    {
+      "id": "svc-75",
+      "label": "SERVICE",
+      "text": "La cuota 4 figura pendiente de acreditación hasta que la red rinda el pago."
+    },
+    {
+      "id": "svc-76",
+      "label": "SERVICE",
+      "text": "Te avisamos cuando la red publique la rendición."
+    },
+    {
+      "id": "svc-77",
+      "label": "SERVICE",
+      "text": "El libre deuda se emite cuando el préstamo queda cancelado; te detallo las cuotas que faltan."
+    },
+    {
+      "id": "svc-78",
+      "label": "SERVICE",
+      "text": "Una vez que lo canceles, te lo mandamos."
+    },
+    {
+      "id": "svc-79",
+      "label": "SERVICE",
+      "text": "El comprobante quedó guardado en tu reclamo."
+    },
+    {
+      "id": "svc-80",
+      "label": "SERVICE",
+      "text": "Tu pedido de cambio de email quedó registrado."
+    }
+  ],
+  "version": "v002"
+}

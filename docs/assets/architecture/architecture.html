@@ -1,0 +1,138 @@
+<!doctype html>
+<!-- Source of the AWS architecture diagram of Reclamo en regla. `npm run diagram:render`
+     (scripts/diagram/render-architecture.ts) renders it with Playwright at scale 2:
+       ?variant=public&lang=en       docs/assets/architecture-public.png (README body)
+       ?variant=submission&lang=en   docs/assets/architecture.png (README "Submission notes", gallery)
+       ?variant=public&lang=es|en    the landing's #integracion (packages/web/public/landing/architecture/)
+     The public variant hides every `.cds` mark. Layout: boxes on a fixed grid (5 columns of 300-340 px,
+     4 rows and a data band); every connector is a horizontal or vertical run that never crosses a box,
+     checked by the renderer before it writes anything. Icons: AWS Architecture Icons from the MIT
+     `aws-icons` package (icons/LICENSE-aws-icons), 56 px. Every name here must match the code and
+     docs/architecture.md. -->
+<html lang="en" data-lang="en" data-variant="submission">
+<head>
+<meta charset="utf-8">
+<title>Reclamo en regla · AWS architecture</title>
+<script>
+  // Reads the variant and the language from the address before the first paint.
+  const query = new URLSearchParams(location.search);
+  const lang = query.get("lang") === "es" ? "es" : "en";
+  document.documentElement.lang = lang;
+  document.documentElement.dataset.lang = lang;
+  document.documentElement.dataset.variant = query.get("variant") === "public" ? "public" : "submission";
+</script>
+<style>
+  :root { --ink: #16191f; --muted: #4b535c; --line: #3d4650; --cds: #c7157b; --chan: #d45b07; --agent: #3b48cc; --data: #5a6b7b; }
+  * { box-sizing: border-box; }
+  html[data-lang="en"] .es, html[data-lang="es"] .en, html[data-variant="public"] .cds { display: none; }
+  body { margin: 0; background: #fff; font-family: "Helvetica Neue", Arial, sans-serif; color: var(--ink); }
+  #canvas { position: relative; width: 1920px; height: 1160px; background: #fff; overflow: hidden; }
+  h1 { position: absolute; left: 40px; top: 24px; margin: 0; font-size: 32px; letter-spacing: -.01em; }
+  .sub { position: absolute; left: 42px; top: 70px; font-size: 17px; color: var(--muted); }
+  .group { position: absolute; border: 2px dashed var(--c); border-radius: 12px; background: color-mix(in srgb, var(--c) 5%, white); }
+  .group > .label { position: absolute; top: -12px; left: 16px; background: #fff; padding: 0 8px; font-size: 14px; font-weight: 700; color: var(--c); letter-spacing: .04em; text-transform: uppercase; line-height: 22px; white-space: nowrap; }
+  .node { position: absolute; border: 1.5px solid #c9d1d9; border-radius: 10px; background: #fff; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; overflow: hidden; }
+  .node img { width: 56px; height: 56px; flex: none; }
+  .node .t { font-weight: 700; font-size: 17px; line-height: 1.2; }
+  .node .d { font-size: 13.5px; color: var(--muted); line-height: 1.38; margin-top: 4px; }
+  .party { background: #f1f3f5; border-color: #9aa5b1; align-items: center; }
+  .party .glyph { width: 52px; height: 52px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 22px; flex: none; }
+  .tag { position: absolute; font-size: 13px; line-height: 18px; color: var(--muted); background: #fff; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+  .cds { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: var(--cds); border-radius: 4px; padding: 1px 5px; vertical-align: middle; letter-spacing: .04em; text-transform: none; }
+  .legend { position: absolute; left: 40px; top: 1092px; width: 1840px; font-size: 14.5px; color: var(--muted); display: flex; gap: 36px; align-items: center; }
+  .cds.plain { background: none; color: var(--muted); font-size: 14.5px; font-weight: 400; padding: 0; margin-left: -28px; letter-spacing: 0; }
+  .legend i { display: inline-block; width: 36px; vertical-align: middle; margin-right: 8px; border-top: 2.5px solid var(--line); }
+  .legend i.dashed { border-top-style: dashed; }
+  svg { position: absolute; left: 0; top: 0; pointer-events: none; }
+  .wire { fill: none; stroke: var(--line); stroke-width: 2.5; }
+  .wire.dashed { stroke-dasharray: 8 6; }
+  .joint { fill: var(--line); }
+</style>
+</head>
+<body>
+<div id="canvas">
+  <h1><span class="en">Reclamo en regla · AWS architecture</span><span class="es">Reclamo en regla · Arquitectura en AWS</span></h1>
+  <div class="sub"><span class="en">Serverless on AWS, all infrastructure as code (SST v4) · ordered events per customer · the code decides, the agent investigates and writes</span><span class="es">Serverless en AWS, toda la infraestructura como código (SST v4) · eventos ordenados por cliente · el código decide, el agente investiga y redacta</span></div>
+
+  <!-- Groups -->
+  <div class="group" style="--c: var(--chan); left:380px; top:120px; width:380px; height:560px"><div class="label"><span class="en">Channels</span><span class="es">Canales</span> <span class="cds">AWS CDS</span></div></div>
+  <div class="group" style="--c: var(--agent); left:1540px; top:120px; width:360px; height:540px"><div class="label"><span class="en">Agent · Amazon Bedrock AgentCore</span><span class="es">Agente · Amazon Bedrock AgentCore</span></div></div>
+  <div class="group" style="--c: var(--data); left:380px; top:880px; width:1520px; height:180px"><div class="label"><span class="en">Data, audit and simulated systems</span><span class="es">Datos, auditoría y sistemas simulados</span></div></div>
+
+  <!-- Column 1: who talks to it -->
+  <div class="node party" style="left:40px; top:150px; width:300px; height:100px"><div class="glyph">💬</div><div><div class="t"><span class="en">Customer</span><span class="es">Cliente</span></div><div class="d"><span class="en">Any complaint about the account, by WhatsApp</span><span class="es">Cualquier reclamo de su cuenta, por WhatsApp</span></div></div></div>
+  <div class="node party" style="left:40px; top:510px; width:300px; height:110px"><div class="glyph">✓</div><div><div class="t"><span class="en">Operations team</span><span class="es">Equipo de operaciones</span></div><div class="d"><span class="en">Operator, supervisor, compliance; guests in their own world</span><span class="es">Operador, supervisor, cumplimiento; invitados en su propio mundo</span></div></div></div>
+  <div class="node" style="left:40px; top:700px; width:300px; height:130px"><img src="icons/AmazonCloudFront.svg" alt=""><div><div class="t"><span class="en">Web console</span><span class="es">Consola web</span></div><div class="d"><span class="en">CloudFront, AWS WAF, Amazon Cognito (own sign-in and self-signup)</span><span class="es">CloudFront, AWS WAF, Amazon Cognito (login propio y alta propia)</span></div></div></div>
+
+  <!-- Column 2: channels -->
+  <div class="node" style="left:400px; top:150px; width:340px; height:160px"><img src="icons/AWSEndUserMessaging.svg" alt=""><div><div class="t">AWS End User Messaging Social <span class="cds">CDS</span></div><div class="d"><span class="en">WhatsApp Business: templates, buttons, media; events → Amazon SNS. Visitors use the console's phone simulator, same inbound path.</span><span class="es">WhatsApp Business: plantillas, botones, medios; eventos → Amazon SNS. Visitantes: simulador de teléfono de la consola, mismo camino.</span></div></div></div>
+  <div class="node" style="left:400px; top:510px; width:340px; height:140px"><img src="icons/AmazonSimpleEmailService.svg" alt=""><div><div class="t">Amazon SES v2 <span class="cds">CDS</span></div><div class="d"><span class="en">Send only: written answers, certificates and formal notices with PDFs; delivery, bounce and complaint events → EventBridge</span><span class="es">Solo salida: respuestas escritas, certificados y avisos formales con PDF; eventos de entrega, rebote y queja → EventBridge</span></div></div></div>
+
+  <!-- Column 3: entry -->
+  <div class="node" style="left:800px; top:150px; width:320px; height:130px"><img src="icons/AWSLambda.svg" alt=""><div><div class="t">InboundWhatsApp</div><div class="d"><span class="en">Identity by phone, input classifier on Amazon Bedrock, complaint number on the spot</span><span class="es">Identidad por teléfono, clasificador de entrada en Amazon Bedrock, número de reclamo en el acto</span></div></div></div>
+  <div class="node" style="left:800px; top:330px; width:320px; height:120px"><img src="icons/AmazonEventBridge.svg" alt=""><div><div class="t">EventBridge Scheduler</div><div class="d"><span class="en">One schedule per milestone → ScheduleDispatch: the 10-business-day clock, settlement files</span><span class="es">Un schedule por hito → ScheduleDispatch: el plazo de 10 días hábiles, las rendiciones</span></div></div></div>
+  <div class="node" style="left:800px; top:510px; width:320px; height:130px"><img src="icons/AWSLambda.svg" alt=""><div><div class="t">EmailEvents</div><div class="d"><span class="en">SES events → delivery proof of every written answer</span><span class="es">Eventos de SES → constancia de entrega de cada respuesta escrita</span></div></div></div>
+  <div class="node" style="left:800px; top:700px; width:320px; height:130px"><img src="icons/AWSLambda.svg" alt=""><div><div class="t">Bff · tRPC</div><div class="d"><span class="en">Console API; the phone simulator signs its messages for InboundWhatsApp; guest self-signup and leads</span><span class="es">API de la consola; el simulador de teléfono firma sus mensajes para InboundWhatsApp; alta propia y leads</span></div></div></div>
+
+  <!-- Column 4: orchestration and the outbound gate -->
+  <div class="node" style="left:1180px; top:150px; width:320px; height:130px"><img src="icons/AmazonSimpleQueueService.svg" alt=""><div><div class="t">Amazon SQS FIFO</div><div class="d"><span class="en">Ordered per customer; separate queues for self-signup and test worlds; dead-letter queues</span><span class="es">Orden por cliente; colas aparte para los mundos de alta propia y de prueba; colas de fallidos</span></div></div></div>
+  <div class="node" style="left:1180px; top:330px; width:320px; height:120px"><img src="icons/AWSLambda.svg" alt=""><div><div class="t">EventWorker</div><div class="d"><span class="en">Preloaded reads, agent turns, timers and the obligations the code enforces after each turn</span><span class="es">Lecturas precargadas, turnos del agente, timers y las obligaciones que el código hace cumplir</span></div></div></div>
+  <div class="node" style="left:1180px; top:510px; width:320px; height:130px"><img src="icons/AmazonBedrock.svg" alt=""><div><div class="t"><span class="en">Outbound gate</span><span class="es">Compuerta de salida</span></div><div class="d"><span class="en">In every sender: channel policy (no collection on WhatsApp), Bedrock Guardrails, recipient fence, compliance tape</span><span class="es">En todo emisor: política de canal (sin cobranza por WhatsApp), Bedrock Guardrails, cerco, cinta de cumplimiento</span></div></div></div>
+
+  <!-- Column 5: the agent -->
+  <div class="node" style="left:1560px; top:150px; width:320px; height:130px"><img src="icons/AmazonBedrockAgentCore.svg" alt=""><div><div class="t">AgentCore Harness</div><div class="d"><span class="en">Claude Sonnet on Amazon Bedrock, AgentCore Memory, input guardrail</span><span class="es">Claude Sonnet en Amazon Bedrock, AgentCore Memory, guardrail de entrada</span></div></div></div>
+  <div class="node" style="left:1560px; top:330px; width:320px; height:120px"><img src="icons/AmazonBedrockAgentCore.svg" alt=""><div><div class="t">AgentCore Gateway · Policy</div><div class="d"><span class="en">MCP over IAM; Cedar authorizes every tool call</span><span class="es">MCP con IAM; Cedar autoriza cada llamada a una tool</span></div></div></div>
+  <div class="node" style="left:1560px; top:510px; width:320px; height:130px"><img src="icons/AWSLambda.svg" alt=""><div><div class="t"><span class="en">7 tool Lambdas</span><span class="es">7 Lambdas de tools</span></div><div class="d"><span class="en">Identity, account, investigation, actions, complaints, messaging, handoff; receipts read with Bedrock</span><span class="es">Identidad, cuenta, investigación, acciones, reclamos, mensajes, derivación; comprobantes leídos con Bedrock</span></div></div></div>
+
+  <!-- Data band -->
+  <div class="node" style="left:400px; top:910px; width:340px; height:130px"><img src="icons/AmazonDynamoDB.svg" alt=""><div><div class="t">Amazon DynamoDB</div><div class="d"><span class="en">Complaints, append-only register and tape with a hash chain, timers, worlds; leads in a table apart</span><span class="es">Reclamos, registro y cinta append-only con cadena de hash, timers, mundos; leads en una tabla aparte</span></div></div></div>
+  <div class="node" style="left:800px; top:910px; width:320px; height:130px"><img src="icons/AmazonSimpleStorageService.svg" alt=""><div><div class="t">Amazon S3 · GuardDuty</div><div class="d"><span class="en">Receipts scanned for malware, PDFs, sent emails, verified exports</span><span class="es">Comprobantes escaneados contra malware, PDFs, emails enviados, exportaciones verificadas</span></div></div></div>
+  <div class="node" style="left:1180px; top:910px; width:320px; height:130px"><img src="icons/AmazonCloudWatch.svg" alt=""><div><div class="t">Amazon CloudWatch Logs</div><div class="d"><span class="en">Register and tape anchors outside the tables; JSON logs, metric filters, alarms</span><span class="es">Anclas del registro y la cinta fuera de las tablas; logs JSON, metric filters, alarmas</span></div></div></div>
+  <div class="node" style="left:1560px; top:910px; width:320px; height:130px"><img src="icons/AWSLambda.svg" alt=""><div><div class="t"><span class="en">Simulated systems</span><span class="es">Sistemas simulados</span></div><div class="d"><span class="en">A fictitious lender's core, collection networks with settlement files, a transfer network</span><span class="es">El core de un prestamista ficticio, redes de cobro con rendiciones, una red de transferencias</span></div></div></div>
+
+  <!-- Connectors: horizontal and vertical runs only (render-architecture.ts checks that none crosses a box). -->
+  <svg width="1920" height="1160" viewBox="0 0 1920 1160">
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3d4650"/></marker></defs>
+    <!-- customer → WhatsApp Business (dashed) → InboundWhatsApp → queue -->
+    <polyline class="wire dashed" points="340,200 400,200" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="740,200 800,200" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1120,215 1180,215" marker-end="url(#arrow)"/>
+    <!-- scheduler and SES events join one run into the queue -->
+    <polyline class="wire" points="1120,390 1150,390 1150,255 1180,255" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1120,560 1150,560 1150,390"/>
+    <circle class="joint" cx="1150" cy="390" r="4.5"/>
+    <polyline class="wire" points="740,575 800,575" marker-end="url(#arrow)"/>
+    <!-- queue → worker ⇄ agent → gateway → tools -->
+    <polyline class="wire" points="1340,280 1340,330" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1500,390 1525,390 1525,215 1560,215" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+    <polyline class="wire" points="1720,280 1720,330" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1720,450 1720,510" marker-end="url(#arrow)"/>
+    <!-- every sender goes through the gate: worker, tools, operator (Bff) -->
+    <polyline class="wire" points="1340,450 1340,510" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1560,575 1500,575" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1120,765 1400,765 1400,640" marker-end="url(#arrow)"/>
+    <!-- gate → channels, gate → anchors, tools ⇄ simulated systems -->
+    <polyline class="wire" points="1220,640 1220,668 760,668" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1460,640 1460,910" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="1720,640 1720,910" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+    <!-- people → console ⇄ Bff -->
+    <polyline class="wire" points="190,620 190,700" marker-end="url(#arrow)"/>
+    <polyline class="wire" points="340,765 800,765" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+  </svg>
+
+  <div class="tag" style="left:764px; top:174px; padding:1px 3px">SNS</div>
+  <div class="tag" style="left:820px; top:675px"><span class="en">every outbound message, to WhatsApp or email</span><span class="es">todo mensaje saliente, a WhatsApp o email</span></div>
+  <div class="tag" style="left:1170px; top:740px"><span class="en">operator messages</span><span class="es">mensajes del operador</span></div>
+  <div class="tag" style="left:1468px; top:840px"><span class="en">anchors</span><span class="es">anclas</span></div>
+  <div class="tag" style="left:1728px; top:760px"><span class="en">connector contract</span><span class="es">contrato de conector</span></div>
+  <div class="tag" style="left:540px; top:740px">HTTPS</div>
+
+  <div class="legend">
+    <span><i></i><span class="en">Runs in the deployed stage</span><span class="es">Corre en el entorno desplegado</span></span>
+    <span><i class="dashed"></i><span class="en">WhatsApp Business path (End User Messaging Social → SNS)</span><span class="es">Camino de WhatsApp Business (End User Messaging Social → SNS)</span></span>
+    <span><span class="en">Every Lambda reads and writes only its own tables and buckets</span><span class="es">Cada Lambda lee y escribe solo sus propias tablas y buckets</span></span>
+    <span class="cds">AWS CDS</span><span class="cds plain">AWS Communication Developer Services used by the product</span>
+  </div>
+</div>
+</body>
+</html>

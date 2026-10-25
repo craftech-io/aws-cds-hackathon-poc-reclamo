@@ -1,0 +1,11 @@
+{
+  "name": "aws-cds-hackathon-poc-reclamo",
+  "defaultSuite": "smoke",
+  "suites": {
+    "smoke": { "command": "npx vitest run --config tests/agent/vitest.config.ts tests/agent/smoke.agent.test.ts", "description": "The shortest customer turns: a greeting, a complaint with its number on the spot, an out-of-scope request." },
+    "scenarios": { "command": "npx vitest run --config tests/agent/vitest.config.ts tests/agent/scenarios/", "description": "The model-dependent scenarios of scripts/scenarios on the local world (map in tests/agent/support/scenario-map.ts)." },
+    "evals": { "command": "npx vitest run --config tests/agent/vitest.config.ts tests/agent/evals/", "description": "The grounding evaluation (evals/grounding.json): one conversation per question." },
+    "all": { "command": "npx vitest run --config tests/agent/vitest.config.ts", "description": "Every agent test of tests/agent." }
+  },
+  "outDir": "test-results/agent-test"
+}

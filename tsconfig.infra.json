@@ -1,0 +1,18 @@
+{
+  // Program for sst.config.ts and infra/**. It needs .sst/platform/config.d.ts for the SST
+  // globals ($config, $app, sst, aws, awsnative), which pulls SST's vendored platform sources
+  // into the program; scripts/lint/typecheck-infra.ts runs this config and reports only the
+  // diagnostics that belong to files of this repository.
+  "extends": "./tsconfig.json",
+  "include": [
+    "sst.config.ts",
+    "sst-env.d.ts",
+    "infra/**/*.ts",
+    ".sst/platform/config.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "packages",
+    "dist"
+  ]
+}

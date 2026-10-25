@@ -1,0 +1,696 @@
+{
+  "entries": [
+    {
+      "expectedClauseIds": [
+        "D-2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-01",
+      "question": "¿En cuánto tiempo me tienen que contestar el reclamo?",
+      "requiredFacts": [
+        "10 días hábiles"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "D-1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-02",
+      "question": "¿Me dan un número de reclamo?",
+      "requiredFacts": [
+        "número"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "D-3"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-03",
+      "question": "¿Me pueden mandar la respuesta por email?",
+      "requiredFacts": [
+        "email"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "D-4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-04",
+      "question": "¿Puedo hablar con una persona?",
+      "requiredFacts": [
+        "persona"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "D-5"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-05",
+      "question": "Si no estoy de acuerdo con la respuesta, ¿qué puedo hacer?",
+      "requiredFacts": [
+        "Banco Central"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "D-2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-06",
+      "question": "¿Cuentan los feriados en el plazo de respuesta?",
+      "requiredFacts": [
+        "hábiles"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-3.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-07",
+      "question": "¿Qué es el interés punitorio?",
+      "requiredFacts": [
+        "50 %"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-3.1",
+        "T-3.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-08",
+      "question": "¿Desde cuándo corre el punitorio?",
+      "requiredFacts": [
+        "día siguiente"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-3.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-09",
+      "question": "Pagué un día después del vencimiento, ¿me cobran punitorio?",
+      "requiredFacts": [
+        "2 días"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-3.4",
+        "T-2.5"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-10",
+      "question": "La red rindió mi pago tarde, ¿pago punitorio igual?",
+      "requiredFacts": [
+        "fecha"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-3.3"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-11",
+      "question": "¿Dónde veo el punitorio que me cobraron?",
+      "requiredFacts": [
+        "detalle"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-6.1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-12",
+      "question": "¿Puedo cancelar el préstamo antes?",
+      "requiredFacts": [
+        "total o parcial"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-6.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-13",
+      "question": "¿Cuánto cuesta cancelar el préstamo por adelantado?",
+      "requiredFacts": [
+        "2 %",
+        "25 %"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-6.3"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-14",
+      "question": "¿Hasta cuándo vale la cotización de cancelación?",
+      "requiredFacts": [
+        "día hábil"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-6.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-15",
+      "question": "Si cancelo, ¿me dan el libre deuda?",
+      "requiredFacts": [
+        "libre deuda"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-7.1",
+        "T-7.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-16",
+      "question": "¿Cómo doy de baja la cuenta?",
+      "requiredFacts": [
+        "cualquier canal"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-7.3"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-17",
+      "question": "Tengo un préstamo vigente, ¿puedo dar de baja la cuenta?",
+      "requiredFacts": [
+        "préstamo"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-7.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-18",
+      "question": "¿Me confirman la baja por escrito?",
+      "requiredFacts": [
+        "por escrito"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-4.3"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-19",
+      "question": "¿Cuánto cuesta transferir desde la billetera?",
+      "requiredFacts": [
+        "sin costo | no tienen costo | no tiene costo"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-4.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-20",
+      "question": "¿Para qué sirve el CVU?",
+      "requiredFacts": [
+        "CVU"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-4.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-21",
+      "question": "¿Por qué me bloquearon las transferencias salientes?",
+      "requiredFacts": [
+        "protección"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-4.5"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-22",
+      "question": "¿Quién levanta el bloqueo de la billetera?",
+      "requiredFacts": [
+        "persona"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-4.6"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-23",
+      "question": "¿Cuánto sale reponer la tarjeta?",
+      "requiredFacts": [
+        "$ 2.500"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-4.1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-24",
+      "question": "¿Cuántos días de movimientos muestra la billetera?",
+      "requiredFacts": [
+        "90 días"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-2.1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-25",
+      "question": "¿Dónde puedo pagar la cuota?",
+      "requiredFacts": [
+        "redes de cobro"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-2.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-26",
+      "question": "¿A qué cuota se imputa mi pago?",
+      "requiredFacts": [
+        "más antigua"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-2.3",
+        "T-2.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-27",
+      "question": "Pagué a la noche en la red, ¿cuándo se acredita?",
+      "requiredFacts": [
+        "corte"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-2.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-28",
+      "question": "¿Cuándo se acredita un pago en la red de cobro?",
+      "requiredFacts": [
+        "rendición"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-5.1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-29",
+      "question": "¿Cuándo se debita la cuota automáticamente?",
+      "requiredFacts": [
+        "vencimiento"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-5.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-30",
+      "question": "Si no tengo saldo para el débito, ¿qué pasa?",
+      "requiredFacts": [
+        "48 horas"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-5.3"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-31",
+      "question": "Si me debitan dos veces la misma cuota, ¿qué pasa?",
+      "requiredFacts": [
+        "reintegra"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-5.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-32",
+      "question": "¿Puedo sacar el débito automático?",
+      "requiredFacts": [
+        "baja"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-1.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-33",
+      "question": "¿Cuántas cuotas puede tener el préstamo?",
+      "requiredFacts": [
+        "3 a 18"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-1.4"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-34",
+      "question": "¿La cuota cambia todos los meses?",
+      "requiredFacts": [
+        "fija"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-1.6"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-35",
+      "question": "¿Por qué me acreditaron menos plata del préstamo?",
+      "requiredFacts": [
+        "3 %"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-1.5"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-36",
+      "question": "¿El seguro sobre saldo lo pago yo?",
+      "requiredFacts": [
+        "nunca"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-8.1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-37",
+      "question": "¿Cómo cambio mi email?",
+      "requiredFacts": [
+        "/(direccion|email|mail|correo)[^.]{0,40}(vigente|actual|registrad)/"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "T-8.2"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-38",
+      "question": "Cambié de teléfono, ¿cómo lo actualizo?",
+      "requiredFacts": [
+        "persona"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "P-1"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-39",
+      "question": "¿Me van a pedir la clave por WhatsApp?",
+      "requiredFacts": [
+        "nunca"
+      ]
+    },
+    {
+      "expectedClauseIds": [
+        "P-2",
+        "T-3.5"
+      ],
+      "forbiddenPatterns": [
+        "\\bpag[aá]\\s+(hoy|ya|ahora)\\b",
+        "evit[aá]\\s+recargos",
+        "acciones legales",
+        "te\\s+garantizamos",
+        "asesoramiento legal:"
+      ],
+      "id": "gnd-40",
+      "question": "¿Me pueden cobrar la deuda por WhatsApp?",
+      "requiredFacts": [
+        "email"
+      ]
+    }
+  ],
+  "threshold": {
+    "clauseRecall": 1,
+    "forbidden": 0,
+    "groundingScore": 0.75
+  },
+  "version": "v001"
+}

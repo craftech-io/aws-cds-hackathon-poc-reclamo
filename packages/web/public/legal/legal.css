@@ -1,0 +1,209 @@
+/* The legal pages of Reclamo en regla (/legal/privacy.html, /legal/terms.html): static, bilingual
+   (es first, en below, an anchor per language), no script, served under the console's CSP. Same
+   identity as the app: pine ink on warm paper, the stamp-red seal, serif headings. */
+:root {
+  color-scheme: light;
+  --pine: #123c35;
+  --pine-soft: #1f5a50;
+  --seal: #c2452d;
+  --seal-deep: #9a3320;
+  --seal-soft: #f8e3dc;
+  --ink: #1b2522;
+  --slate: #5d6a66;
+  --mist: #e5e1d8;
+  --paper: #f7f4ee;
+  --white: #ffffff;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: anywhere;
+}
+
+a {
+  color: var(--seal-deep);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
+  z-index: 10;
+  background: var(--seal);
+  color: var(--white);
+  padding: 10px 16px;
+  border-radius: 6px;
+}
+
+.band {
+  background: var(--pine);
+  color: var(--white);
+}
+
+.band-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.wordmark {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font: 600 19px/1.2 var(--serif);
+  color: var(--white);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wordmark em {
+  color: var(--seal-soft);
+}
+
+.band nav ul {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.band nav a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+main {
+  max-width: 760px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.doc {
+  background: var(--white);
+  border: 1px solid var(--mist);
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgb(18 60 53 / 0.08), 0 6px 16px rgb(18 60 53 / 0.06);
+  padding: 24px 20px;
+  margin-bottom: 24px;
+  scroll-margin-top: 16px;
+}
+
+h1,
+h2 {
+  font-family: var(--serif);
+  color: var(--pine);
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 1.25;
+  margin: 0 0 4px;
+}
+
+h2 {
+  font-size: 19px;
+  margin: 28px 0 8px;
+}
+
+p,
+li {
+  margin: 0 0 10px;
+}
+
+ul {
+  padding-left: 22px;
+}
+
+.version {
+  color: var(--slate);
+  font-size: 14px;
+}
+
+.summary {
+  background: var(--seal-soft);
+  border-left: 4px solid var(--seal);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 16px 0;
+}
+
+.facts {
+  list-style: none;
+  padding: 0;
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+}
+
+.facts li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--mist);
+}
+
+.facts li:last-child {
+  border-bottom: 0;
+}
+
+.facts b {
+  min-width: 11rem;
+  color: var(--slate);
+  font-weight: 600;
+}
+
+.legend {
+  color: var(--slate);
+  font-size: 14px;
+}
+
+footer {
+  max-width: 760px;
+  margin: 0 auto 32px;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--slate);
+}
+
+footer a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.powered img {
+  display: block;
+  height: 20px;
+  width: auto;
+  margin-left: 8px;
+}

@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/*
+ * Visual identity of Reclamo en regla (console, landing and login): a regulated register, not a
+ * chat toy. Pine ink on warm paper, a stamp-red seal for what is on record, brass for the clock.
+ * Serif display for headings (the register), system sans for data. Every colour used in JSX comes
+ * from these tokens (`bg-pine`, `text-seal`, `border-mist`, …); hex values live only here. No web
+ * fonts: the CSP only allows the app's own origin.
+ */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, ui-serif, serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Ink: headings, the shell, the brand panel. */
+  --color-pine: #123c35;
+  --color-pine-deep: #0a2723;
+  --color-pine-soft: #1f5a50;
+
+  /* Seal: what is on record (complaint number, primary actions, focus). */
+  --color-seal: #c2452d;
+  --color-seal-deep: #9a3320;
+  --color-seal-soft: #f8e3dc;
+
+  /* Brass: the simulated clock and deadlines. */
+  --color-brass: #b8862b;
+  --color-brass-soft: #f6ecd6;
+
+  --color-ink: #1b2522;
+  --color-slate: #5d6a66;
+  --color-mist: #e5e1d8;
+  --color-paper: #f7f4ee;
+  --color-white: #ffffff;
+
+  --color-success: #2a7d4f;
+  --color-success-soft: #e0f1e6;
+  --color-warning: #b7791f;
+  --color-warning-soft: #fbefd9;
+  --color-danger: #b3261e;
+  --color-danger-soft: #f9e0de;
+  --color-info: #2f5f8a;
+  --color-info-soft: #e1ebf4;
+
+  /* Craftech's navy, for the text wordmark that stands in while its logo file is missing. */
+  --color-craftech: #122d45;
+
+  --radius-card: 0.5rem;
+
+  /* Landing (docs/landing-spec.md §6): a third section background, the blocked step's card, the
+     hero's fluid title, the height of a tour step and the reveal's easing. */
+  --color-pine-mist: #eef3f1;
+  --color-seal-mist: #fbeee9;
+  --text-hero: clamp(2rem, 1.5vw + 1.5rem, 3.5rem);
+  --text-hero--line-height: 1.15;
+  --spacing-tour-step: 60vh;
+  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --shadow-card: 0 1px 0 rgb(18 60 53 / 0.08), 0 6px 16px rgb(18 60 53 / 0.06);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  h1,
+  h2 {
+    @apply font-display;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-seal;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/*
+ * Landing motion (docs/landing-spec.md §4): only opacity and transform. The hidden states exist only
+ * under `prefers-reduced-motion: no-preference`; with reduced motion every element is born visible
+ * in its final place and the tour's panel cuts from one visual to the next.
+ */
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal="pending"] {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    [data-reveal="shown"] {
+      transition:
+        opacity 500ms var(--ease-reveal) var(--reveal-delay, 0ms),
+        transform 500ms var(--ease-reveal) var(--reveal-delay, 0ms);
+    }
+  }
+
+  .tour-visual {
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  .tour-visual[data-state="before"],
+  .tour-visual[data-state="after"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tour-visual[data-state="before"] {
+    transform: translateY(-12px);
+  }
+
+  .tour-visual[data-state="after"] {
+    transform: translateY(12px);
+  }
+
+  .tour-visual[data-state="active"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 220ms ease-in-out 100ms,
+      transform 220ms ease-in-out 100ms;
+  }
+
+  .hero-stage {
+    transition:
+      opacity 300ms ease-out,
+      transform 300ms ease-out;
+  }
+
+  .hero-stage[data-on="false"] {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tour-visual,
+    .tour-visual[data-state="active"],
+    .hero-stage {
+      transition: none;
+    }
+
+    .tour-visual:not([data-state="active"]) {
+      display: none;
+    }
+
+    .hero-stage[data-on="false"] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
