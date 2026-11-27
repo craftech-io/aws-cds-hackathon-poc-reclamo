@@ -127,10 +127,19 @@ describe("email of a self-signup [FL-112]", () => {
   });
 
   it("keeps one list of the temporary-mail servers' addresses, next to the repository's own domains, which now has today's six", () => {
-    expect([...DISPOSABLE_MAIL_SERVER_ADDRESSES.keys()]).toEqual(["78.47.124.133", "94.130.108.80", "49.12.18.190", "15.204.213.223", "178.162.170.166", "178.32.61.35"]);
+    expect([...DISPOSABLE_MAIL_SERVER_ADDRESSES.keys()]).toEqual(["78.47.124.133", "94.130.108.80", "49.12.18.190", "15.204.213.223", "178.162.170.166", "178.32.61.35", "95.216.191.158"]);
     for (const description of DISPOSABLE_MAIL_SERVER_ADDRESSES.values()) expect(description.length).toBeGreaterThan(0);
     expect(isDisposableMailServerAddress("192.0.2.25")).toBe(false);
     for (const domain of ["mailpwr.com", "mimimail.me", "pickmail.org", "freeml.net", "mailtowin.com", "maximail.vip"]) {
+      expect(OWN_DISPOSABLE_DOMAINS.has(domain), domain).toBe(true);
+      expect(checkEmailShape(`ana@${domain}`), domain).toEqual({ ok: false, reason: "EMAIL_NOT_ACCEPTED" });
+    }
+  });
+
+  it("refuses a new domain of the mail.<domain> family at Hetzner, whose mail server resolves to 95.216.191.158", async () => {
+    const resolver = dnsMailDomainResolver({ lookups: lookups({ mx: async () => [{ exchange: "mail.dominio-hetzner.com." }], a: async () => ["95.216.191.158"] }) });
+    expect(await checkEmail("ana@dominio-hetzner.com", resolver)).toEqual({ ok: false, reason: "EMAIL_NOT_ACCEPTED", cause: "DISPOSABLE_MAIL_SERVER" });
+    for (const domain of ["olipii.com", "gmeenramy.com", "lnovic.com", "ooynib.com", "bwmyga.com", "ruutukf.com"]) {
       expect(OWN_DISPOSABLE_DOMAINS.has(domain), domain).toBe(true);
       expect(checkEmailShape(`ana@${domain}`), domain).toEqual({ ok: false, reason: "EMAIL_NOT_ACCEPTED" });
     }
