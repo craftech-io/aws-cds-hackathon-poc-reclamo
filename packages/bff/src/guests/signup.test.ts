@@ -51,13 +51,15 @@ describe("signup.start refusals [FL-112]", () => {
 });
 
 describe("caps of the sign-up on the real clock [FL-118]", () => {
-  it("allows 3 requests per IP per real day, then RATE_LIMITED before Cognito, and a new day opens a new window", async () => {
+  it("allows 3 requests per IP over the real day and the one before, then RATE_LIMITED before Cognito, until the day after next", async () => {
     const harness = await createSignupHarness().ready();
     for (let n = 1; n <= 3; n += 1) expect((await harness.signup.start(startInput({ email: `persona${n}@empresa-ficticia.ar` }), IP)).status).toBe("CODE_SENT");
     const calls = harness.cognito.calls.length;
     expect(await harness.signup.start(startInput({ email: "persona4@empresa-ficticia.ar" }), IP)).toEqual({ status: "RATE_LIMITED" });
     expect(harness.cognito.calls.length).toBe(calls);
     expect((await harness.signup.start(startInput({ email: "persona4@empresa-ficticia.ar" }), "2001:db8:1:2::9")).status).toBe("CODE_SENT");
+    harness.advance(24 * 3_600_000);
+    expect(await harness.signup.start(startInput({ email: "persona5@empresa-ficticia.ar" }), IP)).toEqual({ status: "RATE_LIMITED" });
     harness.advance(24 * 3_600_000);
     expect((await harness.signup.start(startInput({ email: "persona5@empresa-ficticia.ar" }), IP)).status).toBe("CODE_SENT");
   });
@@ -105,11 +107,71 @@ describe("replacing an unconfirmed account [FL-116]", () => {
     const harness = await createSignupHarness().ready();
     await harness.signup.start(startInput({ password: "Primera-Clave-2026" }), IP);
     const firstSub = harness.cognito.user("ana.prospecto@empresa-ficticia.ar")?.sub;
+    harness.advance(11 * 60_000);
     await harness.signup.start(startInput({ password: "Segunda-Clave-2026" }), "198.51.100.9");
     const user = harness.cognito.user("ana.prospecto@empresa-ficticia.ar");
     expect(user?.sub).not.toBe(firstSub);
     expect(user?.password).toBe("Segunda-Clave-2026");
     expect(harness.cognito.calls.filter((call) => call === "AdminDeleteUser")).toHaveLength(1);
+  });
+});
+
+describe("an unconfirmed account its owner may still be confirming [FL-116]", () => {
+  it("is never replaced within ten minutes: the same CODE_SENT with a decoy signupId, no Cognito write, the owner's request intact", async () => {
+    const harness = await createSignupHarness().ready();
+    const owner = await harness.signup.start(startInput({ password: "Primera-Clave-2026" }), IP);
+    if (owner.status !== "CODE_SENT") throw new Error(owner.status);
+    const email = "ana.prospecto@empresa-ficticia.ar";
+    const ownerSub = harness.cognito.user(email)?.sub;
+    const calls = harness.cognito.calls.length;
+    harness.advance(9 * 60_000);
+    const other = await harness.signup.start(startInput({ password: "Segunda-Clave-2026" }), "198.51.100.9");
+    if (other.status !== "CODE_SENT") throw new Error(other.status);
+    expect(other.signupId).not.toBe(owner.signupId);
+    expect(harness.cognito.calls.slice(calls)).toEqual(["AdminGetUser"]);
+    expect(harness.cognito.user(email)).toMatchObject({ sub: ownerSub, password: "Primera-Clave-2026", status: "UNCONFIRMED" });
+    expect(await harness.leads.currentSignupId(harness.hashes.emailHash(email))).toBe(owner.signupId);
+    expect(await harness.leads.getSignup(other.signupId)).toBeUndefined();
+    const code = harness.cognito.lastCode(email) ?? "";
+    expect(await harness.signup.confirm({ signupId: other.signupId, code })).toEqual({ status: "SIGNUP_RESTART" });
+    expect((await harness.signup.confirm({ signupId: owner.signupId, code })).status).toBe("CONFIRMED");
+  });
+
+  it("is replaced once it is ten minutes old", async () => {
+    const harness = await createSignupHarness().ready();
+    await harness.signup.start(startInput({ password: "Primera-Clave-2026" }), IP);
+    harness.advance(10 * 60_000);
+    await harness.signup.start(startInput({ password: "Segunda-Clave-2026" }), "198.51.100.9");
+    expect(harness.cognito.user("ana.prospecto@empresa-ficticia.ar")?.password).toBe("Segunda-Clave-2026");
+    expect(harness.cognito.calls.filter((call) => call === "AdminDeleteUser")).toHaveLength(1);
+  });
+});
+
+describe("the answer of signup.start never tells whether an address has an account [FL-116]", () => {
+  it("answers a confirmed account exactly like a new address: CODE_SENT and a signupId, nothing written, no mail", async () => {
+    const harness = await createSignupHarness().ready();
+    const first = await harness.signup.start(startInput(), IP);
+    if (first.status !== "CODE_SENT") throw new Error(first.status);
+    const email = "ana.prospecto@empresa-ficticia.ar";
+    await harness.signup.confirm({ signupId: first.signupId, code: harness.cognito.lastCode(email) ?? "" });
+    const mails = harness.cognito.outbox.length;
+    const taken = await harness.signup.start(startInput({ email: "ANA.Prospecto@Empresa-Ficticia.ar" }), "198.51.100.4");
+    const fresh = await harness.signup.start(startInput({ email: "otra.persona@empresa-ficticia.ar" }), "198.51.100.5");
+    expect(Object.keys(taken).sort()).toEqual(Object.keys(fresh).sort());
+    expect(taken.status).toBe("CODE_SENT");
+    expect(fresh.status).toBe("CODE_SENT");
+    if (taken.status !== "CODE_SENT") throw new Error(taken.status);
+    expect(harness.cognito.outbox.length).toBe(mails + 1);
+    expect(await harness.leads.getSignup(taken.signupId)).toBeUndefined();
+    expect(harness.cognito.user(email)?.status).toBe("CONFIRMED");
+    expect(await harness.signup.confirm({ signupId: taken.signupId, code: "123456" })).toEqual({ status: "SIGNUP_RESTART" });
+    expect(await harness.signup.resend({ signupId: taken.signupId })).toEqual({ status: "CODE_SENT" });
+  });
+
+  it("answers CODE_SENT when Cognito finds the username taken in a race", async () => {
+    const harness = await createSignupHarness().ready();
+    harness.cognito.failNext("SignUp", "USERNAME_EXISTS");
+    expect(await harness.signup.start(startInput(), IP)).toMatchObject({ status: "CODE_SENT" });
   });
 });
 

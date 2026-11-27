@@ -46,7 +46,6 @@ describe("the sign-up form [FL-112] [FL-116] [FL-118]", () => {
 
   it("maps every answer of signup.start to what the screen does", () => {
     expect(startOutcome({ status: "CODE_SENT", signupId: "abcdefghijklmnopqrstuvwxyz" })).toEqual({ kind: "codeSent", signupId: "abcdefghijklmnopqrstuvwxyz" });
-    expect(startOutcome({ status: "EMAIL_TAKEN" })).toEqual({ kind: "taken" });
     expect(startOutcome({ status: "EMAIL_NOT_ACCEPTED" })).toEqual({ kind: "fieldErrors", errors: { email: "notAccepted" } });
     expect(startOutcome({ status: "RATE_LIMITED" })).toEqual({ kind: "rateLimited" });
     expect(startOutcome({ status: "SIGNUP_UNAVAILABLE" })).toEqual({ kind: "closed" });

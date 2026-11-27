@@ -75,11 +75,10 @@ export function startInputOf(form: SignupForm, locale: AuthLang, attribution: At
 export type StartOutcome =
   | { readonly kind: "codeSent"; readonly signupId: string }
   | { readonly kind: "fieldErrors"; readonly errors: FieldErrors }
-  | { readonly kind: "taken" }
   | { readonly kind: "rateLimited" }
   | { readonly kind: "closed" };
 
-/** What the screen does with each answer of `signup.start` (an unconfirmed earlier form is `CODE_SENT` too). */
+/** What the screen does with each answer of `signup.start` (an address that already has an account is `CODE_SENT` too). */
 export function startOutcome(answer: SignupStartResult): StartOutcome {
   switch (answer.status) {
     case "CODE_SENT":
@@ -92,8 +91,6 @@ export function startOutcome(answer: SignupStartResult): StartOutcome {
       return { kind: "fieldErrors", errors: { password: "weakPassword" } };
     case "CONSENT_REQUIRED":
       return { kind: "fieldErrors", errors: { acceptTerms: "consent" } };
-    case "EMAIL_TAKEN":
-      return { kind: "taken" };
     case "RATE_LIMITED":
       return { kind: "rateLimited" };
     case "SIGNUP_UNAVAILABLE":

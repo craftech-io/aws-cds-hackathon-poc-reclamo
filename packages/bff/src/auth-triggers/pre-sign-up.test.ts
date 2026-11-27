@@ -66,6 +66,7 @@ describe("pre-sign-up trigger [FL-112]", () => {
 
   it("refuses a request that is not the current one of its email, or expired", async () => {
     const { harness, handler, signupId } = await started();
+    harness.advance(11 * 60_000);
     await harness.signup.start(startInput({ email: "ana@empresa-ficticia.ar" }), "203.0.113.8");
     await harness.store.write({ kind: "update", table: "Leads", key: { pk: `SIGNUP#${signupId}`, sk: "META" }, update: { set: { status: "STARTED" } } });
     expect(await refused(handler(signUp({ signupId })))).toBe(SIGN_UP_DISABLED);

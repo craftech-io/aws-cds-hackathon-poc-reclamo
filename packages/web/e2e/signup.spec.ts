@@ -1,6 +1,6 @@
 // FL-112 to FL-116 and FL-118 · the self-signup in a real browser (docs/landing-spec.md §9.2-§9.3, §10
 // cases 6 and 7): `/signup` with its consents unticked and the synthetic-data line, the field errors
-// with the 12-character policy, EMAIL_TAKEN with its links, the replaced form, the caps (the BFF's and
+// with the 12-character policy, the code screen's sign-in and recovery links, the replaced form, the caps (the BFF's and
 // the edge's), the closed sign-up with only "Hablemos", the firewall's challenge, `/signup/verify` with
 // the 30-second resend and the three refusals, and the two ways out of CONFIRMED: the silent sign-in
 // to `/signup/provisioning` and then the inbox, or `/login` with the email pre-filled. The public
@@ -190,19 +190,15 @@ test.describe("the form's refusals [FL-112] [FL-116] [FL-118]", () => {
     expect(calls.filter((call) => call.procedure === "signup.start")).toEqual([]);
   });
 
-  test("[FL-116] EMAIL_TAKEN offers sign-in and recovery; an unconfirmed earlier form is replaced and only the new signupId confirms", async ({ page }) => {
-    const answers: PublicAnswer[] = [{ data: { status: "EMAIL_TAKEN" } }, { data: { status: "CODE_SENT", signupId: SIGNUP_A } }, { data: { status: "CODE_SENT", signupId: SIGNUP_B } }];
+  test("[FL-116] an address with an account gets the same code screen, with sign-in and recovery; an unconfirmed earlier form is replaced and only the new signupId confirms", async ({ page }) => {
+    const answers: PublicAnswer[] = [{ data: { status: "CODE_SENT", signupId: SIGNUP_A } }, { data: { status: "CODE_SENT", signupId: SIGNUP_B } }];
     const calls = await publicApi(page, { "signup.start": () => answers.shift() ?? { http: 500 }, "signup.confirm": { data: { status: "CODE_MISMATCH" } } });
     await page.goto("/signup");
-    await fillForm(page, simulatorEmail("su4"));
-    await submit(page);
-    await expect(page.getByText(es.signup.errors.taken)).toBeVisible();
-    await expect(page.getByRole("link", { name: es.signup.errors.takenSignIn, exact: true })).toHaveAttribute("href", "/login");
-    await expect(page.getByRole("link", { name: es.signup.errors.takenRecover })).toHaveAttribute("href", "/login/recover");
-
     await fillForm(page, simulatorEmail("su5"));
     await submit(page);
     await page.waitForURL("**/signup/verify");
+    await expect(page.getByRole("link", { name: es.verify.haveAccount.signIn, exact: true })).toHaveAttribute("href", "/login");
+    await expect(page.getByRole("link", { name: es.verify.haveAccount.recover })).toHaveAttribute("href", "/login/recover");
     await page.getByRole("link", { name: es.verify.otherEmail }).click();
     await page.waitForURL("**/signup");
     await fillForm(page, simulatorEmail("su5"));

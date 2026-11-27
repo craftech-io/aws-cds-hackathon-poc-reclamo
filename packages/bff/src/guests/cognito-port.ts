@@ -46,6 +46,8 @@ export type AccountStatus = "UNCONFIRMED" | "CONFIRMED" | "OTHER";
 export interface AccountState {
   readonly status: AccountStatus;
   readonly sub?: string;
+  /** `UserCreateDate` (ISO), when Cognito reports it. */
+  readonly createdAt?: string;
 }
 
 /** `clientMetadata` of every call: the request it belongs to and the language of its emails. */
@@ -145,7 +147,8 @@ export function createGuestCognito(config: GuestCognitoConfig, client: CognitoId
           const output = await client.send(new AdminGetUserCommand({ UserPoolId: config.userPoolId, Username: username }));
           const sub = output.UserAttributes?.find((attribute) => attribute.Name === "sub")?.Value;
           const status: AccountStatus = output.UserStatus === "CONFIRMED" ? "CONFIRMED" : output.UserStatus === "UNCONFIRMED" ? "UNCONFIRMED" : "OTHER";
-          return { status, ...(sub ? { sub } : {}) };
+          const createdAt = output.UserCreateDate?.toISOString();
+          return { status, ...(sub ? { sub } : {}), ...(createdAt ? { createdAt } : {}) };
         } catch (error) {
           if (toCognitoFailure(error).code === "USER_NOT_FOUND") return undefined;
           throw error;
