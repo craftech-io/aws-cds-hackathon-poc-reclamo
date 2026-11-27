@@ -27,7 +27,7 @@ export const EMPTY_SIGNUP: SignupForm = { email: "", password: "", phone: "", na
 export const LEAD_TEXT_MAX = 80;
 
 export type SignupField = "email" | "password" | "phone" | "name" | "company" | "jobTitle" | "acceptTerms";
-export type FieldErrorKey = "email" | "notAccepted" | "weakPassword" | "phone" | "notPersonal" | "consent" | "plainText";
+export type FieldErrorKey = "email" | "notAccepted" | "weakPassword" | "phone" | "notPersonal" | "countryNotAllowed" | "consent" | "plainText";
 export type FieldErrors = Partial<Record<SignupField, FieldErrorKey>>;
 
 /** The order the fields appear in: the first one with an error gets `role="alert"`. */
@@ -42,12 +42,14 @@ function unsafeText(value: string): boolean {
   return trimmed.length > LEAD_TEXT_MAX || UNSAFE.test(trimmed);
 }
 
+const PHONE_ERROR = { INVALID_PHONE: "phone", PHONE_NOT_ACCEPTED: "notPersonal", PHONE_COUNTRY_NOT_ALLOWED: "countryNotAllowed" } as const satisfies Record<string, FieldErrorKey>;
+
 export function validateSignup(form: SignupForm): FieldErrors {
   const errors: FieldErrors = {};
   if (!looksLikeEmail(form.email)) errors.email = "email";
   if (missingPasswordRules(form.password).length > 0 || hasOuterSpaces(form.password)) errors.password = "weakPassword";
   const phone = checkPhone(form.phone);
-  if (!phone.ok) errors.phone = phone.reason === "PHONE_NOT_ACCEPTED" ? "notPersonal" : "phone";
+  if (!phone.ok) errors.phone = PHONE_ERROR[phone.reason];
   for (const field of ["name", "company"] as const) if (unsafeText(form[field])) errors[field] = "plainText";
   if (!form.acceptTerms) errors.acceptTerms = "consent";
   return errors;
@@ -99,6 +101,8 @@ export function startOutcome(answer: SignupStartResult): StartOutcome {
       return { kind: "fieldErrors", errors: { phone: "phone" } };
     case "PHONE_NOT_ACCEPTED":
       return { kind: "fieldErrors", errors: { phone: "notPersonal" } };
+    case "PHONE_COUNTRY_NOT_ALLOWED":
+      return { kind: "fieldErrors", errors: { phone: "countryNotAllowed" } };
     case "CONSENT_REQUIRED":
       return { kind: "fieldErrors", errors: { acceptTerms: "consent" } };
     case "RATE_LIMITED":

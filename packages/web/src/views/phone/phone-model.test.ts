@@ -28,6 +28,7 @@ describe("the SMS-code screen [FL-129] [FL-130] [FL-131]", () => {
     expect(sendProblem(SendCodeAnswer.parse({ status: "PHONE_LOCKED" }), errors)?.contact).toBe(true);
     expect(sendProblem(SendCodeAnswer.parse({ status: "INVALID_PHONE" }), errors)).toEqual({ text: errors.invalidPhone, contact: false });
     expect(sendProblem(SendCodeAnswer.parse({ status: "PHONE_NOT_ACCEPTED" }), errors)).toEqual({ text: "Usá un celular personal.", contact: false });
+    expect(sendProblem(SendCodeAnswer.parse({ status: "PHONE_COUNTRY_NOT_ALLOWED" }), errors)).toEqual({ text: "Por ahora solo aceptamos celulares de países de América. Si necesitás acceso, escribinos.", contact: true });
     expect(sendProblem(SendCodeAnswer.parse({ status: "RATE_LIMITED", limit: "ABROAD" }), errors)).toEqual({ text: errors.abroadLimit, contact: true });
     expect(sendProblem(SendCodeAnswer.parse({ status: "CODE_SENT", purpose: "SIGN_IN", lastDigits: "0100", resendAvailableAtReal: "2026-11-27T13:01:00.000Z" }), errors)).toBeUndefined();
     expect(verifyProblem(VerifyAnswer.parse({ status: "CODE_MISMATCH", attemptsLeft: 3 }), errors)?.text).toBe("Ese código no es correcto. Te quedan 3 intentos.");

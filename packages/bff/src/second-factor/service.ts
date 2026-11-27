@@ -9,7 +9,8 @@
 //   sendCode    a 6-digit code (crypto random) by SMS, its HMAC stored for 10 minutes, after the resend
 //               wait and the caps (a number outside the home region also takes the quota those share);
 //               a new number only while enrolling, never over a verified one, and never a filler or a
-//               range that is not a person's mobile
+//               range that is not a person's mobile, and never to a number outside America (not even a
+//               verified one: its sign-in answers PHONE_COUNTRY_NOT_ALLOWED and an operator changes it)
 //   verify      5 attempts per code (counted before comparing, conditional), constant-time comparison;
 //               the right code passes THIS session, and an enrolment also makes the number the
 //               account's (one number, one account), queues a waiting self-signup world and sends its
@@ -33,7 +34,7 @@ import type { LeadsRepo } from "../leads/repo";
 import { type SmsCapScope, takeSms } from "./caps";
 import type { SecondFactorHashes } from "./hashes";
 import { checkPhone, lastDigits } from "./phone-number";
-import { isHomeNumber } from "./phone-ranges";
+import { isAmericaNumber, isHomeNumber } from "./phone-ranges";
 import type { AccountPhone, PhoneCode } from "./records";
 import { type SecondFactorRepo, secondFactorRepo } from "./repo";
 import { type SmsSender, SmsUndeliverable } from "./sms";
@@ -65,7 +66,7 @@ export type SendCodeResult =
   | { readonly status: "CODE_SENT"; readonly purpose: PhoneCode["purpose"]; readonly lastDigits: string; readonly resendAvailableAtReal: string }
   | { readonly status: "RESEND_TOO_SOON"; readonly resendAvailableAtReal: string }
   | { readonly status: "RATE_LIMITED"; readonly limit: SmsCapScope }
-  | { readonly status: "INVALID_PHONE" | "PHONE_NOT_ACCEPTED" | "PHONE_IN_USE" | "PHONE_LOCKED" | "SMS_FAILED" | "NOT_REQUIRED" };
+  | { readonly status: "INVALID_PHONE" | "PHONE_NOT_ACCEPTED" | "PHONE_COUNTRY_NOT_ALLOWED" | "PHONE_IN_USE" | "PHONE_LOCKED" | "SMS_FAILED" | "NOT_REQUIRED" };
 
 export type VerifyCodeResult =
   | { readonly status: "VERIFIED" | "NOT_REQUIRED" | "NO_CODE" | "CODE_EXPIRED" | "PHONE_IN_USE" }
@@ -143,7 +144,10 @@ export function secondFactorService(deps: SecondFactorDeps) {
 
   // Where a code goes: the verified number (never another), or the number being enrolled.
   const target = (account: AccountPhone | undefined, typed: string | undefined): { phone: string; purpose: PhoneCode["purpose"] } | SendCodeResult => {
-    if (account?.status === "VERIFIED" && account.phone) return typed === undefined ? { phone: account.phone, purpose: "SIGN_IN" } : { status: "PHONE_LOCKED" };
+    if (account?.status === "VERIFIED" && account.phone) {
+      if (typed !== undefined) return { status: "PHONE_LOCKED" };
+      return isAmericaNumber(account.phone) ? { phone: account.phone, purpose: "SIGN_IN" } : { status: "PHONE_COUNTRY_NOT_ALLOWED" };
+    }
     const verdict = checkPhone(typed ?? account?.phone ?? "");
     return verdict.ok ? { phone: verdict.phone, purpose: "ENROL" } : { status: verdict.reason };
   };

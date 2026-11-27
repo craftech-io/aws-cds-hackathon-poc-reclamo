@@ -5,6 +5,7 @@
 // synthetic data. Errors sit under their field; the first one after a submit is announced.
 import { useId, type FormEvent, type ReactNode } from "react";
 import { FIELD_CLASS } from "../../components/form-classes";
+import { EXTERNAL_LINK, contactHref } from "../landing/links";
 import type { AuthCopy } from "../login/auth-copy";
 import { consentParts } from "../login/auth-copy";
 import { Field, FieldError, PasswordField, PasswordRules, SubmitButton } from "../login/form-parts";
@@ -67,6 +68,13 @@ export function SignupFormFields({ copy, form, errors, announced, busy, onChange
       <PasswordField label={text.password} toggle={copy.password} autoComplete="new-password" value={form.password} onChange={(event) => set("password", event.target.value)} error={errorOf("password")} alert={first === "password"} required />
       <PasswordRules password={form.password} text={copy.password} />
       <Field label={text.phone} type="tel" inputMode="tel" autoComplete="tel" maxLength={32} placeholder={text.phonePlaceholder} value={form.phone} onChange={(event) => set("phone", event.target.value)} error={errorOf("phone")} alert={first === "phone"} required />
+      {errors.phone === "countryNotAllowed" ? (
+        <p className="-mt-2 text-sm">
+          <a className="font-semibold text-seal-deep underline underline-offset-2" href={contactHref("phone-verification")} {...EXTERNAL_LINK}>
+            {copy.phone.contact}
+          </a>
+        </p>
+      ) : null}
       <p className="-mt-2 text-xs text-slate">{text.phoneHint}</p>
       <Field label={text.name} type="text" autoComplete="name" maxLength={LEAD_TEXT_MAX} value={form.name} onChange={(event) => set("name", event.target.value)} error={errorOf("name")} alert={first === "name"} />
       <Field label={text.company} type="text" autoComplete="organization" maxLength={LEAD_TEXT_MAX} value={form.company} onChange={(event) => set("company", event.target.value)} error={errorOf("company")} alert={first === "company"} />

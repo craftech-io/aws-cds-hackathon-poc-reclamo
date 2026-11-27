@@ -234,7 +234,7 @@ describe("the SMS caps of the real day [FL-131]", () => {
 
   it("[FL-131] numbers abroad share 5 SMS a day across the demo; a home number never takes that quota; the sixth abroad is refused", async () => {
     const r = rig();
-    const abroad = ["+12025550123", "+358401234567", "+31612345678", "+5352345678", "+18685551234", "+447912345678"];
+    const abroad = ["+12025550123", "+14165550123", "+5352345678", "+18685551234", "+50934567890", "+16045550123"];
     for (let index = 0; index < 5; index += 1) {
       expect((await sendEvery(r, r.caller(`sub-abroad-${index}`), abroad[index], `198.51.100.${index}`)).status).toBe("CODE_SENT");
     }
@@ -244,7 +244,7 @@ describe("the SMS caps of the real day [FL-131]", () => {
     expect(r.sms.outbox).toHaveLength(sent);
     expect(r.audit.entries.map((entry) => entry.outcome)).toContain("SMS_CAP_ABROAD");
     expect(await r.store.get("Runtime", secondFactorRuntimeKeys.accountDay("sub-abroad-5", r.now()))).toBeUndefined();
-    for (const [index, phone] of ["+5491155550100", "+34612345678", "+18095551234"].entries()) {
+    for (const [index, phone] of ["+5491155550100", "+56912345678", "+18095551234"].entries()) {
       expect((await sendEvery(r, r.caller(`sub-home-${index}`), phone, `198.51.100.6${index}`)).status).toBe("CODE_SENT");
     }
     expect(await r.store.get("Runtime", secondFactorRuntimeKeys.abroadDay(r.now()))).toMatchObject({ count: 5 });
@@ -271,6 +271,27 @@ describe("the SMS caps of the real day [FL-131]", () => {
     expect(await r.service.sendCode(r.caller("sub-m2m"), {}, IP)).toEqual({ status: "PHONE_NOT_ACCEPTED" });
     expect(r.sms.outbox).toEqual([]);
     expect(await r.store.get("Runtime", secondFactorRuntimeKeys.globalDay(r.now()))).toBeUndefined();
+  });
+
+  it("[FL-131] only countries of America: a European or Asian number is refused before any SMS or cap, typed or prefilled", async () => {
+    const r = rig();
+    for (const phone of ["+34612345678", "+31612345678", "+819012345678", "+8613812345678"]) {
+      expect(await r.service.sendCode(r.caller(), { phone }, IP), phone).toEqual({ status: "PHONE_COUNTRY_NOT_ALLOWED" });
+    }
+    await r.store.write(secondFactorRepo(r.ctx).pendingPhoneOp({ sub: "sub-eu", phone: "+34612345678", locale: "es" }));
+    expect(await r.service.sendCode(r.caller("sub-eu"), {}, IP)).toEqual({ status: "PHONE_COUNTRY_NOT_ALLOWED" });
+    expect(r.sms.outbox).toEqual([]);
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.globalDay(r.now()))).toBeUndefined();
+  });
+
+  it("[FL-131] a sign-in of an account verified with a number outside America sends no SMS", async () => {
+    const r = rig();
+    await r.store.write({ kind: "put", table: "Leads", item: { ...leadsKeys.accountPhone("sub-old"), sub: "sub-old", status: "VERIFIED", phone: "+34612345678", phoneHash: "a".repeat(64), verifiedAtReal: r.now().toISOString() } });
+    expect(await r.service.status(r.caller("sub-old"))).toMatchObject({ state: "SIGN_IN", lastDigits: "5678" });
+    expect(await r.service.sendCode(r.caller("sub-old"), {}, IP)).toEqual({ status: "PHONE_COUNTRY_NOT_ALLOWED" });
+    expect(await r.service.sendCode(r.caller("sub-old"), { phone: "+5491155550100" }, IP)).toEqual({ status: "PHONE_LOCKED" });
+    expect(r.sms.outbox).toEqual([]);
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.accountDay("sub-old", r.now()))).toBeUndefined();
   });
 
   it("keeps every number of the caps in one place", () => {
