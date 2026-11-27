@@ -16,8 +16,14 @@ const GUEST_WORLD = /^gs-[a-z2-7]{10}$/;
 const QA_SIGNUP_WORLD = /^qa-[a-z0-9]+(?:-[a-z0-9]+)*-su\d{1,3}$/;
 const QA_SIGNUP_USERNAME = /^success\+qa-([a-z0-9]+(?:-[a-z0-9]+)*)-(su\d{1,3})@simulator\.amazonses\.com$/;
 
+/** The procedures of the SMS code (docs/architecture-guests.md §17): they answer in any status of the world. */
+export const SECOND_FACTOR_PATHS: ReadonlySet<string> = new Set(["phone.status", "phone.sendCode", "phone.verify", "phone.endSession"]);
+
+/** What a session that has not passed the SMS code may call: who it is, and the code itself. */
+export const SECOND_FACTOR_PENDING_PATHS: ReadonlySet<string> = new Set(["account.session", ...SECOND_FACTOR_PATHS]);
+
 /** Procedures a signed-in self-signup guest may call while its world is not `READY`. */
-export const WORLD_PENDING_PATHS: ReadonlySet<string> = new Set(["guest.status", "guest.requestWorld", "account.session"]);
+export const WORLD_PENDING_PATHS: ReadonlySet<string> = new Set(["guest.status", "guest.requestWorld", "account.session", ...SECOND_FACTOR_PATHS]);
 
 /** Self-signup usernames are the email; staff, `guest-NN` and `qa-*` usernames never have `@`. */
 export function isEmailUsername(username: string): boolean {

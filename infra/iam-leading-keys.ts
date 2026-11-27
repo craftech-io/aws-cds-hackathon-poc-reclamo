@@ -13,7 +13,27 @@ export const WORLD_LEADING_KEYS = {
     // `W#gs-*`: self-signup worlds; the global counters of the sign-up and the edge's audit partition
     // (docs/architecture-guests.md §11-§12). The switch and the kill are only read, and so are the KPI
     // rows of the `sim-*` run worlds the metrics tabs show (only their `Metrics` partition, leadingKeyFits).
-    write: ["W#demo#*", "W#g??#*", "W#gtest#*", "W#gs-*", "W#qa-*", "KILL#AGENT", "SIGNUPCAP#*", "SIGNUPIP#*", "SIGNUPCANON#*", "RECOVERYIP#*", "AUTHMAIL#*", "GUESTACCT#*", "SIGNUP#AUD#*"],
+    // The SMS code of every account (§17): its passed sessions and the SMS caps of the day.
+    write: [
+      "W#demo#*",
+      "W#g??#*",
+      "W#gtest#*",
+      "W#gs-*",
+      "W#qa-*",
+      "KILL#AGENT",
+      "SIGNUPCAP#*",
+      "SIGNUPIP#*",
+      "SIGNUPCANON#*",
+      "RECOVERYIP#*",
+      "AUTHMAIL#*",
+      "GUESTACCT#*",
+      "SIGNUP#AUD#*",
+      "SECONDFACTOR#*",
+      "SMSACCT#*",
+      "SMSPHONE#*",
+      "SMSIP#*",
+      "SMSCAP#*",
+    ],
     readOnly: ["SWITCH#SIGNUP", "KILL#SIGNUP", "W#sim-*#METRICS"],
   },
   WorldJanitor: { write: ["W#demo#*", "W#g??#*", "W#gtest#*", "W#gs-*", "W#gprobe#*", "W#qa-*", "W#qamin#*", "GUEST#*", "GUESTCAP#*"], readOnly: [] },
@@ -81,7 +101,8 @@ export const LEADS_GRANTS = {
   PreSignUpTrigger: [{ actions: ["dynamodb:GetItem"], leadingKeys: ["SIGNUP#*", "QASIGNUP#*", "PENDING#*", "QAPENDING#*"] }],
   // Rule (d) of the identity invariant: only `worldId` of the lead, never the email or the consents.
   PreTokenTrigger: [{ actions: ["dynamodb:GetItem"], leadingKeys: ["LEAD#*", "QALEAD#*"], attributes: ["pk", "sk", "worldId"], select: "SPECIFIC_ATTRIBUTES" }],
-  PostConfirmationTrigger: [{ actions: [...ITEM_RW], leadingKeys: ["SIGNUP#*", "QASIGNUP#*", "LEAD#*", "QALEAD#*", "CANON#*"] }],
+  // `PHONEVER#`: the pending phone of a visitor's account, the number of its form (§17).
+  PostConfirmationTrigger: [{ actions: [...ITEM_RW], leadingKeys: ["SIGNUP#*", "QASIGNUP#*", "LEAD#*", "QALEAD#*", "CANON#*", "PHONEVER#*"] }],
   LeadNotifier: [{ actions: ["dynamodb:GetItem", "dynamodb:UpdateItem"], leadingKeys: ["LEAD#*"] }],
   Bff: [
     { actions: [...ITEM_RW], leadingKeys: ["SIGNUP#*", "PENDING#*", "CANON#*"] },
@@ -90,6 +111,8 @@ export const LEADS_GRANTS = {
     { actions: ["dynamodb:PutItem", "dynamodb:UpdateItem"], leadingKeys: ["LEAD#*", "QALEAD#*"] },
     // Uniqueness and recovery: the keys of the email's lead, nothing projected besides them.
     { actions: ["dynamodb:Query"], leadingKeys: ["EMAIL#*"], select: "ALL_PROJECTED_ATTRIBUTES", index: "ByEmailHash" },
+    // The SMS code of every account (§17): its phone, the owner of a verified number, its last code.
+    { actions: [...ITEM_RW], leadingKeys: ["PHONEVER#*", "PHONEOWNER#*", "PHONECODE#*"] },
   ],
   // The world id of a lead whose world it recreates.
   WorldJanitor: [{ actions: ["dynamodb:UpdateItem"], leadingKeys: ["LEAD#*"] }],

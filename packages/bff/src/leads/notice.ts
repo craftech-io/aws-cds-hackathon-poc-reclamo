@@ -1,8 +1,8 @@
 // The lead notice to Craftech (docs/architecture-guests.md §9): one plain-text email per confirmed
-// lead to the ONE @craftech.io mailbox of the `LeadNotifyEmail` secret. The fence is code here (a
+// lead (sent once its mobile is verified, §17) to the ONE @craftech.io mailbox of the `LeadNotifyEmail` secret. The fence is code here (a
 // single address, `@craftech.io`, strict parser; `not-configured` sends nothing) and IAM around it
 // (`ses:Recipients *@craftech.io`, `ses:FromAddress no-reply@…`). The subject is fixed (no lead data
-// in it); the body carries only the contact data the visitor chose to give, whether they accepted
+// in it); the body carries only the contact data the visitor chose to give and the verified mobile, whether they accepted
 // being contacted, the language, the campaign and the date. Name, company, role and UTM were typed by
 // a stranger: they are checked again here, and a value that fails is left out, never sent.
 import { leadText } from "../guests/schemas";
@@ -45,9 +45,10 @@ export interface LeadNotice {
 /** The notice of one lead; its email is the only address in it, and only in the body. */
 export function leadNotice(lead: Lead, to: string): LeadNotice {
   const lines = [
-    "Nueva alta confirmada en la demo de Reclamo en regla.",
+    "Nueva alta confirmada (email y celular verificados) en la demo de Reclamo en regla.",
     "",
     `Email: ${lead.email}`,
+    `Celular verificado: ${lead.phone ?? "—"}`,
     `Nombre: ${safe(lead.name)}`,
     `Empresa: ${safe(lead.company)}`,
     `Cargo: ${safe(lead.jobTitle)}`,

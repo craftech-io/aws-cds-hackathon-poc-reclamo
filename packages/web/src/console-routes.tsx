@@ -22,6 +22,7 @@ import { SecurityPrompts } from "./views/login/SecurityPrompts";
 import { MetricsView } from "./views/metrics/View";
 import { PolicyView } from "./views/policy/View";
 import { GuestUsageNotice, GuestWorldGate } from "./views/provisioning/GuestWorldGate";
+import { PhoneGate } from "./views/phone/PhoneGate";
 import { RegisterView } from "./views/register/View";
 import { SimulatorView } from "./views/simulator/View";
 import { TapeView } from "./views/tape/View";
@@ -99,8 +100,10 @@ export default function ConsoleRoutes() {
   const principal = usePrincipal();
   if (!principal.worldId || !principal.role) return <NoAccess onSignOut={signOut} />;
   return (
-    <GuestWorldGate>
-      <RouteView />
-    </GuestWorldGate>
+    <PhoneGate>
+      <GuestWorldGate>
+        <RouteView />
+      </GuestWorldGate>
+    </PhoneGate>
   );
 }

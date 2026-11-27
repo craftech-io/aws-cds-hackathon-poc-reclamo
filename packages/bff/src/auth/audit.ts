@@ -17,6 +17,12 @@ export const AUDIT_ACTION = {
   WORLD_NOT_READY: "WORLD_NOT_READY",
   /** Post-confirmation trigger: a confirmed self-signup, its lead, world and ticket. */
   GUEST_REGISTERED: "GUEST_REGISTERED",
+  /** An account verified its mobile by SMS code (docs/architecture-guests.md §17); never the number. */
+  PHONE_ENROLLED: "PHONE_ENROLLED",
+  /** A sign-in session passed the SMS code. */
+  SECOND_FACTOR_PASSED: "SECOND_FACTOR_PASSED",
+  /** An SMS cap reached, or a code burnt by its last failed attempt (`outcome` says which). */
+  SECOND_FACTOR_REFUSED: "SECOND_FACTOR_REFUSED",
 } as const;
 export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
 

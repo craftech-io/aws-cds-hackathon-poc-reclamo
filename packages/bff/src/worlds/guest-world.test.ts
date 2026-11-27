@@ -46,6 +46,14 @@ describe("guest-world: pre-registration and creation of an invited guest world [
     }
   });
 
+  it("[FL-130] marks only the QaDriver's guest of a qa-* world as automation, never a guest-NN handed to a person", async () => {
+    const rig = worldsRig();
+    await createGuestWorld({ worldId: "g08", staff: staff("08"), resume: false }, rig.deps);
+    expect((await rig.mc.connector.worlds.getStaff("g08", "stf-guest-08"))?.automation).toBeUndefined();
+    await createGuestWorld({ worldId: "qa-r1-sc22", staff: staff("qa"), resume: false }, rig.deps);
+    expect((await rig.mc.connector.worlds.getStaff("qa-r1-sc22", "stf-guest-qa"))?.automation).toBe(true);
+  });
+
   it("[FL-094] fails closed with UNAVAILABLE where the factory is not linked, before any side effect", () => {
     expect(() => assertGuestWorldFactory()).toThrow(expect.objectContaining({ name: "ToolError", code: "UNAVAILABLE" }));
   });

@@ -94,7 +94,8 @@ describe("a full quota of guest worlds never stops a sign-up: the world waits in
     const email = "ana.prospecto@empresa-ficticia.ar";
     const started = await harness.signup.start(startInput({ email }), "203.0.113.7");
     if (started.status !== "CODE_SENT") throw new Error(started.status);
-    expect(await harness.signup.confirm({ signupId: started.signupId, code: harness.cognito.lastCode(email) ?? "" })).toMatchObject({ status: "CONFIRMED", worldStatus: "REGISTERED" });
+    expect(await harness.signup.confirm({ signupId: started.signupId, code: harness.cognito.lastCode(email) ?? "" })).toMatchObject({ status: "CONFIRMED", worldStatus: "PHONE_PENDING" });
+    await harness.enrolPhone(harness.cognito.user(email)?.sub ?? "");
     const worldId = harness.hashes.guestWorldId(harness.cognito.user(email)?.sub ?? "");
     const meta = await harness.store.get("Worlds", keys.worldMeta(worldId));
     expect(meta).toMatchObject({ status: "REGISTERED", guestIndexKey: "GUEST#REGISTERED" });

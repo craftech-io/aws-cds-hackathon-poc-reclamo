@@ -1,6 +1,7 @@
-// What `LeadNotifier` does (docs/architecture-guests.md §9, FL-126; its Lambda entry is
-// handlers/lead-notifier.ts): invoked asynchronously by the post-confirmation trigger (or by the
-// Bff's repair) with only `{leadId}`. It re-reads the lead, sends at most one notice per lead (a conditional claim on `notifiedAtReal`, given back if the send
+// What `LeadNotifier` does (docs/architecture-guests.md §9, §17, FL-126; its Lambda entry is
+// handlers/lead-notifier.ts): invoked asynchronously by the Bff when a self-signup verifies its mobile
+// (the enrolment of the SMS code, never a later sign-in) with only `{leadId}`; a lead still pending its
+// mobile is skipped. It re-reads the lead, sends at most one notice per lead (a conditional claim on `notifiedAtReal`, given back if the send
 // fails so the asynchronous retry can try again), at most 100 per real day, never for a QA lead and
 // never while `LeadNotifyEmail` is `not-configured`. Every outcome is audited without the email.
 import type { RepoContext } from "../connector/codec";
@@ -10,7 +11,7 @@ import type { LeadNoticeTransport } from "../outbound/transports/lead-notice";
 import type { SignupCaps } from "../guests/caps";
 import { leadNotice, leadNoticeRecipient } from "./notice";
 import { LeadNoticeRequest } from "../guests/provision";
-import { isTestLead } from "./records";
+import { isPhonePendingLead, isTestLead } from "./records";
 import type { LeadsRepo } from "./repo";
 import { auditEdge } from "../guests/service-deps";
 
@@ -25,7 +26,7 @@ export interface LeadNotifierDeps {
   readonly log: Logger;
 }
 
-export type LeadNotifierOutcome = "SENT" | "ALREADY_SENT" | "NO_LEAD" | "QA_LEAD" | "NOT_CONFIGURED" | "DAILY_CAP";
+export type LeadNotifierOutcome = "SENT" | "ALREADY_SENT" | "NO_LEAD" | "QA_LEAD" | "PHONE_PENDING" | "NOT_CONFIGURED" | "DAILY_CAP";
 
 export async function notifyLead(raw: unknown, deps: LeadNotifierDeps): Promise<LeadNotifierOutcome> {
   const { leadId } = LeadNoticeRequest.parse(raw);
@@ -36,6 +37,8 @@ export async function notifyLead(raw: unknown, deps: LeadNotifierDeps): Promise<
   const lead = await deps.leads.getLead(leadId);
   if (!lead) return skip("NO_LEAD");
   if (isTestLead(lead)) return skip("QA_LEAD");
+  // Not a lead for Craftech until its mobile is verified (docs/architecture-guests.md §17).
+  if (isPhonePendingLead(lead)) return skip("PHONE_PENDING");
   if (lead.notifiedAtReal) return skip("ALREADY_SENT");
   const to = leadNoticeRecipient(deps.mailbox());
   if (!to) return skip("NOT_CONFIGURED");

@@ -10,6 +10,9 @@ import { CURRENT_SIGNUP_CONSENT } from "@reclamo/bff/copy/signup-consent";
 import { type PublicAnswer, type PublicCall, routePublicApi } from "../../src/lib/auth/testing/guest-e2e.ts";
 import { AUTH_COPY } from "../../src/views/login/auth-copy.ts";
 import { LANDING_COPY } from "../../src/views/landing/copy.ts";
+
+/** A fictional number (555-01xx): these specs never get past the email step, so no SMS is ever sent. */
+const QA_SIGNUP_PHONE = "+15555550100";
 import { type Lang, evidence, expectNeutralPage, expectNoHorizontalScroll, isPhone, sizeOf } from "./support/site";
 
 const STRONG = "UnaClaveLarga2026";
@@ -49,6 +52,7 @@ test.describe("the open form", () => {
       await openSignup(page, lang);
       await expect(page.getByLabel(copy.email, { exact: true })).toBeVisible();
       await expect(page.getByLabel(copy.password, { exact: true })).toHaveAttribute("type", "password");
+      await expect(page.getByLabel(copy.phone, { exact: true })).toHaveAttribute("type", "tel");
       await expect(page.getByLabel(copy.name, { exact: true })).toBeVisible();
       await expect(page.getByLabel(copy.company, { exact: true })).toBeVisible();
       await expect(page.getByLabel(copy.role, { exact: true })).toBeVisible();
@@ -91,6 +95,7 @@ test.describe("the open form", () => {
     await openSignup(page, "es");
     await page.getByLabel(copy.email, { exact: true }).fill(SIMULATOR);
     await page.getByLabel(copy.password, { exact: true }).fill(STRONG);
+    await page.getByLabel(copy.phone, { exact: true }).fill(QA_SIGNUP_PHONE);
     await termsBox(page, "es").check();
     const answer = page.waitForResponse((response) => response.url().includes("/api/public/signup.start"));
     await page.getByRole("button", { name: copy.submit }).click();
@@ -115,6 +120,7 @@ test.describe("the open form", () => {
     });
     await page.getByLabel(copy.signup.email, { exact: true }).fill(SIMULATOR);
     await page.getByLabel(copy.signup.password, { exact: true }).fill(STRONG);
+    await page.getByLabel(copy.signup.phone, { exact: true }).fill(QA_SIGNUP_PHONE);
     await termsBox(page, "es").check();
     await contactBox(page, "es").check();
     await page.getByRole("button", { name: copy.signup.submit }).click();

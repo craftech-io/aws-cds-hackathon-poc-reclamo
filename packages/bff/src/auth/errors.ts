@@ -25,6 +25,12 @@ export const AUTH_REASON = {
   WORLD_RESETTING: "WORLD_RESETTING",
   /** The world has no `META`, or it is still `REGISTERED` or `CREATING`. */
   WORLD_NOT_READY: "WORLD_NOT_READY",
+  /**
+   * This sign-in session has not passed the SMS code yet (enrolment of the account's mobile, or the
+   * second factor of the sign-in): only the account's own procedures and `phone.*` answer
+   * (docs/architecture-guests.md §17).
+   */
+  PHONE_VERIFICATION_REQUIRED: "PHONE_VERIFICATION_REQUIRED",
   /** Cognito (JWKS) or the staff directory could not be reached; the request fails closed. */
   AUTH_UNAVAILABLE: "AUTH_UNAVAILABLE",
 } as const;
@@ -48,6 +54,7 @@ export const AUTH_REFUSAL: Readonly<Record<AuthReason, AuthRefusal>> = {
   LOGIN_NOT_RECENT: "FORBIDDEN",
   WORLD_RESETTING: "BUSY",
   WORLD_NOT_READY: "BUSY",
+  PHONE_VERIFICATION_REQUIRED: "FORBIDDEN",
   AUTH_UNAVAILABLE: "UNAVAILABLE",
 };
 

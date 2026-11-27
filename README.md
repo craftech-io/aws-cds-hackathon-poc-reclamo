@@ -62,8 +62,11 @@ decision lands on the compliance tape or the audit log.
 ## Try it
 
 Open **https://reclamo.demo.craftech.io**, choose **Probar Reclamo en regla** (Try Reclamo en
-regla), and create an account with your email: you get a verification code, and about a minute later
-your own world is ready. A world is an isolated copy of the fictitious lender Jarilla, with its
+regla), and create an account with your email and your mobile number: you get a code by email, then
+a code by SMS that verifies your mobile, and about a minute later your own world is ready. Every
+later sign-in asks for a new SMS code (a second factor for every account). Without a registered
+sender, carriers in some countries (for example the United States and India) do not deliver the SMS:
+use a mobile from another country, or write to us at https://craftech.io/contact/. A world is an isolated copy of the fictitious lender Jarilla, with its
 customers, loans, collection networks and register, and a simulated clock paused at Wed Oct 7 10:10
 that only moves with the console's controls. The customer's side of WhatsApp is played by the
 console's **phone simulator**: choose a persona and send their script message, or write your own.
@@ -318,7 +321,8 @@ or wallet, with a fictitious lender and synthetic data.
 - **Access for testing**: anyone can create an account at `https://reclamo.demo.craftech.io/signup`
   and start with the 5-minute guided tour. Judges use the private testing instructions of the
   submission, which list reserved guest accounts (`guest-NN`), each with its own world and without
-  the public capacity limits.
+  the public capacity limits. Every account, `guest-NN` included, verifies a mobile number by SMS on
+  its first sign-in and enters an SMS code at every sign-in after it.
 - **Pre-existing work disclosure.** The repository skeleton (SST and CI setup, CI bootstrap template,
   lint scripts, console shell and shared components, our own Cognito sign-in, tRPC base, logging,
   retry and crypto helpers, the PDF generator, the landing gallery, AgentCore setup patterns, agent

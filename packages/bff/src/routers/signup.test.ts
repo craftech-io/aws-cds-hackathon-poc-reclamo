@@ -122,9 +122,9 @@ describe("signup.confirm over HTTP [FL-113] [FL-115]", () => {
     const { handler, harness } = await setup();
     const signupId = await started(handler);
     const code = harness.cognito.lastCode(EMAIL) ?? "";
-    expect(await call(handler, "signup.confirm", { signupId, code })).toEqual({ status: "CONFIRMED", worldStatus: "REGISTERED", email: EMAIL });
+    expect(await call(handler, "signup.confirm", { signupId, code })).toEqual({ status: "CONFIRMED", worldStatus: "PHONE_PENDING", email: EMAIL });
     expect(await call(handler, "signup.confirm", { signupId, code })).toMatchObject({ status: "CONFIRMED" });
-    expect(harness.invoked.worlds).toHaveLength(1);
+    expect(harness.invoked.worlds).toEqual([]);
   });
 
   it("answers CODE_MISMATCH to a wrong code, and SIGNUP_RESTART to an unknown request without Cognito", async () => {

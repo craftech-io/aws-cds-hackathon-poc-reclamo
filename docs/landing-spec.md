@@ -611,10 +611,11 @@ tarjeta a la derecha). Formulario corto (estándar §5 de `poc-landing`, "Captac
 |---|---|---|---|---|
 | Email | Sí | email | Email | Email |
 | Contraseña | Sí | password (mostrar/ocultar) | Contraseña | Password |
+| Celular | Sí | tel (`autocomplete=tel`), con prefijo internacional; ayuda debajo: *Con el prefijo internacional. Te mandamos un código por SMS para verificarlo y te lo pedimos en cada ingreso.* | Celular | Mobile |
 | Nombre | No | text | Nombre (opcional) | Name (optional) |
 | Empresa | No | text | Empresa (opcional) | Company (optional) |
 | Tu rol | No | select corto: Atención/Operaciones · Cumplimiento/Legal · Tecnología · Producto · Otro | Tu rol (opcional) | Your role (optional): Support/Operations · Compliance/Legal · Technology · Product · Other |
-| Consentimiento 1 (obligatorio, sin tildar por defecto) | Sí | checkbox | Acepto los <a>Términos</a> y la <a>Política de privacidad</a> | I accept the <a>Terms</a> and the <a>Privacy Policy</a> |
+| Consentimiento 1 (obligatorio, sin tildar por defecto; `signup-v2`) | Sí | checkbox | Acepto los <a>Términos</a> y la <a>Política de privacidad</a>, y que mi celular se use para verificar mi cuenta y protegerla con un código por SMS en cada ingreso. | I accept the <a>Terms</a> and the <a>Privacy Policy</a>, and that my mobile is used to verify my account and protect it with an SMS code at every sign-in. |
 | Consentimiento 2 (opcional, sin tildar por defecto) | No | checkbox | Craftech puede contactarme sobre esta solución | Craftech may contact me about this solution |
 | CTA primario | — | submit | Crear cuenta | Create account |
 | Link secundario | — | link a `/login` | Ya tengo cuenta · Ingresar | I already have an account · Sign in |
@@ -638,6 +639,7 @@ aparece tras submit):
 | Alta cerrada (`SIGNUP_UNAVAILABLE` — `SWITCH#SIGNUP` sin abrir, `KILL#SIGNUP` activo, o SES todavía sin DKIM `SUCCESS`) — no es un error de formulario: reemplaza el formulario entero, con un único CTA | Por ahora no podemos crear cuentas nuevas. <a>Hablemos</a> (ADR-0021 §2: `https://craftech.io/contact/` con `utm_content=signup-unavailable`) | We can't create new accounts right now. <a>Let's talk</a> |
 | Error de red/servidor | No pudimos crear tu cuenta. Probá de nuevo. | We couldn't create your account. Please try again. |
 | Dominio descartable (`EMAIL_NOT_ACCEPTED`) | Usá un email permanente, personal o de trabajo. | Use a permanent personal or work email. |
+| Celular sin prefijo o mal formado (`INVALID_PHONE`) | Escribí tu celular con el prefijo internacional, por ejemplo +54 9 11 1234 5678 | Enter your mobile with its international prefix, for example +1 202 555 0123 |
 
 **Atribución del lead**: al llegar a la landing, `sessionStorage` guarda `utm_*` y `referrer` (solo el
 origen, nunca la URL completa) si están presentes, sin ningún dato personal; al navegar a `/signup`
@@ -688,6 +690,20 @@ que recién la escribió:
 | | es | en |
 |---|---|---|
 | Aviso en `/login` con email precargado | Tu cuenta está confirmada; ingresá para ver tu entorno. | Your account is confirmed; sign in to see your environment. |
+
+### 9.3 bis Código por SMS después de la contraseña (toda cuenta)
+
+Contrato técnico en `docs/architecture-guests.md` §17. Después de la contraseña (y del TOTP del personal
+que lo activó), toda sesión de la consola pasa por esta pantalla antes de cualquier vista, incluida
+`/signup/provisioning`; mismo layout que `/login`, responsive de 360 a 1440 px sin scroll horizontal.
+
+| Momento | Contenido | Copy es | Copy en |
+|---|---|---|---|
+| Enrolamiento (cuenta sin celular verificado) | Título, bajada, campo "Celular" precargado con el del alta y editable, ayuda, "Enviar código"; con el código enviado: aviso, campo de 6 dígitos, "Verificar" y "Reenviar código (N s)" con cuenta regresiva de 60 s | Verificá tu celular · Para usar la demo, verificá tu celular con un código por SMS. Protege tu cuenta: te vamos a pedir un código nuevo cada vez que ingreses. | Verify your mobile · To use the demo, verify your mobile with a code we text you. It protects your account: we'll ask for a new code every time you sign in. |
+| Ingreso (cuenta con celular verificado) | Título, bajada con los últimos 4 dígitos (el número no se muestra entero ni se puede cambiar), el código se manda solo al entrar, campo de 6 dígitos, "Verificar", reenvío con cuenta regresiva | Escribí el código que te mandamos · Para completar el ingreso, te mandamos un código por SMS al celular terminado en **NNNN**. | Enter the code we sent you · To finish signing in, we texted a code to your mobile ending in **NNNN**. |
+| Siempre | Link "Salir" (anula el pase de la sesión y vuelve a `/`) | Salir | Sign out |
+
+Errores (bajo el formulario, `role="alert"`; los que la persona no puede resolver sola llevan "Escribinos" → `https://craftech.io/contact/` con `utm_content=phone-verification`): código incorrecto con los intentos que quedan; quinto intento ("Pedí uno nuevo"); vencido; reenvío antes de tiempo; número ya en uso en otra cuenta; celular verificado que no se puede cambiar desde acá; tope de códigos del día de la cuenta ("Vas a poder ingresar mañana"); demasiados pedidos; SMS que no llega a ese país ("En algunos países, por ejemplo Estados Unidos e India, todavía no podemos enviar SMS"). Textos exactos en `packages/web/src/views/login/auth-copy-es.ts` y `auth-copy-en.ts` (`phone`).
 
 ### 9.4 `/signup/provisioning` — Mundo en preparación
 

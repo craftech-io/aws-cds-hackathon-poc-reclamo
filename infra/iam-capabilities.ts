@@ -264,9 +264,10 @@ export const LAMBDA_CAPABILITIES = {
       "cognito-idp:AdminSetUserPassword",
       "cognito-idp:AdminGetUser",
       "cognito-idp:AdminDeleteUser",
+      "sns:Publish",
     ],
     fence:
-      "LeadingKeys of WORLD_LEADING_KEYS.Bff; Leads by LEADS_GRANTS.Bff (no GetItem or Query of LEAD#; Query only on ByEmailHash); AdminDeleteUser only for UNCONFIRMED @ usernames (code); InvokeFunction of WorldJanitor only with a PROVISIONREQ#/RESETREQ#/PURGEREQ# ticket (code); no SES, no EUM Social, no Guardrails: every send belongs to the worker",
+      "LeadingKeys of WORLD_LEADING_KEYS.Bff; Leads by LEADS_GRANTS.Bff (no GetItem or Query of LEAD#; Query only on ByEmailHash); AdminDeleteUser only for UNCONFIRMED @ usernames (code); InvokeFunction of WorldJanitor only with a PROVISIONREQ#/RESETREQ#/PURGEREQ# ticket (code); sns:Publish only straight to a phone number (the SMS code, messaging-sms.ts: deny on every topic); no SES, no EUM Social, no Guardrails: every message to a customer belongs to the worker",
   },
   WorldJanitor: {
     capabilities: ["WORLDS"],

@@ -24,6 +24,10 @@ describe("signup.start refusals [FL-112]", () => {
     ["INVALID_EMAIL", { email: "qa-x@empresa-ficticia.ar" }],
     ["INVALID_EMAIL", { email: "ana@nomail.ar" }],
     ["EMAIL_NOT_ACCEPTED", { email: "ana@yopmail.com" }],
+    ["INVALID_PHONE", { phone: "11 5555 0100" }],
+    ["INVALID_PHONE", { phone: "+54 11" }],
+    ["INVALID_PHONE", { phone: "+0549115555010" }],
+    ["INVALID_PHONE", { phone: "+1234567890123456" }],
   ])("answers %s, writes no request and calls no Cognito", async (status, overrides) => {
     const harness = await createSignupHarness().ready();
     expect(await harness.signup.start(startInput(overrides), IP)).toEqual({ status });
@@ -36,7 +40,7 @@ describe("signup.start refusals [FL-112]", () => {
     const result = await harness.signup.start(startInput(), IP);
     if (result.status !== "CODE_SENT") throw new Error(result.status);
     const request = await harness.leads.getSignup(result.signupId);
-    expect(request?.consents).toEqual({ terms: { acceptedAtReal: harness.now().toISOString(), textVersion: "signup-v1" }, contact: { accepted: false, textVersion: "signup-v1" } });
+    expect(request?.consents).toEqual({ terms: { acceptedAtReal: harness.now().toISOString(), textVersion: "signup-v2" }, contact: { accepted: false, textVersion: "signup-v2" } });
     expect(request?.clientId).toBe("fake-guest-signup-client");
   });
 
@@ -47,6 +51,16 @@ describe("signup.start refusals [FL-112]", () => {
     expect(SignupStartInput.safeParse(startInput({ name: "Ana María", company: "Financiera del Sur S.A.", jobTitle: "compliance" })).success).toBe(true);
     expect(SignupStartInput.safeParse({ ...startInput(), extra: 1 }).success).toBe(false);
     expect(SignupStartInput.safeParse(startInput({ referrer: "https://buscador.ar/?q=x" })).success).toBe(false);
+  });
+});
+
+describe("the mobile of the form [FL-129]", () => {
+  it("[FL-129] is required (E.164, any country) and stored normalized in the request", async () => {
+    expect(SignupStartInput.safeParse({ ...startInput(), phone: undefined }).success).toBe(false);
+    const harness = await createSignupHarness().ready();
+    const started = await harness.signup.start(startInput({ phone: " +1 (202) 555-0123 " }), IP);
+    if (started.status !== "CODE_SENT") throw new Error(started.status);
+    expect(await harness.leads.getSignup(started.signupId)).toMatchObject({ phone: "+12025550123" });
   });
 });
 

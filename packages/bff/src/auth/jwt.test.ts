@@ -9,6 +9,7 @@ import { authenticateToken } from "./authenticate";
 import { AUTH_REASON, AUTH_REFUSAL, AuthError } from "./errors";
 import { bearerToken, createCognitoIdTokenVerifier } from "./jwt";
 import { TEST_POOL, claimsOf, createMemoryAudit, createMemoryDirectory, createTestIssuer, staffRow } from "./testing";
+import { passedSecondFactor } from "../second-factor/doubles";
 
 async function reasonOf(promise: Promise<unknown>): Promise<string> {
   try {
@@ -119,7 +120,7 @@ describe("audiences of the BFF: ConsoleClient, and ServerClient only for qa-* [F
 
   // HTTP status the console receives, through the real root router and its middlewares.
   async function httpStatusOf(claims: Record<string, unknown>): Promise<number> {
-    const context = await createContextFactory(() => ({ ...deps, audit: createMemoryAudit(), wallClock: () => new Date(), loggerFor: (id) => createLogger({ correlationId: id, sink: () => undefined }) }))({
+    const context = await createContextFactory(() => ({ ...deps, audit: createMemoryAudit(), wallClock: () => new Date(), loggerFor: (id) => createLogger({ correlationId: id, sink: () => undefined }), secondFactor: passedSecondFactor() }))({
       event: { headers: { authorization: `Bearer ${issuer.idToken(claims)}` } },
     });
     try {

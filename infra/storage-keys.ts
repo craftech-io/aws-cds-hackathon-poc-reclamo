@@ -174,10 +174,16 @@ export const GLOBAL_PARTITION_PREFIXES: Readonly<Partial<Record<TableName, reado
     "GUESTACCT#",
     "GUESTCAP#",
     "LEADNOTICE#",
+    // The SMS code of every account (docs/architecture-guests.md §17).
+    "SECONDFACTOR#",
+    "SMSACCT#",
+    "SMSPHONE#",
+    "SMSIP#",
+    "SMSCAP#",
   ],
   // The self-signup's audit entries that belong to no world, `SIGNUP#AUD#[QA#]<yyyy-mm>` (packages/bff/src/leads/keys.ts).
   AuditLog: ["SIGNUP#AUD#"],
-  Leads: ["SIGNUP#", "PENDING#", "CANON#", "LEAD#", "LEADDEL#", "QASIGNUP#", "QAPENDING#", "QALEAD#"],
+  Leads: ["SIGNUP#", "PENDING#", "CANON#", "LEAD#", "LEADDEL#", "QASIGNUP#", "QAPENDING#", "QALEAD#", "PHONEVER#", "PHONEOWNER#", "PHONECODE#"],
 };
 
 /** Whether a table has secondary indexes (a statement names `<arn>/index/*` only then). */

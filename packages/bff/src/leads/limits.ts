@@ -50,6 +50,27 @@ export const GUEST_WORLD_LIMITS = {
 } as const;
 
 /**
+ * The SMS code of every account (docs/architecture-guests.md §17): the enrolment of its mobile number
+ * and the second factor of every sign-in. Every window is the real UTC day. An account's SMS of the day
+ * count enrolment and sign-ins together; a number's count only the enrolment sends to a number that is
+ * not yet an account's (after it, the number is the account's own and its cap is the account's). The
+ * pass of a session lives as long as the console session can (`TOKEN_VALIDITY.consoleRefreshHours` of
+ * infra/auth.ts, compared by infra/auth.test.ts).
+ */
+export const SECOND_FACTOR_LIMITS = {
+  smsPerAccountPerDay: 6,
+  smsPerNumberPerDay: 3,
+  smsPerIpPerDay: 5,
+  smsGlobalPerDay: 150,
+  codeValidSeconds: 10 * 60,
+  attemptsPerCode: 5,
+  resendWaitSeconds: 60,
+  sessionHours: 12,
+  /** A passed session is re-read at most this often by one container. */
+  passCacheSeconds: 60,
+} as const;
+
+/**
  * What the models may cost for one self-signup account, in US dollars, over its whole life: no window
  * and no reset by epoch or by a new world (its world id comes from its `sub`). Each call is charged on
  * `W#<w>#SPENDCAP` with a conditional `ADD` before it runs: a turn reserves `turnReservationUsd` and is

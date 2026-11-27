@@ -14,6 +14,7 @@ import { guestRouter } from "./guest";
 import { healthProcedure } from "./health";
 import { inboxRouter } from "./inbox";
 import { metricsRouter } from "./metrics";
+import { phoneRouter } from "./phone";
 import { policyRouter } from "./policy";
 import { registerRouter } from "./register";
 import { simulatorRouter } from "./simulator";
@@ -38,6 +39,7 @@ export const appRouter = router({
   tour: tourRouter,
   account: accountRouter,
   guest: guestRouter,
+  phone: phoneRouter,
 });
 
 export type AppRouter = typeof appRouter;

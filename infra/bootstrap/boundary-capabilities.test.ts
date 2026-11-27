@@ -22,7 +22,7 @@ const allowing = (action: string) => allows.filter((statement) => list(statement
  * Actions without resource types (Service Authorization Reference): IAM evaluates them on `*` with no
  * resource tag, so only a boundary statement on `*` without a condition can allow them.
  */
-const NO_RESOURCE_TYPES = ["scheduler:ListSchedules"] as const;
+const NO_RESOURCE_TYPES = ["scheduler:ListSchedules", "sns:Publish"] as const;
 
 describe("the boundary allows every action a role of the app is granted", () => {
   const granted = [...new Set((Object.keys(LAMBDA_CAPABILITIES) as LambdaName[]).flatMap((fn) => expectedActions(fn)))].sort();
@@ -39,5 +39,12 @@ describe("the boundary allows every action a role of the app is granted", () => 
     }
     expect(granted).toContain("scheduler:ListSchedules");
     expect(read("infra/bff.ts")).toContain('{ actions: ["scheduler:ListSchedules"], resources: ["*"] }');
+  });
+
+  it("allows the SMS code's direct publish (no resource: `*` without a tag), which only the Bff is granted, with its deny on every topic", () => {
+    expect(granted).toContain("sns:Publish");
+    const publishers = (Object.keys(LAMBDA_CAPABILITIES) as LambdaName[]).filter((fn) => expectedActions(fn).includes("sns:Publish"));
+    expect(publishers).toEqual(["Bff"]);
+    expect(read("infra/messaging-sms.ts")).toContain('{ effect: "deny" as const, actions: ["sns:Publish"], resources: [SMS_TOPICS_ARN] }');
   });
 });

@@ -1,4 +1,5 @@
-// The fields of `/signup` (docs/landing-spec.md §9.2): email and password (required), name, company
+// The fields of `/signup` (docs/landing-spec.md §9.2): email, password and mobile (required; the mobile
+// with its international prefix, verified by SMS after the email, docs/architecture-guests.md §17), name, company
 // and role (optional, never more than three), the two consents, separate and unticked, the first
 // required and the second optional, with the BFF's versioned texts, and the fixed line about the
 // synthetic data. Errors sit under their field; the first one after a submit is announced.
@@ -65,6 +66,8 @@ export function SignupFormFields({ copy, form, errors, announced, busy, onChange
       <Field label={text.email} type="email" autoComplete="email" autoCapitalize="off" spellCheck={false} maxLength={254} value={form.email} onChange={(event) => set("email", event.target.value)} error={errorOf("email")} alert={first === "email"} required />
       <PasswordField label={text.password} toggle={copy.password} autoComplete="new-password" value={form.password} onChange={(event) => set("password", event.target.value)} error={errorOf("password")} alert={first === "password"} required />
       <PasswordRules password={form.password} text={copy.password} />
+      <Field label={text.phone} type="tel" inputMode="tel" autoComplete="tel" maxLength={32} placeholder={text.phonePlaceholder} value={form.phone} onChange={(event) => set("phone", event.target.value)} error={errorOf("phone")} alert={first === "phone"} required />
+      <p className="-mt-2 text-xs text-slate">{text.phoneHint}</p>
       <Field label={text.name} type="text" autoComplete="name" maxLength={LEAD_TEXT_MAX} value={form.name} onChange={(event) => set("name", event.target.value)} error={errorOf("name")} alert={first === "name"} />
       <Field label={text.company} type="text" autoComplete="organization" maxLength={LEAD_TEXT_MAX} value={form.company} onChange={(event) => set("company", event.target.value)} error={errorOf("company")} alert={first === "company"} />
       <div className="flex flex-col gap-1.5">

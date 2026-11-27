@@ -62,7 +62,17 @@ function guestWorldClass(worldId: string): "INVITED" | "QA" {
 /** Step 1: the world and its staff row, written once; an existing row must be this account's. */
 async function preRegister(deps: GuestWorldDeps, request: GuestWorldRequest, kind: "INVITED" | "QA"): Promise<void> {
   const { worlds } = deps.connector;
-  const staffRow = { worldId: request.worldId, staffId: request.staff.staffId, role: "GUEST" as const, displayName: request.staff.displayName, cognitoSubKey: keys.subKey(request.staff.sub), active: true };
+  // The QaDriver's guest of a `qa-*` world is automation (no person, no phone), marked here by the server
+  // (docs/architecture-guests.md §17.1); a `guest-NN` handed to a person never is.
+  const staffRow = {
+    worldId: request.worldId,
+    staffId: request.staff.staffId,
+    role: "GUEST" as const,
+    displayName: request.staff.displayName,
+    cognitoSubKey: keys.subKey(request.staff.sub),
+    active: true,
+    ...(kind === "QA" ? { automation: true as const } : {}),
+  };
   const meta = await worlds.getMeta(request.worldId, { consistent: true });
   if (!meta) {
     try {

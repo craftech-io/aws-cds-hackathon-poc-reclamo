@@ -7,6 +7,7 @@ import type { Fetcher } from "aws-jwt-verify/https";
 import type { Jwk, Jwks } from "aws-jwt-verify/jwk";
 import type { StaffRole } from "@reclamo/shared";
 import { createLogger } from "../lib/log";
+import { passedSecondFactor } from "../second-factor/doubles";
 import type { ContextDeps } from "../routers/deps";
 import type { AuditEntry, AuditSink } from "./audit";
 import { type IdTokenVerifier, createCognitoIdTokenVerifier } from "./jwt";
@@ -187,6 +188,7 @@ export function createTestDeps(options: { now?: () => Date } = {}): TestDeps {
     audit,
     wallClock: options.now ?? (() => new Date()),
     loggerFor: (correlationId) => createLogger({ correlationId, sink: (line) => void lines.push(line) }),
+    secondFactor: passedSecondFactor(),
   };
   return { issuer, directory, audit, deps, lines };
 }

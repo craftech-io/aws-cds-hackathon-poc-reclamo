@@ -50,6 +50,9 @@ export interface AuthCopy {
     readonly lead: string;
     readonly email: string;
     readonly password: string;
+    readonly phone: string;
+    readonly phonePlaceholder: string;
+    readonly phoneHint: string;
     readonly name: string;
     readonly company: string;
     readonly role: string;
@@ -68,6 +71,7 @@ export interface AuthCopy {
       readonly email: string;
       readonly notAccepted: string;
       readonly weakPassword: string;
+      readonly phone: string;
       readonly consent: string;
       readonly plainText: string;
       readonly failed: string;
@@ -89,6 +93,39 @@ export interface AuthCopy {
     readonly otherEmail: string;
     /** `signup.start` answers the same whether the email has an account: this line covers who has one. */
     readonly haveAccount: { readonly lead: string; readonly signIn: string; readonly or: string; readonly recover: string };
+  };
+  /** The SMS code after the password (docs/architecture-guests.md §17): enrolment of the mobile, then every sign-in. */
+  readonly phone: {
+    readonly enrolTitle: string;
+    readonly enrolLead: string;
+    readonly signInTitle: string;
+    /** The last digits of the verified number go in the middle. */
+    readonly signInLead: Framed;
+    readonly number: string;
+    readonly numberHint: string;
+    readonly send: string;
+    readonly code: string;
+    readonly verify: string;
+    readonly resend: string;
+    readonly resendIn: (seconds: number) => string;
+    readonly sent: string;
+    readonly contact: string;
+    readonly signOut: string;
+    readonly errors: {
+      readonly invalidPhone: string;
+      readonly phoneInUse: string;
+      readonly locked: string;
+      readonly codeShape: string;
+      readonly mismatch: (attemptsLeft: number) => string;
+      readonly burnt: string;
+      readonly expired: string;
+      readonly noCode: string;
+      readonly tooSoon: string;
+      readonly accountLimit: string;
+      readonly rateLimited: string;
+      readonly smsFailed: string;
+      readonly failed: string;
+    };
   };
   readonly provisioning: {
     readonly preparingTitle: string;

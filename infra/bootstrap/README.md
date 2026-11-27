@@ -151,6 +151,27 @@ Order of the operator, once, before pushing that deploy:
    loads the one the CTO chose; never in the code.
 3. Re-apply this template (above).
 
+## SMS code of every account (docs/architecture-guests.md §17)
+
+The `Bff` publishes the SMS code with `sns:Publish` straight to a phone number, which has no resource
+and no tag, so the boundary's tagged statement cannot allow it: `sns:Publish` is listed in
+`NoResourceLevelRuntime` (on `*`, no condition). The `Bff`'s own policy, the only one that grants it,
+denies `sns:Publish` on every topic (`arn:aws:sns:*:*:*`, infra/messaging-sms.ts), and
+`boundary-capabilities.test.ts` keeps it the only publisher. The deploy role needs nothing new. Re-apply
+the template (the command of "Apply", with the current parameters) **before** the push that deploys
+the SMS code: otherwise the first code fails with `AccessDenied` (implicit deny of the boundary), and
+every account stays at the code screen. Then check the boundary's default version:
+
+```bash
+aws --profile craftech-demos iam get-policy-version --policy-arn arn:aws:iam::776805327629:policy/aws-cds-hackathon-poc-reclamo-ci-boundary \
+  --version-id "$(aws --profile craftech-demos iam get-policy --policy-arn arn:aws:iam::776805327629:policy/aws-cds-hackathon-poc-reclamo-ci-boundary --query Policy.DefaultVersionId --output text)" \
+  --query 'PolicyVersion.Document.Statement[?Sid==`NoResourceLevelRuntime`].Action'
+```
+
+The account's SMS settings (monthly spend limit of US$50, sandbox or production for SMS, registered
+senders) belong to the shared account, not to this app: read them with
+`aws --profile craftech-demos sns get-sms-attributes` and `aws --profile craftech-demos sns get-sms-sandbox-account-status`; never change them from here.
+
 **`Leads` is removed with the stage.** The table follows the stage's removal policy (`remove`) and has
 no point-in-time recovery nor backups (a lead deleted on request must not survive in a copy), so an
 `sst remove` loses every lead for good: run `npm run leads:export -- --all --out <path>.local.csv`

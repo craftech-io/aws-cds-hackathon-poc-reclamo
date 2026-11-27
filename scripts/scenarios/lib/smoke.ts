@@ -16,6 +16,7 @@
 //           with the deploy role): the QaDriver never lists the pool, whose self-signup usernames are emails.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { QA_SIGNUP_PHONE } from "@reclamo/bff/guests/signup";
 import { consoleCall } from "./console";
 import { EDGE_CHALLENGE_ENFORCED } from "../../../infra/guest-limits";
 import { SIGNUP_DOCUMENTS, WAF_ACTION_HEADER, consoleClientId, cspViolations, directForgotPassword, launchBrowser, openForm, publicAnswerOf, publicPostInPage, publicPostOutside, signupOpsBlocked } from "./edge";
@@ -92,7 +93,7 @@ export async function serverClientRefused(ctx: ScenarioContext, reuse: string, s
 
 /** RFC 2606: a domain no mailbox can ever have; `signup.start` refuses it before creating anything. */
 export function reservedSignup(runId: string) {
-  return { email: `smoke-${runId}@example.com`, password: `Smoke-${runId}-Aa9!x`, acceptTerms: true, acceptContact: false, locale: "es" as const };
+  return { email: `smoke-${runId}@example.com`, password: `Smoke-${runId}-Aa9!x`, phone: QA_SIGNUP_PHONE, acceptTerms: true, acceptContact: false, locale: "es" as const };
 }
 
 /**

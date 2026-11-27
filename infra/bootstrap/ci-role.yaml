@@ -158,6 +158,9 @@ Resources:
             Effect: Allow
             Action: bedrock-agentcore:GetWorkloadAccessToken*
             Resource: !Sub "arn:${AWS::Partition}:bedrock-agentcore:${Region}:${AWS::AccountId}:workload-identity-directory/default*"
+          # sns:Publish: the SMS code of the console (docs/architecture-guests.md §17). Straight to a phone
+          # number it has no resource to scope, so IAM evaluates it on "*" with no tag; the Bff's own
+          # policy, the only one that grants it, denies every topic (infra/messaging-sms.ts).
           - Sid: NoResourceLevelRuntime
             Effect: Allow
             Action:
@@ -165,6 +168,7 @@ Resources:
               - ecr-public:GetAuthorizationToken
               - logs:DescribeLogGroups
               - scheduler:ListSchedules
+              - sns:Publish
               - xray:GetSamplingRules
               - xray:GetSamplingTargets
               - xray:PutTelemetryRecords

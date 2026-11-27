@@ -7,7 +7,8 @@
 // token still alive is refused by `worldProcedure` at the next step), the staff row inactive, the
 // Cognito user deleted, the world sent to `EXPIRING` (the janitor wipes it; `META`, `SETTINGS` and the
 // inactive `STAFF#` stay as a tombstone without personal data that expires in 30 days), the lead,
-// every request of the email, its pointer and one count of its canonical address removed, and a
+// every request of the email, its pointer, the account's mobile (its phone, last code and the owner of
+// its number, §17) and one count of its canonical address removed, and a
 // `LEADDEL#<emailHash>` proof written (hash and instant only). Audited with the hash. It prints the
 // hash prefix, never the address. The immutable register, tape and log of what was typed in the
 // simulator (masked) are not deleted: the privacy policy says so.
@@ -60,7 +61,8 @@ export function parseDeleteArgs(argv: readonly string[]): { readonly email: stri
 /**
  * Retires a self-signup world and gives its kept rows the tombstone's TTL. A world that holds a place
  * of the quota (`CREATING`, `READY`) goes to `EXPIRING`: the janitor wipes it and frees the place. One
- * still in the queue (`REGISTERED`) holds no place and no data: it goes straight to `EXPIRED`.
+ * still in the queue (`REGISTERED`), or waiting for the account's mobile (`PHONE_PENDING`), holds no place
+ * and no data: it goes straight to `EXPIRED`.
  */
 async function retireWorld(deps: DeleteDeps, worldId: string): Promise<void> {
   const ttl = expiresAt(deps.now(), TOMBSTONE_SECONDS);
@@ -73,7 +75,7 @@ async function retireWorld(deps: DeleteDeps, worldId: string): Promise<void> {
     update: { set: { status: to, guestIndexKey: `GUEST#${to}`, guestIndexSort: `${at}#${worldId}`, expiresAt: ttl, updatedAt: at } },
   });
   let moved = false;
-  for (const op of [move(["CREATING", "READY"], "EXPIRING"), move(["REGISTERED"], "EXPIRED")]) {
+  for (const op of [move(["CREATING", "READY"], "EXPIRING"), move(["REGISTERED", "PHONE_PENDING"], "EXPIRED")]) {
     try {
       await deps.store.write(op);
       moved = true;
@@ -87,6 +89,17 @@ async function retireWorld(deps: DeleteDeps, worldId: string): Promise<void> {
   for (const key of [keys.worldSettings(worldId), keys.staff(worldId, `stf-${worldId}`)]) {
     await deps.store.write({ kind: "update", table: "Worlds", key, condition: cond.present(), update: { set: { expiresAt: ttl } } }).catch(() => undefined);
   }
+}
+
+/** The account's mobile (docs/architecture-guests.md §17): its phone, its last code and the owner of its number. */
+async function phoneDeletions(deps: DeleteDeps, sub: string): Promise<WriteOp[]> {
+  const phone = await deps.store.get("Leads", leadsKeys.accountPhone(sub), { consistent: true });
+  const ops: WriteOp[] = [
+    { kind: "delete", table: "Leads", key: leadsKeys.accountPhone(sub) },
+    { kind: "delete", table: "Leads", key: leadsKeys.phoneCode(sub) },
+  ];
+  if (typeof phone?.phoneHash === "string") ops.push({ kind: "delete", table: "Leads", key: leadsKeys.phoneOwner(phone.phoneHash), condition: cond.eq("sub", sub) });
+  return ops;
 }
 
 export async function deleteLead(email: string, deps: DeleteDeps): Promise<DeleteReport> {
@@ -108,8 +121,14 @@ export async function deleteLead(email: string, deps: DeleteDeps): Promise<Delet
   const deletions: WriteOp[] = [
     ...indexed.items.map((item): WriteOp => ({ kind: "delete", table: "Leads", key: { pk: item.pk, sk: item.sk } })),
     { kind: "delete", table: "Leads", key: leadsKeys.pending(emailHash) },
+    ...(sub ? await phoneDeletions(deps, sub) : []),
   ];
-  for (const op of deletions) await deps.store.write(op);
+  for (const op of deletions) {
+    await deps.store.write(op).catch((error: unknown) => {
+      // The owner of a number that is another account's now is left alone.
+      if (!(error instanceof ConnectorError && error.code === "CONFLICT")) throw error;
+    });
+  }
   if (lead) {
     await deps.store
       .write({ kind: "update", table: "Leads", key: leadsKeys.canon(deps.hashes.canonHash(canonicalEmail(email))), condition: cond.gt("confirmed", 0), update: { add: { confirmed: -1 } } })

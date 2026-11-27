@@ -2,9 +2,10 @@
 // Post-confirmation trigger of the console user pool (docs/architecture-guests.md §3, §5). After
 // `ConfirmSignUp` (or the scenario runner's `AdminConfirmSignUp`, which Cognito reports the same way)
 // it only ASKS for the world: guests/register.ts writes, in one transaction and only from the request
-// of `clientMetadata.signupId` whose `sub` is this user's, the lead, the request as `CONFIRMED`, the
-// world `REGISTERED` with its `GUEST` staff row and the provisioning ticket; then it invokes
-// `WorldJanitor` and `LeadNotifier` asynchronously. A request of another `sub`, or none, registers
+// of `clientMetadata.signupId` whose `sub` is this user's, the lead (pending its mobile), the request
+// as `CONFIRMED`, the world `PHONE_PENDING` with its `GUEST` staff row and the account's pending phone
+// (docs/architecture-guests.md §17): the world's ticket, `WorldJanitor` and `LeadNotifier` wait for the
+// mobile's verification (the scenario runner's world is queued at once). A request of another `sub`, or none, registers
 // nothing and is audited as `SIGNUP_REJECTED SIGNUP_MISMATCH`. It holds no secret and never builds a
 // world. Cognito keeps the user confirmed whatever this returns, so it never throws for a refusal.
 import type { PostConfirmationTriggerEvent } from "aws-lambda";
@@ -57,7 +58,7 @@ export async function onConfirmation(raw: unknown, deps: PostConfirmationDeps): 
     await auditEdge(deps, { action: "SIGNUP_REJECTED", outcome: "SIGNUP_MISMATCH", refs: { step: "post-confirmation" } });
     deps.log.warn("signup.post_confirmation.mismatch", {});
   } else if (outcome.status === "REGISTERED") {
-    await afterRegistration(deps, outcome, sub, qa !== undefined);
+    await afterRegistration(deps, outcome);
   }
   return outcome.status;
 }

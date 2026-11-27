@@ -1,6 +1,6 @@
 // The self-signup of a GUEST (docs/architecture-guests.md §4, ADR-0020): `signup.availability`,
 // `signup.start`, `signup.confirm` and `signup.resend`. Order of `start`: availability (switch, kill,
-// SES), consents, password, email (shape, then DNS), caps on the real clock, the account's state in
+// SES), consents, password, mobile (E.164), email (shape, then DNS), caps on the real clock, the account's state in
 // the pool, the request and its email's pointer, and only then Cognito. The confirmation is bound to
 // the form: only the current request of an email (`PENDING#`) confirms, with the `signupId` the tab
 // kept, so a code that reached a victim never confirms a sign-up somebody else prepared.
@@ -24,6 +24,7 @@ import type { QaScope } from "../leads/keys";
 import { LEADS_TTL_SECONDS, SIGNUP_LIMITS } from "../leads/limits";
 import { QaScopeRecord, type SignupRequest } from "../leads/records";
 import { registerSignup } from "./register";
+import { normalizePhone } from "../second-factor/phone-number";
 import {
   type SignupAvailability,
   type SignupConfirmResult,
@@ -48,6 +49,12 @@ function consentsOf(input: SignupStartInput, at: string): SignupRequest["consent
 export function qaSignupEmail(qa: QaScope): string {
   return `success+qa-${qa.runId}-${qa.key}@simulator.amazonses.com`;
 }
+
+/**
+ * The mobile of a scenario-runner sign-up: a fictional number (555-01xx) that never gets an SMS, because
+ * its account is automation (docs/architecture-guests.md §17) and the QA path never enrols a phone.
+ */
+export const QA_SIGNUP_PHONE = "+15555550100";
 
 /** The address a request may use: a visitor's (shape, then DNS), or exactly the QA run's own. */
 async function verdictOf(deps: SignupServiceDeps, raw: string, qa: QaScope | undefined): Promise<EmailVerdict> {
@@ -120,6 +127,8 @@ export function signupService(deps: SignupServiceDeps) {
       if (!(await open())) return reject("SIGNUP_UNAVAILABLE", ipHash, qa);
       if (!input.acceptTerms) return { status: "CONSENT_REQUIRED" };
       if (passwordProblem(input.password)) return { status: "WEAK_PASSWORD" };
+      const phone = normalizePhone(input.phone);
+      if (phone === undefined) return { status: "INVALID_PHONE" };
       const verdict = await verdictOf(deps, input.email, qa);
       if (!verdict.ok) return { status: verdict.reason };
 
@@ -140,6 +149,7 @@ export function signupService(deps: SignupServiceDeps) {
         signupId: (deps.newSignupId ?? randomSignupId)(),
         status: "STARTED",
         email,
+        phone,
         ...(input.name ? { name: input.name } : {}),
         ...(input.company ? { company: input.company } : {}),
         ...(input.jobTitle ? { jobTitle: input.jobTitle } : {}),
@@ -190,7 +200,7 @@ export function signupService(deps: SignupServiceDeps) {
       // The trigger registered it already, or this repairs a trigger that failed.
       const outcome = await registerSignup(request, request.sub, deps);
       if (outcome.status === "MISMATCH") return { status: "SIGNUP_RESTART" };
-      if (outcome.status === "REGISTERED") await afterRegistration(deps, outcome, request.sub, qa !== undefined);
+      if (outcome.status === "REGISTERED") await afterRegistration(deps, outcome);
       const meta = await deps.connector.worlds.getMeta(outcome.worldId, { consistent: true }).catch(() => undefined);
       return { status: "CONFIRMED", worldStatus: meta?.status ?? "REGISTERED", email: request.email };
     },

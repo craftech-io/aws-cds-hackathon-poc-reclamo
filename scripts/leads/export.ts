@@ -6,12 +6,12 @@
 //   npm run leads:export -- --out scripts/leads/leads.local.csv         inside the repo only as *.local.csv
 //
 // CSV with every cell escaped (a cell that starts with = + - @ is prefixed so a spreadsheet never runs
-// it). QA leads are never exported. Nothing it prints names a person: only the count and the path.
+// it). QA leads and leads still pending their mobile (docs/architecture-guests.md §17) are never exported. Nothing it prints names a person: only the count and the path.
 // The email of a lead is personal data: the file is the operator's responsibility (Ley 25.326).
 import { writeFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isTestLead, type Lead } from "../../packages/bff/src/leads/records";
+import { isPhonePendingLead, isTestLead, type Lead } from "../../packages/bff/src/leads/records";
 import { parseFlags } from "../channels/cli-args";
 import { scanLeads } from "./dynamo";
 
@@ -69,6 +69,8 @@ export const CSV_COLUMNS = [
   "signupAtReal",
   "confirmedAtReal",
   "lastLoginAtReal",
+  "phone",
+  "phoneVerifiedAtReal",
 ] as const;
 
 function row(lead: Lead): string {
@@ -90,13 +92,15 @@ function row(lead: Lead): string {
     lead.signupAtReal,
     lead.confirmedAtReal,
     lead.lastLoginAtReal,
+    lead.phone,
+    lead.phoneVerifiedAtReal,
   ];
   return cells.map(csvCell).join(",");
 }
 
-/** The CSV of the leads to export: with contact consent unless `all`, never a QA lead. */
+/** The CSV of the leads to export: with contact consent unless `all`, never a QA lead nor one still pending its mobile. */
 export function leadsCsv(leads: readonly Lead[], all: boolean): { readonly csv: string; readonly count: number } {
-  const chosen = leads.filter((lead) => !isTestLead(lead) && (all || lead.consents.contact.accepted)).sort((a, b) => a.confirmedAtReal.localeCompare(b.confirmedAtReal));
+  const chosen = leads.filter((lead) => !isTestLead(lead) && !isPhonePendingLead(lead) && (all || lead.consents.contact.accepted)).sort((a, b) => a.confirmedAtReal.localeCompare(b.confirmedAtReal));
   return { csv: [CSV_COLUMNS.map(csvCell).join(","), ...chosen.map(row)].join("\n") + "\n", count: chosen.length };
 }
 

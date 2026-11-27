@@ -31,7 +31,7 @@ export const WAF_ACTION_HEADER = "x-amzn-waf-action";
 export const SignupAvailability = z.object({ status: z.enum(["open", "closed"]) });
 export const SignupStartResult = z.union([
   z.object({ status: z.literal("CODE_SENT"), signupId: z.string().regex(/^[a-z2-7]{26}$/) }),
-  z.object({ status: z.enum(["INVALID_EMAIL", "EMAIL_NOT_ACCEPTED", "WEAK_PASSWORD", "CONSENT_REQUIRED", "RATE_LIMITED", "SIGNUP_UNAVAILABLE"]) }),
+  z.object({ status: z.enum(["INVALID_EMAIL", "EMAIL_NOT_ACCEPTED", "INVALID_PHONE", "WEAK_PASSWORD", "CONSENT_REQUIRED", "RATE_LIMITED", "SIGNUP_UNAVAILABLE"]) }),
 ]);
 export const SignupConfirmResult = z.union([
   z.object({ status: z.literal("CONFIRMED"), worldStatus: z.string(), email: z.string() }),
