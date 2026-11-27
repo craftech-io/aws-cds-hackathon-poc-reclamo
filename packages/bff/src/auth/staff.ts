@@ -21,6 +21,8 @@ export const StaffRow = z.looseObject({
    * the seed), honoured only in a QA world, and the one exemption of the SMS code (docs/architecture-guests.md §17).
    */
   automation: z.literal(true).optional(),
+  /** Blocked by an operator (scripts/console/block.ts): ACCOUNT_BLOCKED on every procedure. */
+  blocked: z.literal(true).optional(),
 });
 export type StaffRow = z.infer<typeof StaffRow>;
 
@@ -42,6 +44,11 @@ export function subKeyOf(sub: string): string {
 /** True when the row is usable by the user whose `sub` is given. */
 export function staffRowActive(row: StaffRow | undefined, sub: string): row is StaffRow {
   return row !== undefined && row.active !== false && row.cognitoSubKey === subKeyOf(sub);
+}
+
+/** True when the row of this `sub` carries the operator's block. */
+export function staffRowBlocked(row: StaffRow | undefined, sub: string): boolean {
+  return row !== undefined && row.blocked === true && row.cognitoSubKey === subKeyOf(sub);
 }
 
 /** The reads of the BFF (a `GetItem` each). The adapter over DynamoDB is auth/directory.ts. */

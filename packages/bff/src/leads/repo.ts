@@ -168,7 +168,7 @@ export type LeadsRepo = ReturnType<typeof leadsRepo>;
 
 /** An audit entry of the public edge that belongs to no world: codes and hashes only, never an email. */
 export interface EdgeAuditEntry {
-  readonly action: "SIGNUP_REJECTED" | "SIGNUP_SWITCHED" | "LEAD_NOTICE_SENT" | "LEAD_NOTICE_SKIPPED" | "LEAD_NOTICE_PROBE" | "LEAD_NOTICE_TEST" | "LEAD_DELETED" | "EDGE_REQUIRED";
+  readonly action: "SIGNUP_REJECTED" | "SIGNUP_SWITCHED" | "LEAD_NOTICE_SENT" | "LEAD_NOTICE_SKIPPED" | "LEAD_NOTICE_PROBE" | "LEAD_NOTICE_TEST" | "LEAD_DELETED" | "EDGE_REQUIRED" | "ACCOUNT_BLOCKED" | "ACCOUNT_UNBLOCKED";
   readonly outcome: string;
   readonly refs: Readonly<Record<string, string>>;
   /** An entry of the scenario runner: `SIGNUP#AUD#QA#<yyyy-mm>`, apart from every visitor's. */

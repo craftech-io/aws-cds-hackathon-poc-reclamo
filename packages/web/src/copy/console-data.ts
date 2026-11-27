@@ -31,6 +31,7 @@ export const dataCopy = {
     READ_ONLY_ROLE: "Cumplimiento es un rol de solo lectura.",
     CROSS_WORLD: "Ese dato no pertenece a tu mundo.",
     STAFF_INACTIVE: "Tu usuario ya no está activo en este mundo.",
+    ACCOUNT_BLOCKED: "Tu cuenta está bloqueada. Si creés que es un error, escribinos desde craftech.io/contact.",
     WORLD_RESETTING: STAFF_TEXT.WORLD_RESETTING,
   } as Readonly<Record<string, string>>,
 } as const;

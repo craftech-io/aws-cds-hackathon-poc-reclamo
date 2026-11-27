@@ -46,7 +46,7 @@ export function memorySmsSender(): MemorySms {
 
 export interface TestSecondFactorInput {
   readonly ctx: RepoContext;
-  readonly worlds: Pick<Connector["worlds"], "getMeta">;
+  readonly worlds: Pick<Connector["worlds"], "getMeta" | "getStaff">;
   readonly audit: AuditSink;
   readonly sms?: SmsSender;
   readonly invoker?: ProvisionInvoker;
@@ -81,6 +81,7 @@ export function passedSecondFactor(): (log: Logger) => SecondFactorService {
     status: async () => passed,
     sendCode: async () => ({ status: "NOT_REQUIRED" }),
     verify: async () => ({ status: "VERIFIED" }),
+    blocked: async () => false,
     endSession: async () => ({ status: "ENDED" }),
   };
   return () => service;

@@ -113,6 +113,12 @@ export const Staff = z.object({
   active: z.boolean().default(true),
   /** Automation account of a QA world, exempt from the SMS code (auth/staff.ts); only the server writes it. */
   automation: z.literal(true).optional(),
+  /**
+   * Blocked by an operator (`npm run console:block`, docs/architecture-guests.md §18): every procedure,
+   * the SMS code included, answers ACCOUNT_BLOCKED. Only that script writes or clears it, never a request.
+   */
+  blocked: z.literal(true).optional(),
+  blockedAtReal: IsoInstant.optional(),
   ...Versioned,
 });
 export type Staff = z.infer<typeof Staff>;

@@ -87,6 +87,7 @@ async function identityProblem(event: PreTokenEvent, rows: readonly StaffRow[], 
   if (rows.length === 0) return "NO_STAFF_ROW";
   if (rows.length > 1) return "AMBIGUOUS_STAFF_ROW";
   const [row] = rows as [StaffRow];
+  if (row.blocked === true) return "ACCOUNT_BLOCKED";
   if (row.active === false) return "STAFF_INACTIVE";
   const groups = event.request.groupConfiguration?.groupsToOverride ?? [];
   const attributeWorldId = event.request.userAttributes[WORLD_ATTRIBUTE];

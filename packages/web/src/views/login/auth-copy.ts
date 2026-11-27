@@ -113,6 +113,8 @@ export interface AuthCopy {
     readonly sent: string;
     readonly contact: string;
     readonly signOut: string;
+    /** An operator blocked the account (ACCOUNT_BLOCKED): a notice with Craftech's contact. */
+    readonly blocked: { readonly title: string; readonly lead: string };
     readonly errors: {
       readonly invalidPhone: string;
       readonly notPersonal: string;
