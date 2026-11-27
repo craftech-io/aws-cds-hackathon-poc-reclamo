@@ -1,4 +1,4 @@
-# Catálogo de flujos (FL-001 a FL-131)
+# Catálogo de flujos (FL-001 a FL-132)
 
 Ciento veintiocho flujos: caminos felices de cada tipo de reclamo, alternativas, controles de seguridad, política de canal, reloj regulatorio, flujos solo de consola y las superficies públicas con el alta propia de invitados. Cada flujo es una unidad de prueba: su fila en la matriz de `docs/test-plan.md` §2.2 lista las pruebas que lo prueban y `npm run flows:check` falla si un flujo no tiene fila o si una prueba citada no existe o no lleva la etiqueta del flujo.
 
@@ -953,3 +953,10 @@ Alta propia, leads y anti abuso: ADR-0020 y `docs/architecture-guests.md`. UX de
 - Estado esperado: cada refusal es un estado tipado con su texto fijo (al tope de la cuenta, "Vas a poder ingresar mañana" con el contacto de Craftech; al cupo de fuera, `RATE_LIMITED` `ABROAD` con el contacto; un número de casa nunca toma ese cupo); un número que la red no acepta (por ejemplo Estados Unidos o India sin remitente registrado) responde `SMS_FAILED` con el contacto; IAM da `sns:Publish` solo al `Bff`, sobre `*` con denegación de todo tema.
 - Reglas: `docs/architecture-guests.md` §17.3, §17.5, §17.7.
 - Prueba: U `second-factor/service.test.ts`, `second-factor/phone-number.test.ts`, `outbound/transports/sms.test.ts`, `infra/second-factor.test.ts`, `scripts/lint/chokepoint.test.ts`, `views/phone/phone-model.test.ts` · UI `phone.spec.ts`.
+
+### FL-132 · Cuenta bloqueada por el operador
+- Actores: operador, toda cuenta de la consola · Canal: script de operador + consola · Disparador: `npm run console:block -- --user <usuario o email>` (y `-- --off` para desbloquear).
+- Pasos: el script encuentra la cuenta en Cognito (por nombre de usuario; un email que no es usuario, por su atributo), marca `blocked: true` y `blockedAtReal` en cada fila `STAFF#` de su `sub`, `AdminDisableUser`, `AdminUserGlobalSignOut` y borra los pases del código por SMS de sus sesiones (`Runtime/SECONDFACTOR#<sub>#*`); audita `ACCOUNT_BLOCKED` con los ids de personal. Desde ahí `worldProcedure` responde `403 ACCOUNT_BLOCKED` a todo procedimiento (también `account.session` y `phone.*`) y el trigger pre-token niega todo refresh; antes de cada `phone.sendCode` y `phone.verify` el BFF relee la fila sin caché. `--off` habilita la cuenta en Cognito y quita la marca (auditado `ACCOUNT_UNBLOCKED`).
+- Estado esperado: con un token vigente y la sesión que ya pasó el código, la cuenta no accede a nada y no sale ningún SMS; un bloqueo que la caché de filas del contenedor todavía no vio igual frena todo SMS y todo código; la web muestra solo el aviso con el contacto de Craftech (`utm_content=account-blocked`); el reporte del script no muestra el email; ningún pedido de la web pone ni quita la marca.
+- Reglas: `docs/architecture-guests.md` §18.
+- Prueba: U `routers/blocked.test.ts`, `auth-triggers/triggers.test.ts`, `scripts/console/block.test.ts`, `views/phone/phone-model.test.ts` · UI `phone.spec.ts`.
