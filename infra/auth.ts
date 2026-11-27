@@ -94,6 +94,12 @@ export const PASSWORD_POLICY = {
 /** What the GuestSignupClient may read and write (docs/architecture-guests.md §2). */
 export const GUEST_SIGNUP_ATTRIBUTES = { read: ["email", "email_verified"], write: ["email"] } as const;
 
+/**
+ * What the other app clients may write: a non-empty list without `email` (an empty list is read by
+ * Cognito as every standard attribute, `email` included).
+ */
+export const STAFF_CLIENT_WRITE_ATTRIBUTES = ["name"] as const;
+
 /** Item actions of the post-confirmation trigger on Worlds and Runtime: no delete, no batch, no scan. */
 export const POST_CONFIRMATION_TABLE_ACTIONS = ["dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:ConditionCheckItem"] as const;
 
@@ -110,6 +116,8 @@ export function applyPoolPolicy(args: UserPoolArgs, emailConfiguration: $util.In
   args.signInPolicy = { allowedFirstAuthFactors: ["PASSWORD"] };
   args.adminCreateUserConfig = { allowAdminCreateUserOnly: false, inviteMessageTemplate: { ...invitationTemplate } };
   args.accountRecoverySetting = { recoveryMechanisms: [{ name: "verified_email", priority: 1 }] };
+  // A changed email only takes effect once its code is confirmed: until then the verified address stays.
+  args.userAttributeUpdateSettings = { attributesRequireVerificationBeforeUpdates: ["email"] };
   args.passwordPolicy = { ...PASSWORD_POLICY };
   args.schemas = [
     {
@@ -128,9 +136,10 @@ export function applyPoolPolicy(args: UserPoolArgs, emailConfiguration: $util.In
 }
 
 // No hosted UI: no OAuth flow, scope, callback or identity provider besides the pool itself. The write
-// attributes list is empty: `custom:worldId` is never among them (Cognito's default without a list
-// covers standard attributes only), it is immutable anyway, and the pre-token trigger strips the scope
-// the browser would need to write any attribute at all.
+// attributes list is `name` only: never `email` and never `custom:worldId` (an empty list would be read
+// as every standard attribute), `custom:worldId` is immutable anyway, and the pre-token trigger strips
+// the scope the browser would need to write any attribute at all. The sign-up client widens it to
+// `email`, which `SignUp` needs.
 function withoutHostedUi(args: UserPoolClientArgs): void {
   args.allowedOauthFlowsUserPoolClient = false;
   args.allowedOauthFlows = [];
@@ -141,7 +150,7 @@ function withoutHostedUi(args: UserPoolClientArgs): void {
   args.generateSecret = false;
   args.preventUserExistenceErrors = "ENABLED";
   args.enableTokenRevocation = true;
-  args.writeAttributes = [];
+  args.writeAttributes = [...STAFF_CLIENT_WRITE_ATTRIBUTES];
   args.idTokenValidity = TOKEN_VALIDITY.idTokenMinutes;
   args.accessTokenValidity = TOKEN_VALIDITY.accessTokenMinutes;
 }
