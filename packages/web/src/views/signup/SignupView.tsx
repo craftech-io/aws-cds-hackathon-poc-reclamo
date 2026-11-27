@@ -10,7 +10,7 @@ import { holdPassword, savePendingSignup } from "../../lib/auth/handoff";
 import { normalizeUsername } from "../../lib/auth/credentials";
 import { PublicApiError, publicApi } from "../../lib/auth/public-api";
 import { Redirect, useRouter } from "../../lib/router";
-import { CONSOLE_HOME, LOGIN_PATH, RECOVER_PATH, SIGNUP_PATH, SIGNUP_RESTART_PARAM, SIGNUP_VERIFY_PATH } from "../../routes";
+import { CONSOLE_HOME, LOGIN_PATH, SIGNUP_PATH, SIGNUP_RESTART_PARAM, SIGNUP_VERIFY_PATH } from "../../routes";
 import { captureAttribution, readAttribution } from "../landing/attribution";
 import { EXTERNAL_LINK, contactHref } from "../landing/links";
 import { AuthLayout } from "../login/AuthLayout";
@@ -22,7 +22,7 @@ import { EMPTY_SIGNUP, type FieldErrors, type SignupForm, draftOf, formFromDraft
 import { RESEND_WAIT_MS } from "./verify-model";
 
 type Availability = "checking" | "open" | "closed";
-type FormProblem = "taken" | "rateLimited" | "failed" | "network" | "challengeFailed";
+type FormProblem = "rateLimited" | "failed" | "network" | "challengeFailed";
 
 const LINK = "font-semibold text-seal-deep underline underline-offset-2";
 
@@ -39,23 +39,7 @@ function Closed() {
 }
 
 function Problem({ problem }: { readonly problem: FormProblem }) {
-  const { lang, copy } = useAuthLang();
-  if (problem === "taken") {
-    const { errors } = copy.signup;
-    return (
-      <ErrorNote>
-        {errors.taken}{" "}
-        <a className={LINK} href={withLang(LOGIN_PATH, lang)}>
-          {errors.takenSignIn}
-        </a>{" "}
-        {errors.takenOr}{" "}
-        <a className={LINK} href={withLang(RECOVER_PATH, lang)}>
-          {errors.takenRecover}
-        </a>
-        .
-      </ErrorNote>
-    );
-  }
+  const { copy } = useAuthLang();
   const text = { rateLimited: copy.common.rateLimited, failed: copy.signup.errors.failed, network: copy.common.network, challengeFailed: copy.common.challengeFailed }[problem];
   return <ErrorNote>{text}</ErrorNote>;
 }

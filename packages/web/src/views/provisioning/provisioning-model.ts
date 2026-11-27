@@ -11,7 +11,9 @@ export const GuestStatus = z.object({
   queuePosition: z.number().int().nonnegative(),
   readyAtReal: z.string().optional(),
   expiresAtReal: z.string().optional(),
-  usage: z.object({ turnsToday: z.number().int().nonnegative(), turnsPerDay: z.number().int().nonnegative(), limitReached: z.boolean() }).optional(),
+  usage: z
+    .object({ turnsToday: z.number().int().nonnegative(), turnsPerDay: z.number().int().nonnegative(), limitReached: z.boolean(), spendLimitReached: z.literal(true).optional() })
+    .optional(),
 });
 export type GuestStatus = z.infer<typeof GuestStatus>;
 

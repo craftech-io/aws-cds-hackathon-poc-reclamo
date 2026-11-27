@@ -74,10 +74,6 @@ export const AUTH_EN: AuthCopy = {
     errors: {
       email: "Enter a valid email",
       notAccepted: "Use a permanent personal or work email.",
-      taken: "An account with this email already exists.",
-      takenSignIn: "Sign in",
-      takenOr: "or",
-      takenRecover: "recover your password",
       weakPassword: "Use at least 12 characters, with an uppercase letter, a lowercase letter and a number",
       consent: "You need to accept the Terms and the Privacy Policy to create an account",
       plainText: "Plain text only, without links or the signs < >.",
@@ -87,7 +83,7 @@ export const AUTH_EN: AuthCopy = {
   },
   verify: {
     title: "Confirm your email",
-    lead: { before: "We sent a code to ", after: ". Enter it to activate your account." },
+    lead: { before: "If there is no account with ", after: " yet, we sent a code to that email. Enter it to activate your account." },
     code: "Code",
     submit: "Confirm",
     resend: "Resend code",
@@ -98,6 +94,7 @@ export const AUTH_EN: AuthCopy = {
     failed: "We couldn't confirm the code. Please try again.",
     signingIn: "Account confirmed. Opening your environment…",
     otherEmail: "Use another email",
+    haveAccount: { lead: "Already have an account with this email?", signIn: "Sign in", or: "or", recover: "recover your password" },
   },
   provisioning: {
     preparingTitle: "We're getting your world ready",
@@ -110,6 +107,7 @@ export const AUTH_EN: AuthCopy = {
     expiredButton: "Set up my environment",
     meanwhile: "Meanwhile, this is what you'll be able to try",
     usageLimit: "You've reached today's usage limit for this environment.",
+    spendLimit: "Your trial account reached its agent usage cap: the agent no longer answers new messages. To keep going, reach us at craftech.io/contact.",
     signOut: "Sign out",
   },
   recover: {

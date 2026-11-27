@@ -135,16 +135,19 @@ export default defineScenario({
     },
     {
       n: 4,
-      title: "the confirmed email again → EMAIL_TAKEN; an unconfirmed one again → a new signupId; the old signupId with a valid confirmation → SIGNUP_RESTART",
+      title: "the confirmed email again → CODE_SENT with a signupId that never confirms; an unconfirmed one again within 10 minutes → the same answer, and the first signupId stays the current one",
       flows: ["FL-116"],
       async run(ctx) {
-        ctx.check((await signup(ctx, "su1")).status === "EMAIL_TAKEN", "a confirmed email could sign up again");
+        const taken = await signup(ctx, "su1");
+        ensure(taken.signupId !== undefined, `a confirmed email answered ${taken.status}`);
+        ctx.check((await confirm(ctx, "su1", taken.signupId)).status === "SIGNUP_RESTART", "the decoy signupId of a confirmed email confirmed something");
         ctx.warn("the same address in upper case cannot be asked of the driver (it builds the run's own address); U proves the canonical email");
         const first = await signup(ctx, "su3");
         const second = await signup(ctx, "su3");
         ensure(first.signupId !== undefined && second.signupId !== undefined, "su3's sign-ups sent no code");
         ctx.check(first.signupId !== second.signupId, "the second sign-up kept the first signupId");
-        ctx.check((await confirm(ctx, "su3", first.signupId)).status === "SIGNUP_RESTART", "the replaced signupId confirmed an account");
+        ctx.check((await confirm(ctx, "su3", second.signupId)).status === "SIGNUP_RESTART", "a second sign-up within 10 minutes replaced the pending account");
+        ctx.warn("the replacement of an unconfirmed account older than 10 minutes is proven by U (guests/signup.test.ts), not waited for here");
         const world = await ctx.attempt("snapshot", { worldId: worldOfKey(ctx, "su3") });
         ctx.check(!world.ok, "a world was built for a restarted sign-up");
       },

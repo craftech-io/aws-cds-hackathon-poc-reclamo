@@ -11,6 +11,7 @@ import { signupRuntimeKeys } from "../leads/keys";
 import { LEADS_TTL_SECONDS, SIGNUP_LIMITS, expiresAt } from "../leads/limits";
 
 const TABLE = "Runtime" as const;
+const DAY_MS = 86_400_000;
 
 /**
  * `KILL#SIGNUP` is on while its row exists, whatever it holds and whoever wrote it (the budget, the SES
@@ -97,11 +98,18 @@ export function signupCaps(ctx: RepoContext) {
     /** Spends one auth mail, right before Cognito sends it. */
     spendAuthMail: () => takeAll(authMail(ctx.now())),
 
-    /** Per IP, per canonical email and global caps of `signup.start`, the narrow ones first. */
-    signupRequest: (ipHash: string, canonHash: string) => {
+    /**
+     * Per IP, per canonical email and global caps of `signup.start`, the narrow ones first. The IP's
+     * cap covers the real day and the one before together: the previous day's bucket is closed, so
+     * today's takes only what it left, and a burst on both sides of 00:00 UTC never passes the cap.
+     */
+    signupRequest: async (ipHash: string, canonHash: string) => {
       const at = ctx.now();
+      const previousDay = await count(signupRuntimeKeys.ipDay(ipHash, new Date(at.getTime() - DAY_MS)));
+      const ipLeft = SIGNUP_LIMITS.perIpPerDay - previousDay;
+      if (ipLeft <= 0) return false;
       return takeAll([
-        { key: signupRuntimeKeys.ipDay(ipHash, at), limit: SIGNUP_LIMITS.perIpPerDay },
+        { key: signupRuntimeKeys.ipDay(ipHash, at), limit: ipLeft },
         { key: signupRuntimeKeys.canonDay(canonHash, at), limit: SIGNUP_LIMITS.perCanonicalEmailPerDay },
         { key: signupRuntimeKeys.globalHour(at), limit: SIGNUP_LIMITS.globalPerHour },
         { key: signupRuntimeKeys.globalDay(at), limit: SIGNUP_LIMITS.globalPerDay },

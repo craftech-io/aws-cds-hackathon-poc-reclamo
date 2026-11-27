@@ -12,7 +12,7 @@ import type { Connector } from "../connector/port";
 import { cond } from "../connector/store";
 import { ulid } from "../lib/crypto";
 import type { Logger } from "../lib/log";
-import { worldBuckets } from "../worker/caps";
+import { hasRoom, worldBuckets } from "../worker/caps";
 import type { SignupCaps } from "./caps";
 import { GUEST_WORLD_PATTERN, qaScopeOfWorld } from "../leads/keys";
 import { GUEST_WORLD_LIMITS, expiresAt } from "../leads/limits";
@@ -42,8 +42,10 @@ export interface GuestCaller {
 export interface GuestUsage {
   readonly turnsToday: number;
   readonly turnsPerDay: number;
-  /** A cap of the world (hour, day or, for a self-signup world, epoch) is reached. */
+  /** A cap of the world (hour, day or, for a self-signup world, epoch or spend) is reached. */
   readonly limitReached: boolean;
+  /** A self-signup account used up its models' spend for good (`W#<w>#SPENDCAP`): no new day reopens it. */
+  readonly spendLimitReached?: true;
 }
 
 export interface GuestStatus {
@@ -108,10 +110,13 @@ export function guestWorldService(deps: GuestWorldDeps) {
     const buckets = worldBuckets(worldId, epoch, settings, deps.ctx.now());
     const counts = await Promise.all(buckets.map(async (bucket) => Number((await deps.ctx.store.get("Runtime", bucket.key, { consistent: true }))?.count ?? 0)));
     const day = buckets.findIndex((bucket) => bucket.window === "DAY");
+    const full = buckets.map((bucket, index) => !hasRoom(bucket, counts[index] ?? 0));
+    const spent = buckets.some((bucket, index) => bucket.window === "LIFETIME" && full[index]);
     return {
       turnsToday: counts[day] ?? 0,
       turnsPerDay: settings.turnCaps.perDay,
-      limitReached: buckets.some((bucket, index) => (counts[index] ?? 0) >= bucket.limit),
+      limitReached: full.some(Boolean),
+      ...(spent ? { spendLimitReached: true as const } : {}),
     };
   };
 

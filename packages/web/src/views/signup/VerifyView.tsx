@@ -1,9 +1,10 @@
-// `/signup/verify` (docs/landing-spec.md §9.3, FL-113 to FL-115): the code with the `signupId` the tab
+// `/signup/verify` (docs/landing-spec.md §9.3, FL-113 to FL-116): the code with the `signupId` the tab
 // kept (never in the URL), "Resend code" disabled for 30 s after every code, and the answers of the
 // spec: a wrong or expired code says so; `SIGNUP_RESTART` goes back to `/signup` with its notice.
 // `CONFIRMED` signs the person in silently with the password still in memory and opens
 // `/signup/provisioning`; without it (a reload, another tab) it opens `/login` with the email
-// pre-filled and "your account is confirmed".
+// pre-filled and "your account is confirmed". `signup.start` answers the same whether the email has an
+// account, so the screen says the code goes out only if it has none and links sign-in and recovery.
 import { type FormEvent, useEffect, useState } from "react";
 import { useSession } from "../../context/SessionContext";
 import { normalizeTotpCode } from "../../lib/auth/credentials";
@@ -12,7 +13,7 @@ import { silentSignIn } from "../../lib/auth/flow";
 import { clearPendingSignup, forgetPassword, heldPassword, markSignupConfirmed, readPendingSignup, savePendingSignup } from "../../lib/auth/handoff";
 import { PublicApiError, publicApi } from "../../lib/auth/public-api";
 import { Redirect, useRouter } from "../../lib/router";
-import { LOGIN_NOTICE, LOGIN_PATH, PROVISIONING_PATH, SIGNUP_PATH, SIGNUP_RESTART_PARAM } from "../../routes";
+import { LOGIN_NOTICE, LOGIN_PATH, PROVISIONING_PATH, RECOVER_PATH, SIGNUP_PATH, SIGNUP_RESTART_PARAM } from "../../routes";
 import { AuthLayout } from "../login/AuthLayout";
 import { useAuthLang, withLang } from "../login/auth-lang";
 import { CodeField, ErrorNote, NoticeNote, SubmitButton } from "../login/form-parts";
@@ -142,6 +143,17 @@ export function VerifyView() {
             {text.otherEmail}
           </a>
         </div>
+        <p className="text-sm text-slate">
+          {text.haveAccount.lead}{" "}
+          <a className="font-semibold text-seal-deep underline underline-offset-2" href={withLang(LOGIN_PATH, lang)}>
+            {text.haveAccount.signIn}
+          </a>{" "}
+          {text.haveAccount.or}{" "}
+          <a className="font-semibold text-seal-deep underline underline-offset-2" href={withLang(RECOVER_PATH, lang)}>
+            {text.haveAccount.recover}
+          </a>
+          .
+        </p>
       </form>
     </AuthLayout>
   );

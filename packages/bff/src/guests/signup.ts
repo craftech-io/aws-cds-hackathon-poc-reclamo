@@ -5,6 +5,11 @@
 // the form: only the current request of an email (`PENDING#`) confirms, with the `signupId` the tab
 // kept, so a code that reached a victim never confirms a sign-up somebody else prepared.
 //
+// `start` answers `CODE_SENT` with a `signupId` whether the address is free or not, so it never tells
+// which addresses have an account: a confirmed account, and an unconfirmed one younger than
+// `SIGNUP_LIMITS.pendingAccountKeepSeconds` (so nobody replaces the one its owner is confirming), get a
+// decoy `signupId` that nothing stores: `confirm` answers it `SIGNUP_RESTART` and `resend` sends nothing.
+//
 // The scenario runner (the QaDriver's `guest.signup`, in process, never the public router) passes a
 // `QaScope`: then the only address accepted is `success+qa-<runId>-<key>@simulator.amazonses.com`, the
 // request lives under `QASIGNUP#`/`QAPENDING#`, the world it registers is `qa-<runId>-<key>`, and the
@@ -13,6 +18,7 @@
 import { isRetryable } from "@reclamo/shared";
 import { CURRENT_SIGNUP_CONSENT } from "../copy/signup-consent";
 import { CognitoFailure } from "./cognito-port";
+import type { AccountState } from "./cognito-port";
 import { type EmailVerdict, canonicalEmail, checkEmail, isEmailUsername, normalizeEmail } from "./email-domain";
 import type { QaScope } from "../leads/keys";
 import { LEADS_TTL_SECONDS, SIGNUP_LIMITS } from "../leads/limits";
@@ -51,6 +57,13 @@ async function verdictOf(deps: SignupServiceDeps, raw: string, qa: QaScope | und
   return email === qaSignupEmail(qa) ? { ok: true, email, domain: "simulator.amazonses.com" } : { ok: false, reason: "INVALID_EMAIL" };
 }
 
+/** An unconfirmed account its owner may still be confirming: created (or last asked for) less than the keep ago. */
+function pendingKept(account: AccountState, previous: SignupRequest | undefined, now: Date): boolean {
+  const since = account.createdAt ?? previous?.startedAtReal;
+  if (since === undefined) return false;
+  return now.getTime() - Date.parse(since) < SIGNUP_LIMITS.pendingAccountKeepSeconds * 1_000;
+}
+
 /** A request that may still be confirmed or resent: current for its email, not expired, with a `sub`. */
 async function liveRequest(deps: SignupServiceDeps, signupId: string, qa: QaScope | undefined): Promise<SignupRequest | undefined> {
   const request = await deps.leads.getSignup(signupId, qa);
@@ -66,6 +79,9 @@ export function signupService(deps: SignupServiceDeps) {
     }
     return { status };
   };
+
+  // The answer of an address that is not signed up now: the same shape as a real one, nothing stored.
+  const decoy = (): SignupStartResult => ({ status: "CODE_SENT", signupId: (deps.newSignupId ?? randomSignupId)() });
 
   const open = async (): Promise<boolean> => deps.mailReady() && (await deps.caps.signupOpen());
 
@@ -84,7 +100,7 @@ export function signupService(deps: SignupServiceDeps) {
       case "WEAK_PASSWORD":
         return { status: "WEAK_PASSWORD" };
       case "USERNAME_EXISTS":
-        return { status: "EMAIL_TAKEN" };
+        return decoy();
       case "LIMIT_EXCEEDED":
         return reject("RATE_LIMITED", ipHash, qa);
       case "TRIGGER_REFUSED":
@@ -112,14 +128,14 @@ export function signupService(deps: SignupServiceDeps) {
       const canonHash = deps.hashes.canonHash(canonicalEmail(email));
       if (!(await admitted(ipHash, canonHash, qa))) return reject("RATE_LIMITED", ipHash, qa);
 
-      // A confirmed account says so (docs/landing-spec.md §9.2); an unconfirmed one is replaced below.
-      const account = await deps.cognito.account(email);
-      if (account && account.status !== "UNCONFIRMED") return { status: "EMAIL_TAKEN" };
-
+      // A confirmed account and a recent unconfirmed one get the decoy; an older unconfirmed one is replaced below.
       const now = deps.ctx.now();
       const at = now.toISOString();
+      const account = await deps.cognito.account(email);
+      if (account && account.status !== "UNCONFIRMED") return decoy();
       const previousId = await deps.leads.currentSignupId(emailHash, qa);
       const previous = previousId ? await deps.leads.getSignup(previousId, qa) : undefined;
+      if (account?.status === "UNCONFIRMED" && pendingKept(account, previous, now)) return decoy();
       const request: SignupRequest = {
         signupId: (deps.newSignupId ?? randomSignupId)(),
         status: "STARTED",

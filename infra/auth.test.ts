@@ -226,6 +226,10 @@ describe("console user pool (docs/architecture.md §11, docs/architecture-guests
     expect((await transformedPool()).accountRecoverySetting).toEqual({ recoveryMechanisms: [{ name: "verified_email", priority: 1 }] });
   });
 
+  it("keeps the verified email until a changed one is confirmed by its code", async () => {
+    expect((await transformedPool()).userAttributeUpdateSettings).toEqual({ attributesRequireVerificationBeforeUpdates: ["email"] });
+  });
+
   it("offers TOTP as optional MFA and nothing else", () => {
     const pool = one("sst.aws.CognitoUserPool");
     expect(pool.args.mfa).toBe("optional");
@@ -267,6 +271,13 @@ describe("app clients [FL-094]", () => {
     expect(args.readAttributes).toEqual(["email", "email_verified"]);
     expect(args.writeAttributes).toEqual(["email"]);
     expect(args).toMatchObject({ allowedOauthFlowsUserPoolClient: false, allowedOauthFlows: [], allowedOauthScopes: [], preventUserExistenceErrors: "ENABLED", idTokenValidity: 15 });
+  });
+
+  it("ConsoleClient and ServerClient write only name: never email, never an empty list (every standard attribute)", async () => {
+    for (const name of ["ConsoleClient", "ServerClient"]) {
+      const args = await transformedClient(name);
+      expect(args.writeAttributes, name).toEqual(["name"]);
+    }
   });
 
   it("never lets an app client write custom:worldId", async () => {

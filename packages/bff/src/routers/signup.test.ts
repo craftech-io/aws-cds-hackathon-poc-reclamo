@@ -151,14 +151,15 @@ describe("signup.resend over HTTP [FL-114]", () => {
 });
 
 describe("signup.start for a registered email and over the caps [FL-116] [FL-118]", () => {
-  it("answers EMAIL_TAKEN for a confirmed account, and the superseded request restarts", async () => {
+  it("answers a confirmed account like a new one (CODE_SENT), and the superseded request restarts", async () => {
     const { handler, harness } = await setup();
     const first = await started(handler);
+    harness.advance(11 * 60_000);
     const second = await started(handler, "198.51.100.4");
     const code = harness.cognito.lastCode(EMAIL) ?? "";
     expect(await call(handler, "signup.confirm", { signupId: first, code })).toEqual({ status: "SIGNUP_RESTART" });
     expect(await call(handler, "signup.confirm", { signupId: second, code })).toMatchObject({ status: "CONFIRMED" });
-    expect(await call(handler, "signup.start", startInput({ email: "ANA.Prospecto@empresa-ficticia.ar" }), "198.51.100.5")).toEqual({ status: "EMAIL_TAKEN" });
+    expect(await call(handler, "signup.start", startInput({ email: "ANA.Prospecto@empresa-ficticia.ar" }), "198.51.100.5")).toMatchObject({ status: "CODE_SENT", signupId: expect.any(String) });
   });
 
   it("answers RATE_LIMITED to the fourth sign-up of an IP in a real day, before Cognito", async () => {

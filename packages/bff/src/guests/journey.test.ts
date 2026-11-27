@@ -67,6 +67,7 @@ describe("the confirmation is bound to the current form [FL-116]", () => {
   it("replaces an unconfirmed sign-up: one account, and the old signupId with a valid code restarts", async () => {
     const harness = await createSignupHarness().ready();
     const attacker = await signedUp(harness, "victima@empresa-ficticia.ar");
+    harness.advance(11 * 60_000);
     const victim = await signedUp(harness, "victima@empresa-ficticia.ar");
     expect(victim).not.toBe(attacker);
     expect((await harness.leads.getSignup(attacker))?.status).toBe("SUPERSEDED");
@@ -76,11 +77,13 @@ describe("the confirmation is bound to the current form [FL-116]", () => {
     expect((await harness.signup.confirm({ signupId: victim, code })).status).toBe("CONFIRMED");
   });
 
-  it("answers EMAIL_TAKEN for a confirmed account, whatever the case", async () => {
+  it("answers a confirmed account, whatever the case, with CODE_SENT and a signupId that never confirms", async () => {
     const harness = await createSignupHarness().ready();
     const signupId = await signedUp(harness);
     await harness.signup.confirm({ signupId, code: harness.cognito.lastCode("ana.prospecto@empresa-ficticia.ar") ?? "" });
-    expect(await harness.signup.start(startInput({ email: "ANA.Prospecto@Empresa-Ficticia.ar" }), "198.51.100.4")).toEqual({ status: "EMAIL_TAKEN" });
+    const again = await harness.signup.start(startInput({ email: "ANA.Prospecto@Empresa-Ficticia.ar" }), "198.51.100.4");
+    if (again.status !== "CODE_SENT") throw new Error(again.status);
+    expect(await harness.signup.confirm({ signupId: again.signupId, code: harness.cognito.lastCode("ana.prospecto@empresa-ficticia.ar") ?? "" })).toEqual({ status: "SIGNUP_RESTART" });
   });
 });
 

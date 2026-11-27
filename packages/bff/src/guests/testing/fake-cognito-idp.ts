@@ -28,6 +28,7 @@ interface FakeUser {
   readonly sub: string;
   password: string;
   status: "UNCONFIRMED" | "CONFIRMED";
+  readonly createdAt: string;
   signupCode?: { readonly code: string; readonly expiresAt: number };
   recoveryCode?: { readonly code: string; readonly expiresAt: number };
 }
@@ -115,7 +116,7 @@ export function createFakeCognito(options: FakeCognitoOptions = {}): FakeCognito
       } catch (error) {
         throw new CognitoFailure("TRIGGER_REFUSED", { cause: error });
       }
-      const user: FakeUser = { username: name, sub: nextSub(), password, status: "UNCONFIRMED" };
+      const user: FakeUser = { username: name, sub: nextSub(), password, status: "UNCONFIRMED", createdAt: now().toISOString() };
       users.set(name, user);
       await mail(user, "SIGNUP", clientMetadata);
       return { sub: user.sub };
@@ -160,7 +161,7 @@ export function createFakeCognito(options: FakeCognitoOptions = {}): FakeCognito
     async account(username): Promise<AccountState | undefined> {
       enter("AdminGetUser");
       const user = users.get(key(username));
-      return user ? { status: user.status, sub: user.sub } : undefined;
+      return user ? { status: user.status, sub: user.sub, createdAt: user.createdAt } : undefined;
     },
 
     async deleteAccount(username) {

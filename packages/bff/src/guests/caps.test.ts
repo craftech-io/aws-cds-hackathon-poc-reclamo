@@ -53,6 +53,16 @@ describe("sign-up caps [FL-118] [FL-114]", () => {
     expect(await harness.caps.signupRequest("ip-b", "canon-b")).toBe(true);
   });
 
+  it("counts every request of an IP, confirmed or not, and the day before too: no new allowance at 00:00 UTC", async () => {
+    const harness = await createSignupHarness().ready();
+    for (let n = 0; n < SIGNUP_LIMITS.perIpPerDay; n += 1) expect(await harness.caps.signupRequest("ip-a", `canon-${n}`)).toBe(true);
+    expect(await harness.caps.signupRequest("ip-a", "canon-late")).toBe(false);
+    harness.advance(24 * 3_600_000);
+    expect(await harness.caps.signupRequest("ip-a", "canon-next-day")).toBe(false);
+    harness.advance(24 * 3_600_000);
+    expect(await harness.caps.signupRequest("ip-a", "canon-two-days-later")).toBe(true);
+  });
+
   it("a full global cap refuses without touching the per-IP one", async () => {
     const harness = await createSignupHarness().ready();
     await harness.store.write({ kind: "put", table: "Runtime", item: { ...signupRuntimeKeys.globalHour(harness.now()), count: SIGNUP_LIMITS.globalPerHour } });

@@ -18,13 +18,17 @@ import { ProvisioningScreen } from "./ProvisioningScreen";
 
 const GuestStatusContext = createContext<GuestStatus | undefined>(undefined);
 
-/** "Llegaste al límite de uso de hoy…": the console's Spanish with its English gloss. */
+/**
+ * "Llegaste al límite de uso de hoy…", or for good once the trial account used its agent spend: the
+ * console's Spanish with its English gloss.
+ */
 export function GuestUsageNotice() {
   const status = useContext(GuestStatusContext);
   if (!status?.usage?.limitReached) return null;
+  const text = status.usage.spendLimitReached ? "spendLimit" : "usageLimit";
   return (
     <div className="mb-4">
-      <Callout tone="warning">{`${AUTH_COPY.es.provisioning.usageLimit} · ${AUTH_COPY.en.provisioning.usageLimit}`}</Callout>
+      <Callout tone="warning">{`${AUTH_COPY.es.provisioning[text]} · ${AUTH_COPY.en.provisioning[text]}`}</Callout>
     </div>
   );
 }

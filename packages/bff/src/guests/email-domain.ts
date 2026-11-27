@@ -2,9 +2,10 @@
 // literal address (one account per email, Cognito is case-insensitive), the caps count by the
 // canonical address (no `+tag`, no dots in Gmail), and an address is accepted only when it is plain
 // ASCII in RFC 5322 dot-atom form, not reserved, not of this app or the SES mailbox simulator, not a
-// disposable mailbox, and its domain has an MX or an A/AAAA record (2 s budget).
+// disposable mailbox, and its domain has an MX or an A/AAAA record (2 s budget) and no MX host of a
+// known temporary-mail provider (a fresh domain pointed at one is as disposable as the listed ones).
 import { Resolver } from "node:dns/promises";
-import { isDisposableDomain } from "./disposable-domains";
+import { isDisposableDomain, isDisposableMailHost } from "./disposable-domains";
 
 export const EMAIL_MAX_LENGTH = 254;
 const LOCAL_MAX_LENGTH = 64;
@@ -57,12 +58,19 @@ export function checkEmailShape(raw: string): EmailVerdict {
   return { ok: true, email, domain };
 }
 
-/** Whether a domain can receive mail at all. */
+/** What DNS says of a domain's mail: whether it can receive any, and its MX hosts (lower case, no final dot). */
+export interface MailDomain {
+  readonly receives: boolean;
+  readonly exchangers: readonly string[];
+}
+
 export interface MailDomainResolver {
-  receivesMail(domain: string): Promise<boolean>;
+  inspect(domain: string): Promise<MailDomain>;
 }
 
 const DNS_TIMEOUT_MS = 2_000;
+
+const NO_MAIL: MailDomain = { receives: false, exchangers: [] };
 
 /** MX first, then A/AAAA (RFC 5321 implicit MX); any failure or a timeout counts as "no". */
 export function dnsMailDomainResolver(timeoutMs: number = DNS_TIMEOUT_MS): MailDomainResolver {
@@ -74,10 +82,21 @@ export function dnsMailDomainResolver(timeoutMs: number = DNS_TIMEOUT_MS): MailD
       return false;
     }
   };
+  const exchangersOf = async (domain: string): Promise<string[]> => {
+    try {
+      return (await resolver.resolveMx(domain)).map((record) => record.exchange.toLowerCase().replace(/\.$/, "")).filter((host) => host.length > 0);
+    } catch {
+      return [];
+    }
+  };
   return {
-    async receivesMail(domain) {
-      const deadline = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), timeoutMs + 200).unref());
-      const lookup = (async () => (await has(() => resolver.resolveMx(domain))) || (await has(() => resolver.resolve4(domain))) || has(() => resolver.resolve6(domain)))();
+    async inspect(domain) {
+      const deadline = new Promise<MailDomain>((resolve) => setTimeout(() => resolve(NO_MAIL), timeoutMs + 200).unref());
+      const lookup = (async (): Promise<MailDomain> => {
+        const exchangers = await exchangersOf(domain);
+        if (exchangers.length > 0) return { receives: true, exchangers };
+        return { receives: (await has(() => resolver.resolve4(domain))) || (await has(() => resolver.resolve6(domain))), exchangers: [] };
+      })();
       return Promise.race([lookup, deadline]);
     },
   };
@@ -87,7 +106,10 @@ export function dnsMailDomainResolver(timeoutMs: number = DNS_TIMEOUT_MS): MailD
 export async function checkEmail(raw: string, resolver: MailDomainResolver): Promise<EmailVerdict> {
   const shape = checkEmailShape(raw);
   if (!shape.ok) return shape;
-  return (await resolver.receivesMail(shape.domain)) ? shape : { ok: false, reason: "INVALID_EMAIL" };
+  const mail = await resolver.inspect(shape.domain);
+  if (!mail.receives) return { ok: false, reason: "INVALID_EMAIL" };
+  if (mail.exchangers.some(isDisposableMailHost)) return { ok: false, reason: "EMAIL_NOT_ACCEPTED" };
+  return shape;
 }
 
 /** A self-signup username has an `@`; staff, `guest-NN` and `qa-*` users never do. */
