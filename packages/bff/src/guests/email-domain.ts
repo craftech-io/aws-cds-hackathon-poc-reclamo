@@ -3,12 +3,12 @@
 // canonical address (no `+tag`, no dots in Gmail), and an address is accepted only when it is plain
 // ASCII in RFC 5322 dot-atom form, not of this app or the SES mailbox simulator (INVALID_EMAIL), and
 // not a reserved or test domain, not a disposable mailbox (public list and the repository's own), not
-// a domain DNS says does not exist or has nowhere to receive mail, and with no MX host of a known
-// temporary-mail provider (EMAIL_NOT_ACCEPTED: a fresh domain pointed at one is as disposable as the
-// listed ones). DNS has a 2 s budget; when it does not answer, or fails for any other reason, the
+// a domain DNS says does not exist or has nowhere to receive mail, with no MX host of a known
+// temporary-mail provider and no mail server at the address of one (EMAIL_NOT_ACCEPTED: a fresh domain
+// pointed at one is as disposable as the listed ones). DNS has a 2 s budget; when it does not answer, or fails for any other reason, the
 // address goes on: nobody is refused for a network problem.
 import { Resolver } from "node:dns/promises";
-import { isDisposableDomain, isDisposableMailHost } from "./disposable-domains";
+import { isDisposableDomain, isDisposableMailHost, isDisposableMailServerAddress } from "./disposable-domains";
 
 export const EMAIL_MAX_LENGTH = 254;
 const LOCAL_MAX_LENGTH = 64;
@@ -43,7 +43,11 @@ function endsWithDomain(domain: string, suffix: string): boolean {
   return domain === suffix || domain.endsWith(`.${suffix}`);
 }
 
-export type EmailVerdict = { readonly ok: true; readonly email: string; readonly domain: string } | { readonly ok: false; readonly reason: "INVALID_EMAIL" | "EMAIL_NOT_ACCEPTED" };
+export type EmailVerdict =
+  | { readonly ok: true; readonly email: string; readonly domain: string }
+  | { readonly ok: false; readonly reason: "INVALID_EMAIL" | "EMAIL_NOT_ACCEPTED" }
+  /** A domain whose mail server is a temporary-mail service's, by its address (`servidor_descartable`). */
+  | { readonly ok: false; readonly reason: "EMAIL_NOT_ACCEPTED"; readonly cause: "DISPOSABLE_MAIL_SERVER" };
 
 /** The shape rules, without the network (the demos zone covers the app's own domain). */
 export function checkEmailShape(raw: string): EmailVerdict {
@@ -64,11 +68,15 @@ export function checkEmailShape(raw: string): EmailVerdict {
 }
 
 /**
- * What DNS says of a domain's mail: it receives (with its MX hosts, lower case, no final dot; none for
- * an implicit MX), it has nowhere to receive (the domain does not exist, a null MX, or no MX and no
- * A/AAAA), or DNS did not answer in time or failed otherwise (`UNKNOWN`).
+ * What DNS says of a domain's mail: it receives (with its MX hosts, lower case, no final dot, none for
+ * an implicit MX; and the addresses of its mail servers, those of the MX hosts or, without MX, the
+ * domain's own, as far as they resolved in time), it has nowhere to receive (the domain does not exist,
+ * a null MX, or no MX and no A/AAAA), or DNS did not answer in time or failed otherwise (`UNKNOWN`).
  */
-export type MailDomain = { readonly status: "RECEIVES"; readonly exchangers: readonly string[] } | { readonly status: "NO_MAIL" } | { readonly status: "UNKNOWN" };
+export type MailDomain =
+  | { readonly status: "RECEIVES"; readonly exchangers: readonly string[]; readonly addresses?: readonly string[] }
+  | { readonly status: "NO_MAIL" }
+  | { readonly status: "UNKNOWN" };
 
 export interface MailDomainResolver {
   inspect(domain: string): Promise<MailDomain>;
@@ -100,35 +108,51 @@ async function lookup<T>(run: () => Promise<T>): Promise<Lookup<T>> {
   }
 }
 
-async function classify(domain: string, dns: DnsLookups): Promise<MailDomain> {
+/** The MX hosts looked at for their addresses: a domain rarely has more, and each costs two lookups. */
+const MAX_EXCHANGERS = 4;
+
+const asAddresses = (answer: Lookup<readonly unknown[]>): string[] => ("found" in answer ? answer.found.filter((item): item is string => typeof item === "string") : []);
+
+/** A and AAAA of each host, until `cutoff`; what failed or came late is left out. */
+async function addressesOf(hosts: readonly string[], dns: DnsLookups, cutoff: Promise<void>): Promise<string[]> {
+  const found: string[] = [];
+  const all = Promise.all(
+    hosts.slice(0, MAX_EXCHANGERS).flatMap((host) => [dns.resolve4(host), dns.resolve6(host)].map(async (pending) => found.push(...asAddresses(await lookup(() => pending))))),
+  );
+  await Promise.race([all, cutoff]);
+  return [...found];
+}
+
+async function classify(domain: string, dns: DnsLookups, cutoff: Promise<void>): Promise<MailDomain> {
   const mx = await lookup(() => dns.resolveMx(domain));
   if ("failed" in mx) return UNKNOWN;
   if ("found" in mx && mx.found.length > 0) {
     const exchangers = mx.found.map((record) => record.exchange.toLowerCase().replace(/\.$/, "")).filter((host) => host.length > 0);
-    return exchangers.length > 0 ? { status: "RECEIVES", exchangers } : NO_MAIL;
+    if (exchangers.length === 0) return NO_MAIL;
+    return { status: "RECEIVES", exchangers, addresses: await addressesOf(exchangers, dns, cutoff) };
   }
-  for (const address of [() => dns.resolve4(domain), () => dns.resolve6(domain)]) {
-    const answer = await lookup(address);
-    if ("failed" in answer) return UNKNOWN;
-    if ("found" in answer && answer.found.length > 0) return { status: "RECEIVES", exchangers: [] };
+  const [v4, v6] = [await lookup(() => dns.resolve4(domain)), await lookup(() => dns.resolve6(domain))];
+  if ("failed" in v4 || "failed" in v6) {
+    const addresses = [...asAddresses(v4), ...asAddresses(v6)];
+    return addresses.length > 0 ? { status: "RECEIVES", exchangers: [], addresses } : UNKNOWN;
   }
-  return NO_MAIL;
+  const addresses = [...asAddresses(v4), ...asAddresses(v6)];
+  return addresses.length > 0 || ("found" in v4 && v4.found.length > 0) || ("found" in v6 && v6.found.length > 0) ? { status: "RECEIVES", exchangers: [], addresses } : NO_MAIL;
 }
 
-/** MX first, then A/AAAA (RFC 5321 implicit MX), all within `timeoutMs`; past it, `UNKNOWN`. */
+/** MX first and its hosts' A/AAAA, else the domain's A/AAAA (RFC 5321 implicit MX), within `timeoutMs`; past it, `UNKNOWN`. */
 export function dnsMailDomainResolver(options: { readonly timeoutMs?: number; readonly lookups?: DnsLookups } = {}): MailDomainResolver {
   const timeoutMs = options.timeoutMs ?? DNS_TIMEOUT_MS;
   const dns = options.lookups ?? new Resolver({ timeout: timeoutMs, tries: 1 });
   return {
     async inspect(domain) {
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const deadline = new Promise<MailDomain>((resolve) => {
-        timer = setTimeout(() => resolve(UNKNOWN), timeoutMs);
-      });
+      // The addresses stop a little before the whole budget, so an MX already read is not lost.
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      const after = <T>(ms: number, value: T) => new Promise<T>((resolve) => void timers.push(setTimeout(() => resolve(value), ms)));
       try {
-        return await Promise.race([classify(domain, dns), deadline]);
+        return await Promise.race([classify(domain, dns, after(Math.floor(timeoutMs * 0.9), undefined)), after(timeoutMs, UNKNOWN)]);
       } finally {
-        clearTimeout(timer);
+        for (const timer of timers) clearTimeout(timer);
       }
     },
   };
@@ -141,6 +165,7 @@ export async function checkEmail(raw: string, resolver: MailDomainResolver): Pro
   const mail = await resolver.inspect(shape.domain);
   if (mail.status === "NO_MAIL") return { ok: false, reason: "EMAIL_NOT_ACCEPTED" };
   if (mail.status === "RECEIVES" && mail.exchangers.some(isDisposableMailHost)) return { ok: false, reason: "EMAIL_NOT_ACCEPTED" };
+  if (mail.status === "RECEIVES" && (mail.addresses ?? []).some(isDisposableMailServerAddress)) return { ok: false, reason: "EMAIL_NOT_ACCEPTED", cause: "DISPOSABLE_MAIL_SERVER" };
   return shape;
 }
 
