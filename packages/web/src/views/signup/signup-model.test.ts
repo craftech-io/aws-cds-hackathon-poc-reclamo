@@ -24,6 +24,9 @@ describe("the sign-up form [FL-112] [FL-116] [FL-118]", () => {
     expect(validateSignup({ ...VALID, phone: "+1 (202) 555-0123" })).toEqual({});
     expect(startInputOf({ ...VALID, phone: "+1 (202) 555-0123" }, "es", {}).phone).toBe("+12025550123");
     expect(startOutcome({ status: "INVALID_PHONE" })).toEqual({ kind: "fieldErrors", errors: { phone: "phone" } });
+    expect(validateSignup({ ...VALID, phone: "+54 9 11 0000-0000" })).toEqual({ phone: "phone" });
+    expect(validateSignup({ ...VALID, phone: "+31 97 0102 03040" })).toEqual({ phone: "notPersonal" });
+    expect(startOutcome({ status: "PHONE_NOT_ACCEPTED" })).toEqual({ kind: "fieldErrors", errors: { phone: "notPersonal" } });
     expect(firstErrorField({ phone: "phone", acceptTerms: "consent" })).toBe("phone");
   });
 

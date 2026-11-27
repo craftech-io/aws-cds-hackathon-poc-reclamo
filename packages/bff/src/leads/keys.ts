@@ -74,6 +74,8 @@ export const secondFactorRuntimeKeys = {
   numberDay: (phoneHash: string, at: Date): Key => ({ pk: `SMSPHONE#${segment(phoneHash, "phone hash")}#${realDay(at)}`, sk: META }),
   ipDay: (ipHash: string, at: Date): Key => ({ pk: `SMSIP#${segment(ipHash, "ip hash")}#${realDay(at)}`, sk: META }),
   globalDay: (at: Date): Key => ({ pk: `SMSCAP#${realDay(at)}`, sk: META }),
+  /** The shared quota of the SMS to numbers outside the home region. */
+  abroadDay: (at: Date): Key => ({ pk: `SMSCAP#ABROAD#${realDay(at)}`, sk: META }),
 };
 
 /**

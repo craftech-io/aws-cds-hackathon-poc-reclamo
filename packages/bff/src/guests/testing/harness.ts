@@ -51,7 +51,7 @@ export function createSignupHarness(options: HarnessOptions = {}) {
     createWorld: async (request) => void invoked.worlds.push(request),
     notifyLead: async (request) => void invoked.notices.push(request),
   };
-  const resolver: MailDomainResolver = { inspect: async (domain) => ({ receives: !NO_MAIL_DOMAINS.has(domain), exchangers: [] }) };
+  const resolver: MailDomainResolver = { inspect: async (domain) => (NO_MAIL_DOMAINS.has(domain) ? { status: "NO_MAIL" } : { status: "RECEIVES", exchangers: [] }) };
   const cognito = createFakeCognito({
     clientId: TEST_CLIENT_ID,
     now,

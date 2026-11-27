@@ -47,6 +47,10 @@ _Avoid_: usuario, cliente (el cliente es la persona sintética del prestamista),
 Código de 6 dígitos que el BFF manda por SMS al celular de una cuenta (`docs/architecture-guests.md` §17). La primera vez **enrola** el celular (queda como el de la cuenta; en un alta propia, recién ahí hay lead, aviso y mundo); después es el **segundo factor de cada ingreso**: pasa solo esa sesión (`origin_jti`), un refresh no lo pide y "Salir" lo anula. Vale para toda cuenta; mientras la sesión no lo pasó, el BFF responde `PHONE_VERIFICATION_REQUIRED`. El celular verificado no lo cambia el usuario.
 _Avoid_: OTP, MFA (el TOTP de Cognito es otra cosa), desafío (es el del cliente sintético por WhatsApp)
 
+**Región de casa** (`HOME_PREFIXES`):
+Los prefijos de país para los que es la demo (Latinoamérica y España, `docs/architecture-guests.md` §17.7). Un celular de otro país se acepta, pero sus SMS comparten un cupo de 5 por día en toda la demo. Un rango que no es de un celular de persona (máquinas, satelitales, redes internacionales) se rechaza siempre.
+_Avoid_: país permitido (los de fuera también se aceptan)
+
 **Cuenta de automatización** (`automation`):
 Cuenta que no usa ninguna persona y no puede recibir un SMS (las del ejecutor de escenarios y de pruebas): la única exenta del código por SMS. La marca `automation: true` la escribe solo el servidor en su fila `STAFF#`, y vale solo en un mundo QA.
 

@@ -77,7 +77,7 @@ export const PasswordResetInput = z.object({ email: Email, code: Code, newPasswo
 
 export type SignupStartResult =
   | { readonly status: "CODE_SENT"; readonly signupId: string }
-  | { readonly status: "INVALID_EMAIL" | "EMAIL_NOT_ACCEPTED" | "INVALID_PHONE" | "WEAK_PASSWORD" | "CONSENT_REQUIRED" | "RATE_LIMITED" | "SIGNUP_UNAVAILABLE" };
+  | { readonly status: "INVALID_EMAIL" | "EMAIL_NOT_ACCEPTED" | "INVALID_PHONE" | "PHONE_NOT_ACCEPTED" | "WEAK_PASSWORD" | "CONSENT_REQUIRED" | "RATE_LIMITED" | "SIGNUP_UNAVAILABLE" };
 
 export type SignupConfirmResult =
   | { readonly status: "CONFIRMED"; readonly worldStatus: string; readonly email: string }

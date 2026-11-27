@@ -70,6 +70,17 @@ describe("sign-up caps [FL-118] [FL-114]", () => {
     expect(await harness.caps.count(signupRuntimeKeys.ipDay("ip-a", harness.now()))).toBe(0);
   });
 
+  it("40 sign-ups a day among all visitors: the 41st is RATE_LIMITED before Cognito", async () => {
+    expect(SIGNUP_LIMITS.globalPerDay).toBe(40);
+    const harness = await createSignupHarness().ready();
+    await harness.store.write({ kind: "put", table: "Runtime", item: { ...signupRuntimeKeys.globalDay(harness.now()), count: SIGNUP_LIMITS.globalPerDay } });
+    expect(await harness.signup.start(startInput(), "198.51.100.40")).toEqual({ status: "RATE_LIMITED" });
+    expect(harness.cognito.calls).toEqual([]);
+    expect(await harness.caps.count(signupRuntimeKeys.ipDay(harness.hashes.ipHash("198.51.100.40"), harness.now()))).toBe(0);
+    harness.advance(24 * 3_600_000);
+    expect((await harness.signup.start(startInput(), "198.51.100.40")).status).toBe("CODE_SENT");
+  });
+
   it("gives back what it took when a race fills a later counter", async () => {
     const harness = await createSignupHarness().ready();
     const day = { key: signupRuntimeKeys.globalDay(harness.now()), limit: 1 };

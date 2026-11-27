@@ -16,8 +16,8 @@ export type PhoneStatus = z.infer<typeof PhoneStatus>;
 export const SendCodeAnswer = z.discriminatedUnion("status", [
   z.object({ status: z.literal("CODE_SENT"), purpose: z.enum(["ENROL", "SIGN_IN"]), lastDigits: z.string(), resendAvailableAtReal: z.string() }),
   z.object({ status: z.literal("RESEND_TOO_SOON"), resendAvailableAtReal: z.string() }),
-  z.object({ status: z.literal("RATE_LIMITED"), limit: z.enum(["ACCOUNT", "NUMBER", "IP", "GLOBAL"]) }),
-  z.object({ status: z.enum(["INVALID_PHONE", "PHONE_IN_USE", "PHONE_LOCKED", "SMS_FAILED", "NOT_REQUIRED"]) }),
+  z.object({ status: z.literal("RATE_LIMITED"), limit: z.enum(["ACCOUNT", "NUMBER", "IP", "GLOBAL", "ABROAD"]) }),
+  z.object({ status: z.enum(["INVALID_PHONE", "PHONE_NOT_ACCEPTED", "PHONE_IN_USE", "PHONE_LOCKED", "SMS_FAILED", "NOT_REQUIRED"]) }),
 ]);
 export type SendCodeAnswer = z.infer<typeof SendCodeAnswer>;
 
@@ -54,9 +54,12 @@ export function sendProblem(answer: SendCodeAnswer, errors: Errors): PhoneProble
     case "RESEND_TOO_SOON":
       return { text: errors.tooSoon, contact: false };
     case "RATE_LIMITED":
-      return answer.limit === "ACCOUNT" ? { text: errors.accountLimit, contact: true } : { text: errors.rateLimited, contact: true };
+      if (answer.limit === "ACCOUNT") return { text: errors.accountLimit, contact: true };
+      return { text: answer.limit === "ABROAD" ? errors.abroadLimit : errors.rateLimited, contact: true };
     case "INVALID_PHONE":
       return { text: errors.invalidPhone, contact: false };
+    case "PHONE_NOT_ACCEPTED":
+      return { text: errors.notPersonal, contact: false };
     case "PHONE_IN_USE":
       return { text: errors.phoneInUse, contact: true };
     case "PHONE_LOCKED":

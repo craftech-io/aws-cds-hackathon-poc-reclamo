@@ -72,6 +72,8 @@ export interface AuthCopy {
       readonly notAccepted: string;
       readonly weakPassword: string;
       readonly phone: string;
+      /** A range that is not a person's mobile (machine-to-machine, satellite, personal numbering). */
+      readonly notPersonal: string;
       readonly consent: string;
       readonly plainText: string;
       readonly failed: string;
@@ -113,6 +115,7 @@ export interface AuthCopy {
     readonly signOut: string;
     readonly errors: {
       readonly invalidPhone: string;
+      readonly notPersonal: string;
       readonly phoneInUse: string;
       readonly locked: string;
       readonly codeShape: string;
@@ -122,6 +125,8 @@ export interface AuthCopy {
       readonly noCode: string;
       readonly tooSoon: string;
       readonly accountLimit: string;
+      /** The day's quota of the SMS to numbers outside the home region is spent. */
+      readonly abroadLimit: string;
       readonly rateLimited: string;
       readonly smsFailed: string;
       readonly failed: string;

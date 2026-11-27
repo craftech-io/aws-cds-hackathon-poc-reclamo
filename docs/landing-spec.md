@@ -638,7 +638,8 @@ aparece tras submit):
 | Límite de intentos (bot/rate limit, `RATE_LIMITED`) | Hubo demasiados intentos desde este origen. Probá de nuevo en unos minutos. | Too many attempts from this origin. Try again in a few minutes. |
 | Alta cerrada (`SIGNUP_UNAVAILABLE` — `SWITCH#SIGNUP` sin abrir, `KILL#SIGNUP` activo, o SES todavía sin DKIM `SUCCESS`) — no es un error de formulario: reemplaza el formulario entero, con un único CTA | Por ahora no podemos crear cuentas nuevas. <a>Hablemos</a> (ADR-0021 §2: `https://craftech.io/contact/` con `utm_content=signup-unavailable`) | We can't create new accounts right now. <a>Let's talk</a> |
 | Error de red/servidor | No pudimos crear tu cuenta. Probá de nuevo. | We couldn't create your account. Please try again. |
-| Dominio descartable (`EMAIL_NOT_ACCEPTED`) | Usá un email permanente, personal o de trabajo. | Use a permanent personal or work email. |
+| Dominio descartable, reservado o de prueba, o sin dónde recibir correo (`EMAIL_NOT_ACCEPTED`) | Usá un email permanente, personal o de trabajo. | Use a permanent personal or work email. |
+| Rango que no es de un celular de persona (`PHONE_NOT_ACCEPTED`, `docs/architecture-guests.md` §17.7) | Usá un celular personal. | Use a personal mobile. |
 | Celular sin prefijo o mal formado (`INVALID_PHONE`) | Escribí tu celular con el prefijo internacional, por ejemplo +54 9 11 1234 5678 | Enter your mobile with its international prefix, for example +1 202 555 0123 |
 
 **Atribución del lead**: al llegar a la landing, `sessionStorage` guarda `utm_*` y `referrer` (solo el

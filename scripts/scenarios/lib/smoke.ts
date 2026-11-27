@@ -127,11 +127,11 @@ export async function signupSurface(ctx: ScenarioContext): Promise<void> {
     }
 
     const inside = await publicPostInPage(page, "signup.start", reservedSignup(ctx.runId));
-    ctx.check(inside.result === "INVALID_EMAIL", `signup.start through the edge answered ${inside.status} ${inside.result ?? "(no status)"}, expected INVALID_EMAIL`);
+    ctx.check(inside.result === "EMAIL_NOT_ACCEPTED", `signup.start through the edge answered ${inside.status} ${inside.result ?? "(no status)"}, expected EMAIL_NOT_ACCEPTED`);
     const outside = await publicPostOutside("signup.start", reservedSignup(ctx.runId));
     // Rule 6 counts (no token to require); with EDGE_CHALLENGE_ENFORCED it would stop the runner's POST.
-    const outsideOk = EDGE_CHALLENGE_ENFORCED ? outside.edgeRefused : !outside.edgeRefused && outside.result === "INVALID_EMAIL";
-    ctx.check(outsideOk, `signup.start from outside a browser answered ${outside.status} ${outside.result ?? ""}, expected ${EDGE_CHALLENGE_ENFORCED ? "the edge's refusal" : "the Bff's INVALID_EMAIL"}`);
+    const outsideOk = EDGE_CHALLENGE_ENFORCED ? outside.edgeRefused : !outside.edgeRefused && outside.result === "EMAIL_NOT_ACCEPTED";
+    ctx.check(outsideOk, `signup.start from outside a browser answered ${outside.status} ${outside.result ?? ""}, expected ${EDGE_CHALLENGE_ENFORCED ? "the edge's refusal" : "the Bff's EMAIL_NOT_ACCEPTED"}`);
 
     const edge = (await ctx.qa("probe.edge", {})) as { status: number; reason: string | null; refused: boolean };
     ctx.check(edge.refused, `the Bff's Function URL without the edge header answered ${edge.status} ${edge.reason ?? ""}, expected 403 EDGE_REQUIRED`);

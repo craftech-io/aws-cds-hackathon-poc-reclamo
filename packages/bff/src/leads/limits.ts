@@ -6,7 +6,7 @@
 export const SIGNUP_LIMITS = {
   /** Sign-up requests of all visitors. */
   globalPerHour: 20,
-  globalPerDay: 100,
+  globalPerDay: 40,
   /**
    * Sign-up requests per viewer IP (IPv6: per /64), every `signup.start` that passed the email checks
    * (confirmed or not), over the real day and the one before together.
@@ -55,13 +55,15 @@ export const GUEST_WORLD_LIMITS = {
  * count enrolment and sign-ins together; a number's count only the enrolment sends to a number that is
  * not yet an account's (after it, the number is the account's own and its cap is the account's). The
  * pass of a session lives as long as the console session can (`TOKEN_VALIDITY.consoleRefreshHours` of
- * infra/auth.ts, compared by infra/auth.test.ts).
+ * infra/auth.ts, compared by infra/auth.test.ts). The SMS to numbers outside the home region
+ * (second-factor/phone-ranges.ts) also share one quota of the whole demo, on top of the other caps.
  */
 export const SECOND_FACTOR_LIMITS = {
   smsPerAccountPerDay: 6,
   smsPerNumberPerDay: 3,
   smsPerIpPerDay: 5,
-  smsGlobalPerDay: 150,
+  smsGlobalPerDay: 40,
+  smsAbroadPerDay: 5,
   codeValidSeconds: 10 * 60,
   attemptsPerCode: 5,
   resendWaitSeconds: 60,

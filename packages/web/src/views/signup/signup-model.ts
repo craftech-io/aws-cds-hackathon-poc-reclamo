@@ -7,7 +7,7 @@ import type { SignupStartInput, SignupStartResult } from "../../lib/auth/public-
 import { looksLikeEmail, missingPasswordRules, hasOuterSpaces } from "../../lib/auth/credentials";
 import type { Attribution } from "../landing/attribution";
 import type { AuthLang } from "../login/auth-copy";
-import { normalizePhone } from "@reclamo/bff/second-factor/phone-number";
+import { checkPhone, normalizePhone } from "@reclamo/bff/second-factor/phone-number";
 
 export interface SignupForm {
   readonly email: string;
@@ -27,7 +27,7 @@ export const EMPTY_SIGNUP: SignupForm = { email: "", password: "", phone: "", na
 export const LEAD_TEXT_MAX = 80;
 
 export type SignupField = "email" | "password" | "phone" | "name" | "company" | "jobTitle" | "acceptTerms";
-export type FieldErrorKey = "email" | "notAccepted" | "weakPassword" | "phone" | "consent" | "plainText";
+export type FieldErrorKey = "email" | "notAccepted" | "weakPassword" | "phone" | "notPersonal" | "consent" | "plainText";
 export type FieldErrors = Partial<Record<SignupField, FieldErrorKey>>;
 
 /** The order the fields appear in: the first one with an error gets `role="alert"`. */
@@ -46,7 +46,8 @@ export function validateSignup(form: SignupForm): FieldErrors {
   const errors: FieldErrors = {};
   if (!looksLikeEmail(form.email)) errors.email = "email";
   if (missingPasswordRules(form.password).length > 0 || hasOuterSpaces(form.password)) errors.password = "weakPassword";
-  if (normalizePhone(form.phone) === undefined) errors.phone = "phone";
+  const phone = checkPhone(form.phone);
+  if (!phone.ok) errors.phone = phone.reason === "PHONE_NOT_ACCEPTED" ? "notPersonal" : "phone";
   for (const field of ["name", "company"] as const) if (unsafeText(form[field])) errors[field] = "plainText";
   if (!form.acceptTerms) errors.acceptTerms = "consent";
   return errors;
@@ -96,6 +97,8 @@ export function startOutcome(answer: SignupStartResult): StartOutcome {
       return { kind: "fieldErrors", errors: { password: "weakPassword" } };
     case "INVALID_PHONE":
       return { kind: "fieldErrors", errors: { phone: "phone" } };
+    case "PHONE_NOT_ACCEPTED":
+      return { kind: "fieldErrors", errors: { phone: "notPersonal" } };
     case "CONSENT_REQUIRED":
       return { kind: "fieldErrors", errors: { acceptTerms: "consent" } };
     case "RATE_LIMITED":

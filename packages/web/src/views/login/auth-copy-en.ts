@@ -79,6 +79,7 @@ export const AUTH_EN: AuthCopy = {
       notAccepted: "Use a permanent personal or work email.",
       weakPassword: "Use at least 12 characters, with an uppercase letter, a lowercase letter and a number",
       phone: "Enter your mobile with its international prefix, for example +1 202 555 0123",
+      notPersonal: "Use a personal mobile.",
       consent: "You need to accept the Terms and the Privacy Policy to create an account",
       plainText: "Plain text only, without links or the signs < >.",
       failed: "We couldn't create your account. Please try again.",
@@ -117,6 +118,7 @@ export const AUTH_EN: AuthCopy = {
     signOut: "Sign out",
     errors: {
       invalidPhone: "Enter your mobile with its international prefix, for example +1 202 555 0123.",
+      notPersonal: "Use a personal mobile.",
       phoneInUse: "That number is already in use by another account.",
       locked: "Your account's mobile can't be changed here. If you no longer have it, contact us.",
       codeShape: "Enter the 6 digits of the code.",
@@ -126,6 +128,7 @@ export const AUTH_EN: AuthCopy = {
       noCode: "Request a code to continue.",
       tooSoon: "Wait a few seconds before requesting another code.",
       accountLimit: "You reached today's limit of codes for your account. You'll be able to sign in tomorrow; if you need it sooner, contact us.",
+      abroadLimit: "We can't send more codes today to mobiles outside Latin America and Spain. Try tomorrow, or contact us and we'll give you access.",
       rateLimited: "Too many code requests. Try again later or contact us.",
       smsFailed: "We couldn't text that number. In some countries (for example the United States and India) we can't send SMS yet. Try another mobile or contact us.",
       failed: "We couldn't complete the verification. Please try again.",

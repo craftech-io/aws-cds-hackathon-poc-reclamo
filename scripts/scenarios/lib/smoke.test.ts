@@ -37,7 +37,7 @@ describe("SMK/10: what the edge answered, told apart from what the Bff answered 
 
   it("the smoke's sign-up uses a reserved domain the service refuses before creating anything", () => {
     const input = reservedSignup("812-1");
-    expect(checkEmailShape(input.email)).toEqual({ ok: false, reason: "INVALID_EMAIL" });
+    expect(checkEmailShape(input.email)).toEqual({ ok: false, reason: "EMAIL_NOT_ACCEPTED" });
     expect(input.acceptTerms && !input.acceptContact).toBe(true);
     expect(input.password.length).toBeGreaterThanOrEqual(12);
   });
