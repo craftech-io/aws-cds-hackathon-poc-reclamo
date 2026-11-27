@@ -67,10 +67,6 @@ export const AUTH_ES: AuthCopy = {
     errors: {
       email: "Escribí un email válido",
       notAccepted: "Usá un email permanente, personal o de trabajo.",
-      taken: "Ya existe una cuenta con este email.",
-      takenSignIn: "Ingresá",
-      takenOr: "o",
-      takenRecover: "recuperá tu contraseña",
       weakPassword: "Usá al menos 12 caracteres, con mayúscula, minúscula y número",
       consent: "Tenés que aceptar los Términos y la Política de privacidad para crear la cuenta",
       plainText: "Escribí solo texto, sin enlaces ni los signos < >.",
@@ -80,7 +76,7 @@ export const AUTH_ES: AuthCopy = {
   },
   verify: {
     title: "Confirmá tu email",
-    lead: { before: "Te mandamos un código a ", after: ". Escribilo para activar tu cuenta." },
+    lead: { before: "Si todavía no hay una cuenta con ", after: ", te mandamos un código a ese email. Escribilo para activar tu cuenta." },
     code: "Código",
     submit: "Confirmar",
     resend: "Reenviar código",
@@ -91,6 +87,7 @@ export const AUTH_ES: AuthCopy = {
     failed: "No pudimos confirmar el código. Probá de nuevo.",
     signingIn: "Cuenta confirmada. Entrando a tu entorno…",
     otherEmail: "Usar otro email",
+    haveAccount: { lead: "¿Ya tenés una cuenta con este email?", signIn: "Ingresá", or: "o", recover: "recuperá tu contraseña" },
   },
   provisioning: {
     preparingTitle: "Estamos preparando tu mundo",
@@ -103,6 +100,7 @@ export const AUTH_ES: AuthCopy = {
     expiredButton: "Preparar mi entorno",
     meanwhile: "Mientras tanto, esto es lo que vas a poder probar",
     usageLimit: "Llegaste al límite de uso de hoy de este entorno.",
+    spendLimit: "Tu cuenta de prueba llegó a su tope de uso del agente: el agente ya no responde mensajes nuevos. Para seguir, escribinos en craftech.io/contact.",
     signOut: "Salir",
   },
   recover: {

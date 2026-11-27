@@ -1,7 +1,8 @@
 // What is checked before every image read that calls Bedrock (docs/architecture-integrations.md §7,
 // step 1; docs/architecture.md §13; docs/architecture-guests.md §11): the agent kill switch (global
 // `KILL#AGENT` and the world's `W#<w>#KILL`), the image reads of the conversation and of the world per
-// REAL day, and the global pool. All on the real clock: the guest drives the simulated one, so "+1 day"
+// REAL day, the account's spend for a self-signup world (`W#<w>#SPENDCAP`, the read's ceiling of
+// `GUEST_SPEND_LIMITS.imageReadUsd`, worker/spend.ts), and the global pool. All on the real clock: the guest drives the simulated one, so "+1 day"
 // never opens a new bucket. A refusal reads nothing: the tool answers `AGENT_KILLED` or `TURN_CAP`.
 //
 //   per conversation  `W#<w>#IMGCAP#<customerId>#<realDay>`  10
@@ -11,7 +12,9 @@
 //                     (`GLOBALCAP#SIGNUPIMG#<realDay>`, 200/day) through the guests module's counter
 import { guestOriginOf, worldKindOf } from "@reclamo/shared";
 import type { Connector } from "../connector/port";
+import { GUEST_SPEND_LIMITS } from "../leads/limits";
 import type { Logger } from "../lib/log";
+import { chargeSpend } from "../worker/spend";
 
 export const IMAGE_READ_CAPS = {
   perConversationPerDay: 10,
@@ -31,7 +34,7 @@ export interface ReadBudget {
 }
 
 export interface ConnectorBudgetDeps {
-  readonly connector: Pick<Connector, "runtime" | "caps">;
+  readonly connector: Pick<Connector, "runtime" | "caps" | "write">;
   /** Real clock. */
   readonly now: () => Date;
   /**
@@ -66,6 +69,7 @@ export function connectorReadBudget(deps: ConnectorBudgetDeps): ReadBudget {
         if (!world.allowed) return refuse("TURN_CAP", "IMAGE_READS_WORLD", worldId);
       }
       if (guestOriginOf(worldId) === "SIGNUP") {
+        if (!(await chargeSpend(deps.connector, worldId, GUEST_SPEND_LIMITS.imageReadUsd, at))) return refuse("TURN_CAP", "SPEND_CAP", worldId);
         return (await deps.signupImagePool(at)) ? { ok: true } : refuse("TURN_CAP", "GLOBAL_SIGNUP_IMAGES", worldId);
       }
       const kind = worldKindOf(worldId);

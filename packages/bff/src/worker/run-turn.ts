@@ -5,9 +5,11 @@
 //   1. `control = OPERATOR` → no turn: the event stays on the timeline (`TURN_SKIPPED_CONTROL_OPERATOR`,
 //      `CH-CONTROL`, FL-084);
 //   2. the kill switch (`KILL#AGENT`, `W#<w>#KILL`) → `AGENT_KILLED`, `AgentKilled`, handoff (FL-109);
-//   3. the world's `TURN_CAP` (hour, day; epoch for a self-signup world), then the pool's `GLOBAL_CAP`
-//      (PUBLIC, SIGNUP or QA) → `TURN_CAP` / `GLOBAL_CAP`, `TurnCapHits` / `GlobalCapHits`, handoff
-//      (FL-105, FL-125). Nothing that costs ran: no G1, no preloaded read, no Harness;
+//   3. the world's `TURN_CAP` (hour, day; epoch and the account's US$1 spend for a self-signup world,
+//      whose turn reserves its share, worker/spend.ts), then the pool's `GLOBAL_CAP` (PUBLIC, SIGNUP or
+//      QA) → `TURN_CAP` / `GLOBAL_CAP`, `TurnCapHits` / `GlobalCapHits`, handoff (FL-105, FL-125).
+//      Nothing that costs ran: no G1, no preloaded read, no Harness; a pool refusal gives the
+//      reservation back, and so does a throttled Harness, whose event goes back to the queue;
 //   4. the turn (turns/turn.ts): G1, session, preloaded reads, memory, Harness;
 //   5. BLOCKED → worker/guardrail-block.ts; FAILED → worker/fallback.ts; COMPLETED → the obligations.
 //
@@ -22,9 +24,11 @@ import { type HandoffDeps, handOff } from "./escalation";
 import { type TurnEvent, answersOf } from "./events";
 import { runFallback } from "./fallback";
 import { handleGuardrailBlock } from "./guardrail-block";
+import { HarnessError } from "../agent/harness-client";
 import { AGENT_KILLED_METRIC, agentKillScope } from "./kill";
 import { type ObligationFired, runObligations } from "./obligations";
 import type { WorkerContext, WorkerDeps } from "./ports";
+import { releaseTurnReservation } from "./spend";
 
 export const TURN_CAP_METRIC = "TurnCapHits";
 export const GLOBAL_CAP_METRIC = "GlobalCapHits";
@@ -74,7 +78,10 @@ async function gates(deps: WorkerDeps, ctx: WorkerContext, event: TurnEvent, con
   const world = await countTurnIn(deps.data, worldBuckets(event.worldId, event.epoch, settings, at), at);
   if (!world.allowed) return refuseWithHandoff(deps, ctx, event, "TURN_CAP", { window: world.bucket.window, cap: world.bucket.limit });
   const pool = await countTurnIn(deps.data, poolBuckets(event.worldId, at), at);
-  if (!pool.allowed) return refuseWithHandoff(deps, ctx, event, "GLOBAL_CAP", { pool: poolOf(event.worldId), window: pool.bucket.window, cap: pool.bucket.limit });
+  if (!pool.allowed) {
+    await releaseTurnReservation(deps.data, event.worldId, at);
+    return refuseWithHandoff(deps, ctx, event, "GLOBAL_CAP", { pool: poolOf(event.worldId), window: pool.bucket.window, cap: pool.bucket.limit });
+  }
   return undefined;
 }
 
@@ -85,7 +92,14 @@ export async function runTurnEvent(deps: WorkerDeps, ctx: WorkerContext & { read
   const context = await loadTurnContext(deps.data, event);
   const refused = await gates(deps, ctx, event, context.conversation?.control ?? "AGENT");
   if (refused !== undefined) return refused;
-  const outcome = await runTurn({ ...deps.turn, data: deps.data }, event, { log: ctx.log, now: ctx.now, deadlineMs: ctx.deadlineMs }, context);
+  let outcome: TurnOutcome;
+  try {
+    outcome = await runTurn({ ...deps.turn, data: deps.data }, event, { log: ctx.log, now: ctx.now, deadlineMs: ctx.deadlineMs }, context);
+  } catch (error) {
+    // A throttled Harness billed nothing and its event is retried: the retry reserves again.
+    if (error instanceof HarnessError && error.kind === "THROTTLED") await releaseTurnReservation(deps.data, event.worldId, ctx.now());
+    throw error;
+  }
   const handoff = handoffDeps(deps, ctx);
   if (outcome.kind === "BLOCKED") {
     await handleGuardrailBlock(handoff, event, outcome);

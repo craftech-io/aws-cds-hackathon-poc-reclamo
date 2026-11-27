@@ -66,7 +66,7 @@ describe("[FL-105] the world's turn cap", () => {
 describe("[FL-125] the turn caps of a self-signup world", () => {
   it("[FL-125] counts the epoch's turns apart from the day: at 150 the epoch refuses even on a new real day", async () => {
     const kit = await workerKit({ worldId: "gs-abcdefghij" });
-    expect(worldBuckets("gs-abcdefghij", 1, { turnCaps: { perHour: 200, perDay: 60 } }, TEST_NOW).map((bucket) => bucket.window)).toEqual(["HOUR", "DAY", "EPOCH"]);
+    expect(worldBuckets("gs-abcdefghij", 1, { turnCaps: { perHour: 200, perDay: 60 } }, TEST_NOW).map((bucket) => bucket.window)).toEqual(["HOUR", "DAY", "EPOCH", "LIFETIME"]);
     expect(worldBuckets("g01", 1, { turnCaps: { perHour: 200, perDay: 150 } }, TEST_NOW).map((bucket) => bucket.window)).toEqual(["HOUR", "DAY"]);
     await prime(kit, keys.runtime("gs-abcdefghij", "TURNCAPEPOCH", keys.epochPart(1)), SIGNUP_TURNS_PER_EPOCH);
     kit.advanceReal(24 * HOUR_MS);

@@ -9,7 +9,8 @@
 //   4. in parallel: the preloaded reads with the turn's token (turns/preload.ts), the long-term memory
 //      validated by the worker (agent/memory.ts) and the receipt attachments;
 //   5. the envelope inside a new random delimiter, named by the turn's system prompt, and the Harness;
-//   6. the turn is closed whatever happens (its token dies with it), then the note and the usage.
+//   6. the turn is closed whatever happens (its token dies with it), then the note and the usage; in a
+//      self-signup world the Harness's tokens settle the spend reservation of the gates (worker/spend.ts).
 //
 //   end_turn / stop_sequence                  COMPLETED: the worker runs the obligations
 //   content_filtered / guardrail_intervened   BLOCKED (origin HARNESS): the sentinel never leaves
@@ -21,6 +22,7 @@ import { type HarnessTurnResult, HarnessError } from "../agent/harness-client";
 import { newTurnDelimiter, normalizeInboundText } from "../channels/normalizer";
 import { isoAr } from "../complaints/sla";
 import { WORKER_ACTIONS, auditOnce } from "../worker/audit";
+import { settleTurnSpend } from "../worker/spend";
 import type { TurnEvent } from "../worker/events";
 import type { TurnContext, TurnDeps, TurnFailureCause, TurnOutcome } from "./deps";
 import { type TurnContextData, type TurnInbound, chargeComplaintOpen, envelopeAttachments, envelopeFacts, inboundFacts, isIdentified, loadInbound, sessionComplaintIds } from "./facts";
@@ -148,6 +150,7 @@ export async function runTurn(deps: TurnDeps, event: TurnEvent, ctx: TurnContext
   }
   const { result } = invocation;
   const complaint = context.complaints.find((candidate) => candidate.complaintId === complaintIds[0]);
+  await settleTurnSpend(deps.data, event.worldId, result.usage, ctx.now());
   await recordUsage(record, event, complaint, result.usage);
   logTurnLatency(ctx.log, invocation.latencyMs, { trigger: event.type, withImage: invocation.withImage, toolUses: result.toolUses, outcome: result.outcome });
   if (result.outcome === "GUARDRAIL") {

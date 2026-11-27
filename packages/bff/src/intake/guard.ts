@@ -1,16 +1,19 @@
 // What stands before every call of the classifier's model (docs/architecture.md §13 "Rate limit y
 // topes", ADR-0017, docs/architecture-guests.md §7 "Orden de la cadena de costo"): the agent's kill
 // switch (`KILL#AGENT`, `W#<w>#KILL`), the world's turn caps (`W#<w>#TURNCAP#<realHour|realDay>` and, for
-// a self-signup world, `W#<w>#TURNCAPEPOCH#e<epoch>`) and the global cap of the world's pool
-// (`GLOBALCAP#<PUBLIC|SIGNUP|QA>#…`), all on the real clock. The classifier only LOOKS at the buckets
-// (it never spends a unit: the units are the turns the worker counts); with the switch on, a world
+// a self-signup world, `W#<w>#TURNCAPEPOCH#e<epoch>` and the account's spend `W#<w>#SPENDCAP`) and the
+// global cap of the world's pool (`GLOBALCAP#<PUBLIC|SIGNUP|QA>#…`), all on the real clock. The
+// classifier only LOOKS at the turn buckets (it never spends a turn: the units are the turns the worker
+// counts) and then charges the call's ceiling to the spend of a self-signup account
+// (`GUEST_SPEND_LIMITS.classifierCallUsd`, worker/spend.ts); with the switch on, a world
 // without its settings or a bucket at its cap the model is not called and the message is `UNCLEAR`,
 // while the number and the acknowledgement still go out by rules.
 import { isConflict } from "../connector/errors";
 import type { Connector } from "../connector/port";
-import { cond } from "../connector/store";
-import { CAP_COUNTER_TTL_SECONDS, type CapBucket, poolBuckets, worldBuckets } from "../worker/caps";
+import { GUEST_SPEND_LIMITS } from "../leads/limits";
+import { CAP_COUNTER_TTL_SECONDS, type CapBucket, admissible, poolBuckets, roomCondition, worldBuckets } from "../worker/caps";
 import { agentKillScope } from "../worker/kill";
+import { chargeSpend } from "../worker/spend";
 
 export type ModelBlock = "KILLED" | "TURN_CAP" | "GLOBAL_CAP";
 
@@ -21,17 +24,18 @@ export interface ModelWorld {
 }
 
 /**
- * True while the bucket is below its cap. A conditional write that adds nothing: DynamoDB evaluates
- * the cap atomically and a missing counter starts at 0 (the worker's `ADD` continues from there).
+ * True while the bucket still has room for one admission. A conditional write that adds nothing:
+ * DynamoDB evaluates the cap atomically and a missing counter starts at 0 (the worker's `ADD` continues
+ * from there).
  */
 async function belowCap(data: Pick<Connector, "write">, bucket: CapBucket, at: Date): Promise<boolean> {
-  if (!Number.isInteger(bucket.limit) || bucket.limit <= 0) return false;
+  if (!admissible(bucket)) return false;
   try {
     await data.write({
       kind: "update",
       table: "Runtime",
       key: bucket.key,
-      condition: cond.or(cond.notExists("count"), cond.lt("count", bucket.limit)),
+      condition: roomCondition(bucket),
       update: { setIfNotExists: { count: 0, entity: "CapCounter", expiresAt: Math.floor(at.getTime() / 1000) + CAP_COUNTER_TTL_SECONDS[bucket.window] } },
     });
     return true;
@@ -54,5 +58,6 @@ export async function modelBlock(data: Pick<Connector, "runtime" | "write" | "wo
   const settings = await data.worlds.getSettings(world.worldId);
   if (settings === undefined || !(await allBelowCap(data, worldBuckets(world.worldId, world.epoch, settings, realNow), realNow))) return "TURN_CAP";
   if (!(await allBelowCap(data, poolBuckets(world.worldId, realNow), realNow))) return "GLOBAL_CAP";
+  if (!(await chargeSpend(data, world.worldId, GUEST_SPEND_LIMITS.classifierCallUsd, realNow))) return "TURN_CAP";
   return undefined;
 }

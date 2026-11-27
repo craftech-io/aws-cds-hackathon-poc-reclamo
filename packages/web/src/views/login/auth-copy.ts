@@ -67,10 +67,6 @@ export interface AuthCopy {
     readonly errors: {
       readonly email: string;
       readonly notAccepted: string;
-      readonly taken: string;
-      readonly takenSignIn: string;
-      readonly takenOr: string;
-      readonly takenRecover: string;
       readonly weakPassword: string;
       readonly consent: string;
       readonly plainText: string;
@@ -91,6 +87,8 @@ export interface AuthCopy {
     readonly failed: string;
     readonly signingIn: string;
     readonly otherEmail: string;
+    /** `signup.start` answers the same whether the email has an account: this line covers who has one. */
+    readonly haveAccount: { readonly lead: string; readonly signIn: string; readonly or: string; readonly recover: string };
   };
   readonly provisioning: {
     readonly preparingTitle: string;
@@ -103,6 +101,7 @@ export interface AuthCopy {
     readonly expiredButton: string;
     readonly meanwhile: string;
     readonly usageLimit: string;
+    readonly spendLimit: string;
     readonly signOut: string;
   };
   readonly recover: {

@@ -7,7 +7,10 @@ export const SIGNUP_LIMITS = {
   /** Sign-up requests of all visitors. */
   globalPerHour: 20,
   globalPerDay: 100,
-  /** Sign-up requests per viewer IP (IPv6: per /64) per real day. */
+  /**
+   * Sign-up requests per viewer IP (IPv6: per /64), every `signup.start` that passed the email checks
+   * (confirmed or not), over the real day and the one before together.
+   */
   perIpPerDay: 3,
   /** Sign-up requests per canonical email per real day, and confirmed accounts per canonical email. */
   perCanonicalEmailPerDay: 3,
@@ -24,6 +27,8 @@ export const SIGNUP_LIMITS = {
   recoveryPerIpPerHour: 10,
   /** Lead notices to Craftech per real day. */
   leadNoticesPerDay: 100,
+  /** An unconfirmed account younger than this is never replaced by a new sign-up of its email. */
+  pendingAccountKeepSeconds: 10 * 60,
   /** One world request per account every ten minutes (`guest.requestWorld`). */
   worldRequestEverySeconds: 10 * 60,
 } as const;
@@ -42,6 +47,20 @@ export const GUEST_WORLD_LIMITS = {
   imageReadsPerDay: 20,
   productEmailsPerDay: 40,
   resetsPerDay: 3,
+} as const;
+
+/**
+ * What the models may cost for one self-signup account, in US dollars, over its whole life: no window
+ * and no reset by epoch or by a new world (its world id comes from its `sub`). Each call is charged on
+ * `W#<w>#SPENDCAP` with a conditional `ADD` before it runs: a turn reserves `turnReservationUsd` and is
+ * settled with its real tokens afterwards; an image read and a classifier call are charged their
+ * ceiling (worker/spend.ts). Staff and invited guests are outside it.
+ */
+export const GUEST_SPEND_LIMITS = {
+  usdPerAccount: 1,
+  turnReservationUsd: 0.2,
+  imageReadUsd: 0.04,
+  classifierCallUsd: 0.001,
 } as const;
 
 /**
