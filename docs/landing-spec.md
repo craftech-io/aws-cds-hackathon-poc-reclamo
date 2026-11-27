@@ -630,8 +630,8 @@ aparece tras submit):
 | Caso | Copy es | Copy en |
 |---|---|---|
 | Email inválido | Escribí un email válido | Enter a valid email |
-| Email ya registrado y confirmado (`EMAIL_TAKEN`) | Ya existe una cuenta con este email. <a>Ingresá</a> o <a>recuperá tu contraseña</a>. | An account with this email already exists. <a>Sign in</a> or <a>recover your password</a>. |
-| Alta previa sin confirmar, mismo email — no es un error ni tiene copy propio: el BFF reemplaza el alta sin confirmar por la nueva (con esta contraseña y estos consentimientos) y responde `CODE_SENT` como a un alta nueva, así nadie confirma con el código de la víctima un alta que armó otro (`docs/architecture-guests.md` §4) | — (mismo avance a `/signup/verify` que un alta nueva) | — |
+| Email ya registrado (confirmado, o sin confirmar de menos de 10 minutos) — no es un error ni tiene copy propio: el BFF responde `CODE_SENT` como a un alta nueva, con un `signupId` que nunca confirma, para no decir qué emails tienen cuenta; la pantalla del código ofrece ingresar o recuperar la contraseña (§9.3) | — (mismo avance a `/signup/verify` que un alta nueva) | — |
+| Alta previa sin confirmar de 10 minutos o más, mismo email — no es un error ni tiene copy propio: el BFF reemplaza el alta sin confirmar por la nueva (con esta contraseña y estos consentimientos) y responde `CODE_SENT` como a un alta nueva, así nadie confirma con el código de la víctima un alta que armó otro (`docs/architecture-guests.md` §4) | — (mismo avance a `/signup/verify` que un alta nueva) | — |
 | Contraseña débil | Usá al menos 12 caracteres, con mayúscula, minúscula y número | Use at least 12 characters, with an uppercase letter, a lowercase letter and a number |
 | Consentimiento 1 no marcado | Tenés que aceptar los Términos y la Política de privacidad para crear la cuenta | You need to accept the Terms and the Privacy Policy to create an account |
 | Límite de intentos (bot/rate limit, `RATE_LIMITED`) | Hubo demasiados intentos desde este origen. Probá de nuevo en unos minutos. | Too many attempts from this origin. Try again in a few minutes. |
@@ -653,11 +653,12 @@ Tarjeta con: título, un campo de 6 dígitos (o el que fije Cognito), CTA "Confi
 | | es | en |
 |---|---|---|
 | Título | Confirmá tu email | Confirm your email |
-| Lead | Te mandamos un código a **{email}**. Escribilo para activar tu cuenta. | We sent a code to **{email}**. Enter it to activate your account. |
+| Lead | Si todavía no hay una cuenta con **{email}**, te mandamos un código a ese email. Escribilo para activar tu cuenta. | If there is no account with **{email}** yet, we sent a code to that email. Enter it to activate your account. |
 | CTA | Confirmar | Confirm |
 | Reenviar | Reenviar código | Resend code |
 | Error: código incorrecto | Ese código no es correcto. Probá de nuevo. | That code isn't right. Try again. |
 | Error: código vencido | Este código venció. Pedí uno nuevo. | This code expired. Request a new one. |
+| Ya tengo cuenta (debajo del formulario) | ¿Ya tenés una cuenta con este email? <a>Ingresá</a> o <a>recuperá tu contraseña</a>. | Already have an account with this email? <a>Sign in</a> or <a>recover your password</a>. |
 
 `signup.start` devuelve un `signupId` que la web guarda en `sessionStorage` (nunca en la URL) y que
 `signup.confirm` y `signup.resend` exigen junto con el código: solo vale el último formulario enviado
@@ -720,6 +721,7 @@ consola, un aviso fijo — no un error — y el sistema sigue emitiendo el núme
 | | es | en |
 |---|---|---|
 | Aviso fijo en la consola | Llegaste al límite de uso de hoy de este entorno. | You've reached today's usage limit for this environment. |
+| Aviso fijo en la consola, gasto de la cuenta agotado (`usage.spendLimitReached`) | Tu cuenta de prueba llegó a su tope de uso del agente: el agente ya no responde mensajes nuevos. Para seguir, escribinos en craftech.io/contact. | Your trial account reached its agent usage cap: the agent no longer answers new messages. To keep going, reach us at craftech.io/contact. |
 
 ### 9.5 `/login` — Ingreso
 
@@ -806,7 +808,7 @@ siempre. Por eso:
 | 4 | El header se comporta como `Drawer` accesible en 390×844 (abre, atrapa foco **desde el elemento que lo abrió y lo devuelve ahí al cerrar**, cierra con Escape y con clic afuera) | Playwright: abrir, `Tab` no sale del drawer, `Escape` cierra y el foco vuelve al botón ☰ |
 | 5 | Galería: zoom, anterior/siguiente por teclado y por swipe, `Escape` cierra; con menos de 4 capturas reales, la sección no se muestra | Ya cubierto por `landing.test.ts`/`Lightbox`; extender a las nuevas imágenes del manifiesto y al caso de galería oculta (§7) |
 | 6 | `/signup` → código → `/signup/provisioning` (ya autenticada por SRP silenciosa) → `/app/inbox` funciona de punta a punta con Cognito mockeado; y por separado, sin la contraseña en memoria (recargó la página), `/signup/verify` → `CONFIRMED` → `/login` con el email precargado y el aviso "Tu cuenta está confirmada; ingresá para ver tu entorno" (§9.3) | Nuevo `signup.spec.ts` (los dos caminos), mismo patrón que `login.spec.ts` |
-| 7 | `/signup` rechaza un email ya registrado (`EMAIL_TAKEN`) y un consentimiento 1 sin marcar; reemplaza un alta previa sin confirmar sin duplicar cuenta (`CODE_SENT` y el `signupId` anterior responde `SIGNUP_RESTART`); exige 12 caracteres con mayúscula, minúscula y número (no 8); con `SIGNUP_UNAVAILABLE`/`KILL#SIGNUP` activo, muestra el aviso fijo en vez del formulario — todo con el copy exacto de §9.2 (ya sincronizado con `docs/architecture-guests.md` §2, §16) | `signup.spec.ts` |
+| 7 | `/signup` responde a un email ya registrado igual que a uno nuevo (`CODE_SENT`, con "Ingresá" y "recuperá tu contraseña" en la pantalla del código) y rechaza un consentimiento 1 sin marcar; reemplaza un alta previa sin confirmar sin duplicar cuenta (`CODE_SENT` y el `signupId` anterior responde `SIGNUP_RESTART`); exige 12 caracteres con mayúscula, minúscula y número (no 8); con `SIGNUP_UNAVAILABLE`/`KILL#SIGNUP` activo, muestra el aviso fijo en vez del formulario — todo con el copy exacto de §9.2 (ya sincronizado con `docs/architecture-guests.md` §2, §16) | `signup.spec.ts` |
 | 8 | `/login/recover` no revela si un email existe o no | `login.spec.ts` (o `recover.spec.ts`) |
 | 9 | Un `GUEST` cuyo mundo no está `READY` ve la pantalla fija de §9.4 según su estado exacto (en cola con posición, creando, vencido con botón de recrear), nunca un error crudo de Cognito ni una promesa de aviso por email | `provisioning.spec.ts` |
 | 10 | Contraste AA verificado en los pares de color nuevos (§8) | Herramienta de contraste en el PR, no un test automatizado por ahora |
