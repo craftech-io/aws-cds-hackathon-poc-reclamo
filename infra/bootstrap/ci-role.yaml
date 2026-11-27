@@ -717,8 +717,8 @@ Resources:
               - cloudfront:UpdateCachePolicy
             Resource: !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:cache-policy/${RouterCachePolicyId}"
           # AWS WAF of the guest self-signup (docs/architecture-guests.md §8, §12): only the two web ACLs
-          # of this stage, by their fixed names. The Router associates the edge ACL through its
-          # distribution's WebACLId (cloudfront:UpdateDistribution, tag-fenced, plus GetWebACL here).
+          # of this stage, by their fixed names. The edge one is retired (the Router now associates the
+          # shared demos-borde, below); these rights stay so the deploy can delete it.
           - Sid: WebAclsOfThisApp
             Effect: Allow
             Action:
@@ -743,6 +743,13 @@ Resources:
             Resource:
               - !Sub "arn:${AWS::Partition}:wafv2:${Region}:*:global/managedruleset/*"
               - !Sub "arn:${AWS::Partition}:wafv2:${Region}:*:regional/managedruleset/*"
+          # The account's shared edge web ACL (craftech/demos): read only. The Router looks it up by name
+          # (ListWebACLs, below) and associates it through its distribution's WebACLId
+          # (cloudfront:UpdateDistribution, tag-fenced, plus this GetWebACL).
+          - Sid: SharedEdgeWebAcl
+            Effect: Allow
+            Action: wafv2:GetWebACL
+            Resource: !Sub "arn:${AWS::Partition}:wafv2:${Region}:${AWS::AccountId}:global/webacl/demos-borde/*"
           # ListWebACLs has no resource-level permission (it lists names and ids, no rules).
           - Sid: WafListWebAcls
             Effect: Allow

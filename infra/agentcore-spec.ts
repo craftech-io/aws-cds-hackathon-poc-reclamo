@@ -14,6 +14,7 @@
 import { createHash } from "node:crypto";
 import { type ToolTarget } from "../packages/bff/src/agent-tools/common/targets";
 import { ContactWindow, FormOfAddress, PreferredChannel } from "../packages/shared/src/enums";
+import { LOG_RETENTION_DAYS } from "./log-retention";
 import { CAPABILITIES, LAMBDA_CAPABILITIES, resolveCapabilities, type CapabilityName, type LambdaCapabilities, type LambdaName } from "./iam-capabilities";
 
 /** Account and region the ARNs are built for (the resource modules read them from the provider). */
@@ -171,7 +172,7 @@ export const PROMPT_CACHING = {
 /**
  * Content in traces (docs/architecture.md §12). Neither the Harness nor the HarnessEndpoint has a field
  * that turns off GenAI content capture, in the pinned provider or in the control-plane SDK. So capture
- * stays on and the retention is what is fixed: the `live` runtime log group by this IaC, 30 days; the
+ * stays on and the retention is what is fixed: the `live` runtime log group by this IaC, 14 days (infra/log-retention.ts); the
  * `DEFAULT` one and `aws/spans` are declared manual configuration (docs/architecture.md §17 items 9 and 2).
  */
 export const TRACE_CONTENT_CAPTURE = {
@@ -361,7 +362,8 @@ export function gatewayTargetDescription(target: ToolTarget, tools: number, dige
 export const RUNTIME_LOG_GROUP_PREFIX = "/aws/bedrock-agentcore/runtimes/";
 /** AgentCore creates the DEFAULT endpoint's group with the runtime (ResourceAlreadyExistsException if the IaC does). */
 export const RUNTIME_DEFAULT_ENDPOINT = "DEFAULT";
-export const AGENT_LOG_RETENTION_DAYS = 30;
+/** The app's one log retention (infra/log-retention.ts). */
+export const AGENT_LOG_RETENTION_DAYS = LOG_RETENTION_DAYS;
 
 export function runtimeLogGroupName(agentRuntimeId: string, endpointName: string): string {
   if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,99}$/.test(agentRuntimeId)) throw new Error(`Unexpected AgentCore runtime id "${agentRuntimeId}".`);

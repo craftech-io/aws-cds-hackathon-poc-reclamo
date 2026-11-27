@@ -43,6 +43,12 @@ Fila `Leads/SIGNUP#<signupId>` que escribe el BFF antes de crear el usuario de C
 Contacto comercial de Craftech que deja una alta confirmada **con el celular verificado** por SMS (hasta entonces queda `PENDING`: ni aviso ni exportación): email, celular, datos opcionales, consentimientos con fecha y versión del texto, POC de origen, idioma, UTM y referrer, fecha de alta y último ingreso. Vive en la tabla `Leads`, separada de los datos de la demo; sobrevive al vencimiento del mundo; es PII (fuera de logs, cinta, auditoría y exportaciones de la demo); se exporta con `leads:export` y se borra a pedido con `leads:delete`. Craftech es el responsable de esos datos.
 _Avoid_: usuario, cliente (el cliente es la persona sintética del prestamista), prospecto (en código)
 
+**Línea de acceso** (`access`):
+La línea JSON que el `Bff` escribe al terminar cada pedido HTTP, también los rechazados o fallidos: ruta, método, estado, IP del visitante (la de los topes), navegador, `sub` verificado y duración (`docs/architecture.md` §12). Nunca cuerpo, consulta, token, email ni teléfono. Es la "línea de acceso" (`msg: "acceso"`) de la guía común de las demos.
+
+**Decisión de seguridad** (`SecurityDecisions`):
+Línea con nombre que el `Bff` escribe cada vez que una regla de seguridad frena algo (un tope, el segundo factor pendiente, una cuenta bloqueada, un alta rechazada, otro mundo), sin datos de la persona; la cuenta el metric filter `SecurityDecisions` por `decision`.
+
 **Código por SMS** (`SecondFactor`):
 Código de 6 dígitos que el BFF manda por SMS al celular de una cuenta (`docs/architecture-guests.md` §17). La primera vez **enrola** el celular (queda como el de la cuenta; en un alta propia, recién ahí hay lead, aviso y mundo); después es el **segundo factor de cada ingreso**: pasa solo esa sesión (`origin_jti`), un refresh no lo pide y "Salir" lo anula. Vale para toda cuenta; mientras la sesión no lo pasó, el BFF responde `PHONE_VERIFICATION_REQUIRED`. El celular verificado no lo cambia el usuario.
 _Avoid_: OTP, MFA (el TOTP de Cognito es otra cosa), desafío (es el del cliente sintético por WhatsApp)

@@ -1,15 +1,15 @@
 // Observability and cost (docs/architecture.md §12, ADR-0021 §11, docs/build-plan.md WP-37). Names,
 // patterns, thresholds and the budget live in infra/observability-spec.ts (checked by its test).
 //
-//   Logs      Only logs. Every Lambda's group is created by SST with the 30 days of the $transform in
-//             sst.config.ts; the anchors keep 180 (infra/storage.ts); the Harness runtime group of `live`
-//             is created by infra/agentcore.ts before its endpoint, 30 days. The `…-DEFAULT` runtime group
+//   Logs      Only logs, 14 days (infra/log-retention.ts). Every Lambda's group is created by SST with the
+//             $transform of sst.config.ts; the anchors keep 180 on purpose (audit, infra/storage.ts); the
+//             Harness runtime group of `live` is created by infra/agentcore.ts before its endpoint. The `…-DEFAULT` runtime group
 //             and `aws/spans` are declared manual configuration (docs/architecture.md §17 items 9 and 2).
 //             No CloudWatch dashboard, no tracing of our own, Model Invocation Logging stays off: nothing
 //             in infra/ enables any of them (observability-spec.test.ts).
 //   Metrics   `ReclamoAgent/*`: one CloudWatch Logs metric filter per metric and emitting function, over
 //             the group SST creates for it (`fn.nodes.logGroup`; its name follows SST's suffix, not the
-//             function's). AWS WAF publishes its per-rule metrics in `AWS/WAFV2` on its own.
+//             function's). The edge is the shared `demos-borde`: its metrics and logs are craftech/demos'.
 //   Alarms    The ones of §12, named `<app>-<stage>-<key>`; missing data never breaches. They notify
 //             nobody: the state is read with `describe-alarms` (and by the QaDriver for its DLQ alarm).
 //             The two SES reputation alarms, which do act (KILL#SIGNUP), live in infra/leads.ts.
@@ -25,7 +25,7 @@
 //   aws --profile craftech-demos cloudwatch describe-alarms --alarm-name-prefix aws-cds-hackathon-poc-reclamo-poc- --query "MetricAlarms[].[AlarmName,StateValue]"
 //   aws --profile craftech-demos cloudwatch list-dashboards                                           → none of this app
 //   aws --profile craftech-demos logs describe-log-groups --query "logGroups[?contains(logGroupName, 'reclamo')].[logGroupName,retentionInDays]"
-//     → 30 everywhere, 180 for /aws-cds-hackathon-poc-reclamo/poc/register-anchors
+//     → 14 everywhere, 180 for /aws-cds-hackathon-poc-reclamo/poc/register-anchors
 //   aws --profile craftech-demos budgets describe-notifications-for-budget --account-id 776805327629 --budget-name aws-cds-hackathon-poc-reclamo-poc-monthly
 //   aws --profile craftech-demos sns list-subscriptions-by-topic --topic-arn arn:aws:sns:us-east-1:776805327629:aws-cds-hackathon-poc-reclamo-budget-alerts
 //   aws --profile craftech-demos bedrock get-model-invocation-logging-configuration                  → no loggingConfig
@@ -59,7 +59,6 @@ import {
 } from "./observability-spec";
 import { SeedOverrides } from "./secrets";
 import { PROJECT } from "./tags";
-import { applyEdgeWaf, edgeWafRules } from "./waf";
 import { anchorWriter, emailEvents, eventWorker, mediaIntake, qaEventWorker, scheduleDispatch, signupEventWorker } from "./workers";
 
 /** Every Lambda of infra/iam-capabilities.ts, by name: a metric can only name an emitter that exists. */
@@ -114,24 +113,7 @@ export const metricFilters: aws.cloudwatch.LogMetricFilter[] = metricFilterSpecs
 
 // ---- Alarms --------------------------------------------------------------------------------------
 
-/** The metric names infra/waf.ts gives the edge web ACL and its rules (the dimensions of `AWS/WAFV2`). */
-function wafMetricNames(): Pick<AlarmPlace, "wafWebAclMetric" | "wafRuleMetric"> {
-  const edgeArgs = {} as aws.wafv2.WebAclArgs;
-  applyEdgeWaf(edgeArgs);
-  const webAcl = (edgeArgs.visibilityConfig as { metricName?: string } | undefined)?.metricName;
-  if (webAcl === undefined) throw new Error("infra/waf.ts gives the edge web ACL no metric name.");
-  const rules = new Map(edgeWafRules().map((rule) => [rule.name, rule.visibilityConfig.metricName]));
-  return {
-    wafWebAclMetric: webAcl,
-    wafRuleMetric: (rule) => {
-      const metric = rules.get(rule);
-      if (metric === undefined) throw new Error(`The edge web ACL has no rule ${rule} (infra/waf.ts).`);
-      return metric;
-    },
-  };
-}
-
-const place: AlarmPlace = { app: $app.name, stage: $app.stage, ...wafMetricNames() };
+const place: AlarmPlace = { app: $app.name, stage: $app.stage };
 
 function createAlarm(spec: AlarmSpec): aws.cloudwatch.MetricAlarm {
   return new aws.cloudwatch.MetricAlarm(`Alarm${spec.key.replace(/_/g, "")}`, {

@@ -75,7 +75,8 @@ What each group of statements is for:
 | `HarnessUnderlyingRuntime` | The runtime AgentCore creates under the Harness, named `harness_<AgentNamePrefix>*` |
 | `CloudControlTransport` | `awsnative.*` resources go through the Cloud Control API, IAM prefix `cloudformation` |
 | Edge policy | CloudFront functions `<app>-poc-*`, the bootstrap key-value store and the declared cache policy only |
-| `WebAclsOfThisApp` (edge policy) | The two web ACLs of the guest self-signup, by their fixed names `<app>-poc-edge` (`CLOUDFRONT`, created and associated by the Router through its distribution's `WebACLId`: `cloudfront:UpdateDistribution` behind the tag plus `wafv2:GetWebACL`, nothing else) and `<app>-poc-auth` (`REGIONAL`, on the user pool) |
+| `WebAclsOfThisApp` (edge policy) | The two web ACLs of the guest self-signup, by their fixed names `<app>-poc-edge` (`CLOUDFRONT`, retired: kept so the deploy can delete it) and `<app>-poc-auth` (`REGIONAL`, on the user pool) |
+| `SharedEdgeWebAcl` (edge policy) | `wafv2:GetWebACL` on the account's shared edge web ACL `demos-borde` only (created by `craftech/demos`): the Router looks it up by name and associates it through its distribution's `WebACLId` (`cloudfront:UpdateDistribution` behind the tag) |
 | `WafManagedRuleSetReferences` | `CreateWebACL`/`UpdateWebACL` also authorize the rule sets a rule references: the IP reputation and anonymous IP lists are AWS managed rule sets owned by AWS |
 | `WafListWebAcls` | `wafv2:ListWebACLs` has no resource-level permission; it returns names and ids, no rules |
 | `CognitoWebAclAssociation` | WAF authorizes an association on the web ACL **and** on the protected resource: the `auth` ACL and the user pools of the account; the pool's own side (`cognito-idp:AssociateWebACL`…) stays behind the `sst:app` tag of `TaggedAppResources`, like the `GuestSignupClient` and its generated secret |

@@ -15,7 +15,6 @@
 // A filter whose line no code writes yet (`pendingIn`) costs nothing: a custom metric bills only for
 // the hours it receives data.
 
-import { EDGE_CHALLENGE_ENFORCED } from "./guest-limits";
 import { LAMBDA_CAPABILITIES, expectedTables, resolveCapabilities, type CapabilityName, type LambdaName } from "./iam-capabilities";
 import { queueName, type QueueName } from "./workers-spec";
 
@@ -122,6 +121,8 @@ export const CODE_METRICS: readonly MetricSpec[] = [
   { name: "WhatsAppInboundRejected", emitters: ["InboundWhatsApp"], unit: count, source: "channels/whatsapp/inbound-message.ts" },
   { name: "WhatsAppSendFailed", emitters: ["InboundWhatsApp"], unit: count, source: "channels/whatsapp/events.ts" },
   { name: "MemoryPurgeDeferred", emitters: FACTORY, unit: count, source: "worlds/reset-work.ts" },
+  // Every refusal of a security rule (docs/architecture.md §12): which one, never who.
+  { name: "SecurityDecisions", emitters: ["Bff"], unit: count, dimensions: { decision: "$.decision" }, source: "lib/security-decision.ts" },
 ];
 
 export const METRICS: readonly MetricSpec[] = [...DOCUMENTED_METRICS, ...CODE_METRICS];
@@ -169,9 +170,7 @@ export function metricFilterSpecs(metrics: readonly MetricSpec[] = METRICS): Met
 export type AlarmTerm =
   | { readonly kind: "metric"; readonly metric: string; readonly stat: "Sum" | "Minimum"; readonly dimensions?: Readonly<Record<string, string>> }
   /** Messages of a queue: visible plus in flight (a message `dlq.find` is reading still counts). */
-  | { readonly kind: "queue"; readonly queue: QueueName; readonly inFlight: boolean }
-  /** A rule of the edge web ACL in `AWS/WAFV2` (infra/waf.ts names the rule metrics). */
-  | { readonly kind: "waf"; readonly rule: string; readonly metric: "BlockedRequests" | "ChallengeRequests" };
+  | { readonly kind: "queue"; readonly queue: QueueName; readonly inFlight: boolean };
 
 export interface AlarmSpec {
   /** `<app>-<stage>-<key>`. */
@@ -199,13 +198,8 @@ export const QA_DLQ_ALARM_KEY = "QaDlq";
 export const QA_DLQ_ALARM_LINK = "QaDlqAlarm";
 export const QA_DLQ_ALARM_ACTIONS = ["cloudwatch:DescribeAlarmHistory"] as const;
 
-/**
- * Rules of the edge web ACL that stop a sign-up request: the rate block of the public API (rule 3), and the
- * token guard (rule 6) only while it challenges (`EDGE_CHALLENGE_ENFORCED`; a counted request is not stopped).
- */
-type WafRuleMetric = { readonly rule: string; readonly metric: "BlockedRequests" | "ChallengeRequests" };
-const TOKEN_GUARD: WafRuleMetric = { rule: "SignupTokenGuard", metric: "ChallengeRequests" };
-export const WAF_SIGNUP_RULES: readonly WafRuleMetric[] = [{ rule: "PublicPostRate", metric: "BlockedRequests" }, ...(EDGE_CHALLENGE_ENFORCED ? [TOKEN_GUARD] : [])];
+/** The sign-up refusals of the code's caps (`SIGNUP_RATE_LIMITED`, lib/security-decision.ts): an attack, past 50 in 5 minutes. */
+export const SIGNUP_RATE_LIMITED_ALARM = { decision: "SIGNUP_RATE_LIMITED", threshold: 50, periodSeconds: FIVE_MINUTES } as const;
 
 /** The alarms of docs/architecture.md §12 (the two SES reputation alarms live in infra/leads.ts). Missing data never breaches. */
 export const ALARMS: readonly AlarmSpec[] = [
@@ -237,11 +231,11 @@ export const ALARMS: readonly AlarmSpec[] = [
   above("WorldCreateStuck", "A guest world creation made no progress in three attempts."),
   above("LeadNoticeFailed", "The internal notice of a new lead could not be sent."),
   {
-    key: "WafSignupBlocks",
-    description: "The edge web ACL stopped more than 50 sign-up or recovery requests in 5 minutes (its rate rule, and the token guard while it challenges).",
-    terms: WAF_SIGNUP_RULES.map(({ rule, metric }) => ({ kind: "waf", rule, metric })),
-    threshold: 50,
-    periodSeconds: FIVE_MINUTES,
+    key: "SignupRateLimited",
+    description: "The sign-up caps of the code refused more than 50 requests in 5 minutes (the shared edge's own blocks are counted by craftech/demos).",
+    terms: [sum("SecurityDecisions", { decision: SIGNUP_RATE_LIMITED_ALARM.decision })],
+    threshold: SIGNUP_RATE_LIMITED_ALARM.threshold,
+    periodSeconds: SIGNUP_RATE_LIMITED_ALARM.periodSeconds,
   },
   {
     key: "GuestWorldsQueued",
@@ -266,12 +260,10 @@ export interface MetricQuery {
   readonly metric?: { readonly namespace: string; readonly metricName: string; readonly stat: string; readonly period: number; readonly dimensions?: Readonly<Record<string, string>> };
 }
 
-/** What the queries of an alarm need from the stage: the queues' physical names and the WAF metric names. */
+/** What the queries of an alarm need from the stage: the queues' physical names. */
 export interface AlarmPlace {
   readonly app: string;
   readonly stage: string;
-  readonly wafWebAclMetric: string;
-  readonly wafRuleMetric: (rule: string) => string;
 }
 
 const QUEUE_METRICS = { visible: "ApproximateNumberOfMessagesVisible", inFlight: "ApproximateNumberOfMessagesNotVisible" } as const;
@@ -285,8 +277,6 @@ function termQueries(term: AlarmTerm, period: number, place: AlarmPlace): Array<
       const names = term.inFlight ? [QUEUE_METRICS.visible, QUEUE_METRICS.inFlight] : [QUEUE_METRICS.visible];
       return names.map((metricName) => ({ namespace: "AWS/SQS", metricName, stat: "Maximum", period, dimensions }));
     }
-    case "waf":
-      return [{ namespace: "AWS/WAFV2", metricName: term.metric, stat: "Sum", period, dimensions: { WebACL: place.wafWebAclMetric, Rule: place.wafRuleMetric(term.rule) } }];
   }
 }
 

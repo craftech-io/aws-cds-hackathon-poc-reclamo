@@ -8,6 +8,7 @@ import { checkEmailShape } from "./email-domain";
 import { leadsKeys } from "../leads/keys";
 import { type PasswordForgotResult, type PasswordResetResult, passwordProblem } from "./schemas";
 import { type SignupServiceDeps, auditEdge } from "./service-deps";
+import { SECURITY_DECISION, recordSecurityDecision } from "../lib/security-decision";
 
 /** The self-signup account of an email (its `sub` and username), or `undefined` for any other address. */
 export async function selfSignupAccount(deps: SignupServiceDeps, rawEmail: string): Promise<{ readonly sub: string; readonly email: string } | undefined> {
@@ -29,6 +30,7 @@ export function passwordService(deps: SignupServiceDeps) {
     async forgot(input: { readonly email: string; readonly locale: "es" | "en" }, viewerIp: string): Promise<PasswordForgotResult> {
       const ipHash = deps.hashes.ipHash(viewerIp);
       if (!(await deps.caps.recoveryFromIp(ipHash))) {
+        recordSecurityDecision(deps.log, SECURITY_DECISION.RECOVERY_RATE_LIMITED);
         await auditEdge(deps, { action: "SIGNUP_REJECTED", outcome: "RATE_LIMITED", refs: { step: "recovery", ipHash: ipHash.slice(0, 16) } });
         return { status: "RATE_LIMITED" };
       }

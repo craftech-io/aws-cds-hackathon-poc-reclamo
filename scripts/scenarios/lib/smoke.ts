@@ -7,9 +7,10 @@
 //           GUEST's tokens issued before the reset still accepted by the deployed verifier (its `STAFF#`
 //           row survived). `world.destroy` runs in the cleanup.
 //   SMK/10  sign-up surface behind the WAF and the edge (lib/edge.ts): `/signup` and `/login/recover` show
-//           their forms in a browser that enforces the CSP (rules 5 and 6 of the edge ACL count,
-//           EDGE_CHALLENGE_ENFORCED; a challenge they could not run would leave the page blank),
-//           `signup.availability = open`
+//           their forms in a browser that enforces the CSP, `signup.availability = open`. The edge is the
+//           account's shared web ACL, which blocks the sign-up from hosting addresses
+//           (SHARED_EDGE_BLOCKS_HOSTING_SIGNUP): a refusal of the runner by the edge is a warning, never a
+//           failure, and never read as a closed sign-up
 //           (ADR-0021 §1: `seed:load` opens `SWITCH#SIGNUP` and `KILL#SIGNUP` is absent); the Cognito web
 //           ACL refuses the `ConsoleClient` and the `ServerClient` (`probe.cognitoClients`). That no account
 //           without `@` has a verified email is checked by deploy.yml (`console:unverify-staff -- --check`
@@ -18,7 +19,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { QA_SIGNUP_PHONE } from "@reclamo/bff/guests/signup";
 import { consoleCall } from "./console";
-import { EDGE_CHALLENGE_ENFORCED } from "../../../infra/guest-limits";
+import { SHARED_EDGE_BLOCKS_HOSTING_SIGNUP } from "../../../infra/guest-limits";
 import { SIGNUP_DOCUMENTS, WAF_ACTION_HEADER, consoleClientId, cspViolations, directForgotPassword, launchBrowser, openForm, publicAnswerOf, publicPostInPage, publicPostOutside, signupOpsBlocked } from "./edge";
 import { WAITS } from "./eventually";
 import { type Page, consoleQuery, fetchPage, trpcData } from "./site";
@@ -108,9 +109,18 @@ export function availabilityProblem(page: Page): string | undefined {
   return availability?.status === "open" ? undefined : `signup.availability is ${availability?.status ?? "unanswered"}, expected open (ADR-0021 §1)`;
 }
 
+/** A refusal of the runner by the shared edge: a warning while it blocks the sign-up from hosting addresses. */
+function edgeRefusedRunner(ctx: ScenarioContext, refused: boolean, what: string): boolean {
+  if (!refused || !SHARED_EDGE_BLOCKS_HOSTING_SIGNUP) return false;
+  ctx.warn(`the shared edge refused ${what} from the runner (a hosting address): not checked here`);
+  return true;
+}
+
 export async function signupSurface(ctx: ScenarioContext): Promise<void> {
-  const problem = availabilityProblem(await fetchPage("/api/public/signup.availability", { headers: { accept: "application/json" } }));
-  ctx.check(problem === undefined, problem ?? "");
+  const availability = await fetchPage("/api/public/signup.availability", { headers: { accept: "application/json" } });
+  const problem = availabilityProblem(availability);
+  const availabilityRefused = publicAnswerOf(availability.status, availability.headers["content-type"] ?? "", availability.headers[WAF_ACTION_HEADER], availability.body).edgeRefused;
+  if (!edgeRefusedRunner(ctx, availabilityRefused, "GET signup.availability")) ctx.check(problem === undefined, problem ?? "");
 
   const browser = await launchBrowser();
   try {
@@ -122,16 +132,19 @@ export async function signupSurface(ctx: ScenarioContext): Promise<void> {
       const violations = await cspViolations(page, async () => {
         form = await openForm(page, path);
       });
+      if (edgeRefusedRunner(ctx, form?.shown !== true && form?.status === 403, `GET ${path}`)) continue;
       ctx.check(form?.shown === true, `GET ${path} (text/html) answered ${form?.status ?? "nothing"}${form?.wafAction ? ` ${form.wafAction}` : ""} and its form never showed under the CSP`);
       ctx.check(violations.length === 0, `CSP violations on ${path}: ${violations.join(" | ")}`);
     }
 
     const inside = await publicPostInPage(page, "signup.start", reservedSignup(ctx.runId));
-    ctx.check(inside.result === "EMAIL_NOT_ACCEPTED", `signup.start through the edge answered ${inside.status} ${inside.result ?? "(no status)"}, expected EMAIL_NOT_ACCEPTED`);
+    if (!edgeRefusedRunner(ctx, inside.edgeRefused, "signup.start in the page")) {
+      ctx.check(inside.result === "EMAIL_NOT_ACCEPTED", `signup.start through the edge answered ${inside.status} ${inside.result ?? "(no status)"}, expected EMAIL_NOT_ACCEPTED`);
+    }
     const outside = await publicPostOutside("signup.start", reservedSignup(ctx.runId));
-    // Rule 6 counts (no token to require); with EDGE_CHALLENGE_ENFORCED it would stop the runner's POST.
-    const outsideOk = EDGE_CHALLENGE_ENFORCED ? outside.edgeRefused : !outside.edgeRefused && outside.result === "EMAIL_NOT_ACCEPTED";
-    ctx.check(outsideOk, `signup.start from outside a browser answered ${outside.status} ${outside.result ?? ""}, expected ${EDGE_CHALLENGE_ENFORCED ? "the edge's refusal" : "the Bff's EMAIL_NOT_ACCEPTED"}`);
+    if (!edgeRefusedRunner(ctx, outside.edgeRefused, "signup.start outside a browser")) {
+      ctx.check(outside.result === "EMAIL_NOT_ACCEPTED", `signup.start from outside a browser answered ${outside.status} ${outside.result ?? ""}, expected the Bff's EMAIL_NOT_ACCEPTED`);
+    }
 
     const edge = (await ctx.qa("probe.edge", {})) as { status: number; reason: string | null; refused: boolean };
     ctx.check(edge.refused, `the Bff's Function URL without the edge header answered ${edge.status} ${edge.reason ?? ""}, expected 403 EDGE_REQUIRED`);

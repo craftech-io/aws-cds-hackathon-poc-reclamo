@@ -34,6 +34,20 @@ export function viewerIpOf(headers: Headers): string | undefined {
   return value && /^[0-9a-f:.]{2,45}$/i.test(value) ? value : undefined;
 }
 
+/**
+ * The address of the access line: the one the Router wrote (and the caps count) when the request came
+ * through it; for one that did not, the Function URL's own source address, never a header it sent.
+ */
+export function accessIpOf(event: APIGatewayProxyEventV2, edgeKey: () => string): string | undefined {
+  let key = "";
+  try {
+    key = edgeKey();
+  } catch {
+    key = "";
+  }
+  return (edgeVerified(event.headers, key) ? viewerIpOf(event.headers) : undefined) ?? event.requestContext?.http?.sourceIp;
+}
+
 export type EdgeHandler = (event: APIGatewayProxyEventV2, context: LambdaContext) => Promise<APIGatewayProxyStructuredResultV2>;
 
 export interface EdgeGuardOptions {

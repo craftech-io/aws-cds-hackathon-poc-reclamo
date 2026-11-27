@@ -307,7 +307,7 @@ describe("creation order: targets in series → permits → forbids → Harness 
     const harness = one("awsnative.Harness", "AgentHarness");
     expect(dependsOn(harness)).toEqual(["AgentHarnessRolePolicy", ...all("awsnative.Policy").map((policy) => policy.name)]);
     const logGroup = one("aws.cloudwatch.LogGroup", "HarnessRuntimeLogsLive");
-    expect(logGroup.args.retentionInDays).toBe(30);
+    expect(logGroup.args.retentionInDays).toBe(14);
     expect(dependsOn(logGroup)).toEqual(["AgentHarness"]);
     const endpoint = one("awsnative.HarnessEndpoint", "AgentHarnessEndpoint");
     expect(endpoint.args.endpointName).toBe("live");

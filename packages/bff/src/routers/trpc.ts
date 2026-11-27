@@ -36,6 +36,8 @@ import type { SecondFactorCheck } from "../second-factor/service";
 import { type ContextDeps, defaultDeps } from "./deps";
 import { VIEWER_IP_HEADER } from "./edge-guard";
 import { reasonOf, toTrpcError } from "./errors";
+import { noteVerifiedSub } from "../lib/access-log";
+import { SECURITY_DECISION, type SecurityDecision, recordSecurityDecision } from "../lib/security-decision";
 
 /** Mutable hints a procedure leaves for the HTTP answer (routers/handler.ts). */
 export interface ResponseHints {
@@ -188,11 +190,22 @@ async function audit(ctx: Context, path: string, error: AuthError, principal: Pr
   }
 }
 
+// Refusals that are a security rule, named in the log (lib/security-decision.ts).
+const DECISION_OF: Partial<Record<AuthReason, SecurityDecision>> = {
+  PHONE_VERIFICATION_REQUIRED: SECURITY_DECISION.SECOND_FACTOR_PENDING,
+  ACCOUNT_BLOCKED: SECURITY_DECISION.ACCOUNT_BLOCKED,
+  CROSS_WORLD: SECURITY_DECISION.CROSS_WORLD,
+  STAFF_INACTIVE: SECURITY_DECISION.STAFF_INACTIVE,
+  SERVER_CLIENT_AUDIENCE: SECURITY_DECISION.SERVER_CLIENT_AUDIENCE,
+};
+
 /** Logs, audits (when the principal is known) and throws the HTTP answer of a refusal. */
 export async function deny(ctx: Context, path: string, error: AuthError, principal?: Principal, world?: WorldMeta): Promise<never> {
   const fields = { path, reason: error.reason, ...(error.unavailable ? describeError(error.cause) : {}) };
   if (error.unavailable) ctx.log.error("console.auth.unavailable", fields);
   else ctx.log.warn("console.auth.refused", fields);
+  const decision = DECISION_OF[error.reason];
+  if (decision) recordSecurityDecision(ctx.log, decision, path);
   if (principal) await audit(ctx, path, error, principal, world);
   throw new TRPCError({ code: TRPC_CODE[AUTH_REFUSAL[error.reason]], message: error.message, cause: error });
 }
@@ -206,6 +219,7 @@ export const worldProcedure = baseProcedure.use(async ({ ctx, next, path, type }
   if (!outcome.ok) return deny(ctx, path, outcome.error, outcome.principal, outcome.world);
 
   const { principal, world } = outcome;
+  if (principal.audience !== "in-process") noteVerifiedSub(principal.sub);
   const log = ctx.log.child({ worldId: principal.worldId, staffId: principal.staffId, role: principal.role });
   const worldContext: WorldContext = { ...ctx, principal, world, log };
   // A session that has not passed the SMS code reaches only who it is and the code (docs/architecture-guests.md §17).
