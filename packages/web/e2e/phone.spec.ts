@@ -10,7 +10,7 @@ import { TOKENS_KEY } from "../src/lib/auth/tokens.ts";
 import { selfSignupTokens } from "../src/lib/auth/testing/guest-e2e.ts";
 import { copy } from "../src/copy/console.ts";
 import { AUTH_COPY } from "../src/views/login/auth-copy.ts";
-import { type ApiAnswer, NOT_IMPLEMENTED, routeApi } from "./support/api-route";
+import { type ApiAnswer, NOT_IMPLEMENTED, refusal, routeApi } from "./support/api-route";
 import { plantSession } from "./support/session";
 
 const es = AUTH_COPY.es;
@@ -141,5 +141,38 @@ test.describe("every sign-in asks for its code [FL-130] [FL-131]", () => {
     await page.getByRole("button", { name: es.phone.signOut }).click();
     await expect.poll(() => calls.filter((call) => call.path === "phone.endSession").length).toBe(1);
     await expect(page).toHaveURL(/\/$/);
+  });
+});
+
+test.describe("a blocked account [FL-132]", () => {
+  const BLOCKED = refusal("FORBIDDEN", 403, "ACCOUNT_BLOCKED");
+
+  for (const viewport of VIEWPORTS) {
+    test(`[FL-132] sees only the notice with Craftech's contact on a ${viewport.name}, and nothing of the console is asked`, async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      const calls = await routeApi(page, (): ApiAnswer => BLOCKED);
+      await plantSession(page, { username: "guest-03", role: "GUEST", worldId: "g03" });
+      await page.goto("/app/inbox");
+      await expect(page.getByRole("heading", { name: es.phone.blocked.title })).toBeVisible();
+      await expect(page.getByRole("link", { name: es.phone.contact })).toHaveAttribute("href", /utm_content=account-blocked/);
+      await expectNoHorizontalScroll(page);
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls.filter((call) => call.path !== "phone.status")).toEqual([]);
+    });
+  }
+
+  test("[FL-132] a block that lands while the code screen is open leads to the notice", async ({ page }) => {
+    let blocked = false;
+    await routeApi(page, (path): ApiAnswer => {
+      if (path === "phone.status" && !blocked) return { data: { state: "SIGN_IN", lastDigits: "0100", codeSent: true, resendAvailableAtReal: inAMinute() } };
+      blocked = true;
+      return BLOCKED;
+    });
+    await plantSession(page, { username: "operator-01", role: "OPERATOR", worldId: "demo" });
+    await page.goto("/app/inbox?lang=en");
+    await expect(page.getByRole("heading", { name: en.phone.signInTitle })).toBeVisible();
+    await page.getByLabel(en.phone.code, { exact: true }).fill("123456");
+    await page.getByRole("button", { name: en.phone.verify }).click();
+    await expect(page.getByRole("heading", { name: en.phone.blocked.title })).toBeVisible();
   });
 });

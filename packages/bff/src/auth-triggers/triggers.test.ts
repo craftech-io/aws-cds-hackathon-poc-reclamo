@@ -112,6 +112,13 @@ describe("pre-token trigger: world, role and staff id only from the staff row [F
     expect(await refusalOf(handler(tokenEvent()))).toBe(ACCESS_DENIED);
   });
 
+  it("[FL-132] refuses a refresh of an account an operator blocked, and audits why", async () => {
+    const { handler, directory, audit } = setup();
+    directory.putStaff(staffRow("g03", "stf-guest-03", "GUEST", GUEST_SUB, { blocked: true }));
+    expect(await refusalOf(handler(tokenEvent()))).toBe(ACCESS_DENIED);
+    expect(audit.entries.map((entry) => entry.outcome)).toContain("ACCOUNT_BLOCKED");
+  });
+
   it.each<[string, WorldStatus | null]>([
     ["REGISTERED", "REGISTERED"],
     ["CREATING", "CREATING"],

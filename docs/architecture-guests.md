@@ -392,3 +392,29 @@ Decisión del dueño (27/11/2026), después de que se pasara el código de una d
 
 Un celular ya verificado no se vuelve a juzgar contra los rangos en un ingreso (el número no lo cambia el usuario, §17.2); sus SMS sí cuentan para el cupo de fuera. La web aplica las mismas funciones (`checkPhone`) para avisar antes de mandar; decide el BFF.
 
+## 18. Cuenta bloqueada por el operador
+
+Decisión del dueño (27/11/2026): en una demo hermana una cuenta ya deshabilitada en Cognito siguió pidiendo códigos por SMS y usando la demo con su pase vigente, porque el id token se verifica sin consultar a Cognito. Flujo FL-132.
+
+**Lo que ya existía.** El BFF relee la fila `STAFF#` del token en cada pedido (`auth/authenticate.ts`) y rechaza una fila con `active: false` (`STAFF_INACTIVE`); el trigger pre-token también. Pero deshabilitar la cuenta solo en Cognito no toca esa fila, la fila se guarda en caché un minuto por contenedor (`withStaffCache`) y `active: false` también lo usan el vencimiento de los mundos de alta propia y `leads:delete`. El bloqueo reutiliza esa misma lectura con una marca propia, sin otro registro ni otra consulta por pedido.
+
+**La marca.** `blocked: true` y `blockedAtReal` en cada fila `STAFF#` del `sub` de la cuenta. La escribe y la quita **solo** `scripts/console/block.ts` con el profile del operador; ningún procedimiento la escribe. Al quitarla, `active` queda como estaba.
+
+| Dónde | Qué hace con la marca |
+|---|---|
+| `worldProcedure` (`auth/authenticate.ts`) | `403 ACCOUNT_BLOCKED` a **todo** procedimiento, antes del segundo factor: también `account.session` y `phone.*`. Auditado `DENY ACCOUNT_BLOCKED` |
+| `phone.sendCode` y `phone.verify` (`routers/phone.ts`) | Antes de mandar un SMS o de mirar un código, relee la fila con lectura fuerte y **sin** la caché del contenedor (`SecondFactorService.blocked`): un bloqueo de hace un segundo ya frena todo SMS y todo código |
+| Trigger pre-token | Niega todo ingreso y todo refresh (`ACCOUNT_BLOCKED`) |
+| Web (`views/phone/PhoneGate.tsx`, `BlockedScreen.tsx`) | Ante `ACCOUNT_BLOCKED` muestra solo el aviso «Tu cuenta está bloqueada» / «Your account is blocked» con el contacto de Craftech (`utm_content=account-blocked`) y "Salir" |
+
+**El script** (`npm run console:block`, dentro de `sst shell`, con el profile de la cuenta; no necesita permisos nuevos del app):
+
+```
+npm run console:block -- --user <usuario o email>         # bloquear
+npm run console:block -- --user <usuario o email> --off   # desbloquear
+```
+
+Bloquear, en este orden: la marca en cada fila `STAFF#` del `sub` (desde esa escritura el BFF rechaza la cuenta), `AdminDisableUser`, `AdminUserGlobalSignOut` (los refresh tokens dejan de servir) y el borrado de los pases del código por SMS de sus sesiones (`Runtime/SECONDFACTOR#<sub>#*`, con un `Scan` filtrado: su clave lleva un hash de sesión que ningún índice encuentra). Desbloquear: `AdminEnableUser` y la marca quitada; la próxima vez que ingrese, la cuenta vuelve a pasar el código por SMS. Los dos son idempotentes y se auditan en `AuditLog` (`SIGNUP#AUD#<mes>`, `ACCOUNT_BLOCKED` / `ACCOUNT_UNBLOCKED`, solo con los ids de personal). El usuario puede ser un nombre sin `@` (`operator-01`, `guest-07`) o un email (el nombre de usuario de un alta propia, o el atributo `email` de una cuenta de personal). El reporte nombra la cuenta por el prefijo de su `sub`, nunca por su email.
+
+**Límite conocido.** Fuera del código por SMS, un contenedor que leyó la fila antes del bloqueo puede seguir aceptando la sesión hasta 60 s (la caché de filas) y un pase leído hasta 60 s (`passCacheSeconds`); el script borra los pases, y el SMS y el código se frenan en el acto.
+

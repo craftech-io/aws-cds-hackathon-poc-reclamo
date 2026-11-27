@@ -116,6 +116,7 @@ export const AUTH_EN: AuthCopy = {
     sent: "We texted you a code. It expires in 10 minutes.",
     contact: "Contact us",
     signOut: "Sign out",
+    blocked: { title: "Your account is blocked", lead: "You can't use the demo with this account. If you think this is a mistake, contact us and we'll look into it." },
     errors: {
       invalidPhone: "Enter your mobile with its international prefix, for example +1 202 555 0123.",
       notPersonal: "Use a personal mobile.",

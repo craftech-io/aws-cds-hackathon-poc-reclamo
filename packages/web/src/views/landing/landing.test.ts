@@ -117,7 +117,7 @@ describe("landing copy [FL-102]", () => {
 
 describe("calls to action [FL-102]", () => {
   it("sends every 'Hablemos' to Craftech's contact form with the placement as utm_content", () => {
-    expect(CONTACT_PLACEMENTS).toEqual(["header", "drawer", "hero", "closing", "footer", "signup-unavailable", "phone-verification"]);
+    expect(CONTACT_PLACEMENTS).toEqual(["header", "drawer", "hero", "closing", "footer", "signup-unavailable", "phone-verification", "account-blocked"]);
     for (const placement of CONTACT_PLACEMENTS) {
       expect(contactHref(placement)).toBe(`https://craftech.io/contact/?utm_source=reclamo-en-regla&utm_medium=demo&utm_campaign=poc-landing&utm_content=${placement}`);
     }

@@ -32,6 +32,13 @@ export function passed(status: PhoneStatus): boolean {
   return status.state === "PASSED" || status.state === "EXEMPT";
 }
 
+/** The BFF's answer to every procedure of an account an operator blocked. */
+export const ACCOUNT_BLOCKED_REASON = "ACCOUNT_BLOCKED";
+
+export function accountBlocked(reason: string | null): boolean {
+  return reason === ACCOUNT_BLOCKED_REASON;
+}
+
 /** Whole seconds until another code may be asked for (0 = now). */
 export function secondsUntil(atReal: string | undefined, now: number): number {
   if (atReal === undefined) return 0;

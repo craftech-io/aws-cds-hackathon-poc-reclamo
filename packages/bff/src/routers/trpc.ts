@@ -163,6 +163,7 @@ const TRPC_CODE: Readonly<Record<AuthRefusal, TRPCError["code"]>> = {
 const AUDITED: Partial<Record<AuthReason, string>> = {
   SERVER_CLIENT_AUDIENCE: "SERVER_CLIENT_AUDIENCE",
   STAFF_INACTIVE: "STAFF_INACTIVE",
+  ACCOUNT_BLOCKED: "ACCOUNT_BLOCKED",
   CROSS_WORLD: "CROSS_WORLD",
   READ_ONLY_ROLE: "ROLE",
   ROLE_NOT_ALLOWED: "ROLE",
@@ -188,7 +189,7 @@ async function audit(ctx: Context, path: string, error: AuthError, principal: Pr
 }
 
 /** Logs, audits (when the principal is known) and throws the HTTP answer of a refusal. */
-async function deny(ctx: Context, path: string, error: AuthError, principal?: Principal, world?: WorldMeta): Promise<never> {
+export async function deny(ctx: Context, path: string, error: AuthError, principal?: Principal, world?: WorldMeta): Promise<never> {
   const fields = { path, reason: error.reason, ...(error.unavailable ? describeError(error.cause) : {}) };
   if (error.unavailable) ctx.log.error("console.auth.unavailable", fields);
   else ctx.log.warn("console.auth.refused", fields);

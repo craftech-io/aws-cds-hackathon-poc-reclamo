@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AUTH_COPY } from "../login/auth-copy";
-import { PhoneStatus, SendCodeAnswer, VerifyAnswer, codeOf, passed, secondsUntil, sendProblem, verifyProblem } from "./phone-model";
+import { PhoneStatus, SendCodeAnswer, VerifyAnswer, accountBlocked, codeOf, passed, secondsUntil, sendProblem, verifyProblem } from "./phone-model";
 
 const errors = AUTH_COPY.es.phone.errors;
 
@@ -34,6 +34,14 @@ describe("the SMS-code screen [FL-129] [FL-130] [FL-131]", () => {
     expect(verifyProblem(VerifyAnswer.parse({ status: "CODE_MISMATCH", attemptsLeft: 0 }), errors)?.text).toBe(errors.burnt);
     expect(verifyProblem(VerifyAnswer.parse({ status: "CODE_EXPIRED" }), errors)?.text).toBe(errors.expired);
     expect(verifyProblem(VerifyAnswer.parse({ status: "VERIFIED" }), errors)).toBeUndefined();
+  });
+
+  it("[FL-132] tells a blocked account apart, with its notice in both languages", () => {
+    expect(accountBlocked("ACCOUNT_BLOCKED")).toBe(true);
+    expect(accountBlocked("STAFF_INACTIVE")).toBe(false);
+    expect(accountBlocked(null)).toBe(false);
+    expect(AUTH_COPY.es.phone.blocked.title).toBe("Tu cuenta está bloqueada");
+    expect(AUTH_COPY.en.phone.blocked.title).toBe("Your account is blocked");
   });
 
   it("reads six digits from what was typed or pasted", () => {

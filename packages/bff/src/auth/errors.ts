@@ -11,6 +11,11 @@ export const AUTH_REASON = {
   SERVER_CLIENT_AUDIENCE: "SERVER_CLIENT_AUDIENCE",
   /** The staff row named by the token does not exist, is inactive, has another role or another `sub`. */
   STAFF_INACTIVE: "STAFF_INACTIVE",
+  /**
+   * An operator blocked the account (scripts/console/block.ts): every procedure answers this, the SMS
+   * code included, so no SMS is sent and no code is accepted (docs/architecture-guests.md §18).
+   */
+  ACCOUNT_BLOCKED: "ACCOUNT_BLOCKED",
   ROLE_NOT_ALLOWED: "ROLE_NOT_ALLOWED",
   /** Every mutation is refused to `COMPLIANCE` (FL-095). */
   READ_ONLY_ROLE: "READ_ONLY_ROLE",
@@ -46,6 +51,7 @@ export const AUTH_REFUSAL: Readonly<Record<AuthReason, AuthRefusal>> = {
   PRINCIPAL_INCOMPLETE: "UNAUTHENTICATED",
   SERVER_CLIENT_AUDIENCE: "UNAUTHENTICATED",
   STAFF_INACTIVE: "FORBIDDEN",
+  ACCOUNT_BLOCKED: "FORBIDDEN",
   ROLE_NOT_ALLOWED: "FORBIDDEN",
   READ_ONLY_ROLE: "FORBIDDEN",
   CROSS_WORLD: "FORBIDDEN",

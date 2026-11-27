@@ -12,7 +12,7 @@ export { SIGNUP_PATH };
 export const CRAFTECH_CONTACT_URL = "https://craftech.io/contact/";
 
 /** Every place a "Hablemos" button lives, sent as `utm_content` (ADR-0021 §2); the last one is /signup's closed notice. */
-export const CONTACT_PLACEMENTS = ["header", "drawer", "hero", "closing", "footer", "signup-unavailable", "phone-verification"] as const;
+export const CONTACT_PLACEMENTS = ["header", "drawer", "hero", "closing", "footer", "signup-unavailable", "phone-verification", "account-blocked"] as const;
 export type ContactPlacement = (typeof CONTACT_PLACEMENTS)[number];
 
 const CONTACT_UTM = { utm_source: "reclamo-en-regla", utm_medium: "demo", utm_campaign: "poc-landing" } as const;

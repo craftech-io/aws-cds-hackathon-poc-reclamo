@@ -9,7 +9,8 @@ import { EXTERNAL_LINK, contactHref } from "../landing/links";
 import { AuthLayout } from "../login/AuthLayout";
 import { useAuthLang } from "../login/auth-lang";
 import { CodeField, ErrorNote, Field, LinkButton, NoticeNote, StepHeading, SubmitButton } from "../login/form-parts";
-import { type PhoneProblem, type PhoneStatus, SendCodeAnswer, VerifyAnswer, codeOf, secondsUntil, sendProblem, verifyProblem } from "./phone-model";
+import { apiErrorOf } from "../../lib/api-error";
+import { type PhoneProblem, type PhoneStatus, SendCodeAnswer, VerifyAnswer, accountBlocked, codeOf, secondsUntil, sendProblem, verifyProblem } from "./phone-model";
 
 type Pending = Extract<PhoneStatus, { readonly state: "ENROL" | "SIGN_IN" }>;
 
@@ -67,7 +68,9 @@ export function PhoneScreen({ status, onPassed }: { readonly status: Pending; re
       if (answer.status === "CODE_SENT" || answer.status === "RESEND_TOO_SOON") setResendAt(answer.resendAvailableAtReal);
       if (answer.status === "CODE_SENT") setCodeSent(true);
       setProblem(sendProblem(answer, text.errors));
-    } catch {
+    } catch (error) {
+      // A block written meanwhile: the gate re-reads the status and shows the notice.
+      if (accountBlocked(apiErrorOf(error).reason)) return onPassed();
       setProblem({ text: text.errors.failed, contact: false });
     } finally {
       setBusy(false);
@@ -98,7 +101,9 @@ export function PhoneScreen({ status, onPassed }: { readonly status: Pending; re
       setCode("");
       if (answer.status === "CODE_MISMATCH" && answer.attemptsLeft === 0) setCodeSent(false);
       setProblem(verifyProblem(answer, text.errors));
-    } catch {
+    } catch (error) {
+      // A block written meanwhile: the gate re-reads the status and shows the notice.
+      if (accountBlocked(apiErrorOf(error).reason)) return onPassed();
       setProblem({ text: text.errors.failed, contact: false });
     } finally {
       setBusy(false);

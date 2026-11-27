@@ -109,6 +109,7 @@ export const AUTH_ES: AuthCopy = {
     sent: "Te mandamos un código por SMS. Vence en 10 minutos.",
     contact: "Escribinos",
     signOut: "Salir",
+    blocked: { title: "Tu cuenta está bloqueada", lead: "No podés usar la demo con esta cuenta. Si creés que es un error, escribinos y lo revisamos." },
     errors: {
       invalidPhone: "Escribí tu celular con el prefijo internacional, por ejemplo +54 9 11 1234 5678.",
       notPersonal: "Usá un celular personal.",

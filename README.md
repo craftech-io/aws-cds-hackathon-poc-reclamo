@@ -300,7 +300,12 @@ confirmed sign-up is a lead in the `Leads` table, apart from the demo data: an e
 logs, the compliance tape, audit trails, metrics or demo exports, and the guest's email only receives
 Cognito's messages. The data controller is Craftech (Ciudad Autónoma de Buenos Aires, Argentina);
 privacy requests go to `sales@craftech.io` or https://craftech.io/contact/. Operators export and
-delete leads with `npm run leads:export` and `npm run leads:delete`.
+delete leads with `npm run leads:export` and `npm run leads:delete`. An operator blocks a console
+account with `npm run console:block -- --user <username or email>` (it marks the account's staff
+rows so every request is refused as `ACCOUNT_BLOCKED`, the SMS code included, disables it in
+Cognito, signs it out everywhere and deletes its SMS-code passes) and unblocks it with
+`npm run console:block -- --user <username or email> --off`
+(`docs/architecture-guests.md` §18).
 
 ## Submission notes
 

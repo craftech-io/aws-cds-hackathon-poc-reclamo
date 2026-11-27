@@ -139,6 +139,20 @@ export function worldsRepo(ctx: RepoContext) {
         update: { set: { active, updatedAt: ctx.now().toISOString() }, add: { version: 1 } },
       });
     },
+
+    /** The operator's block of an account (scripts/console/block.ts); clearing it leaves `active` as it was. */
+    async setStaffBlocked(worldId: string, staffId: string, blocked: boolean): Promise<void> {
+      const at = ctx.now().toISOString();
+      await ctx.store.write({
+        kind: "update",
+        table: TABLE,
+        key: keys.staff(worldId, staffId),
+        condition: cond.present(),
+        update: blocked
+          ? { set: { blocked: true, blockedAtReal: at, updatedAt: at }, add: { version: 1 } }
+          : { set: { updatedAt: at }, remove: ["blocked", "blockedAtReal"], add: { version: 1 } },
+      });
+    },
   };
 }
 

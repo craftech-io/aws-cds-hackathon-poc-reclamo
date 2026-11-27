@@ -8,7 +8,7 @@ import { AUTH_REASON, AuthError } from "./errors";
 import { isSignupWorld } from "./guest-identity";
 import { type IdTokenVerifier, bearerToken } from "./jwt";
 import { type GuestWorldOf, type Principal, inProcessWorldAllowed, principalFromClaims, serverClientAllowed } from "./principal";
-import { type StaffRow, type WorldDirectory, type WorldMeta, staffRowActive } from "./staff";
+import { type StaffRow, type WorldDirectory, type WorldMeta, staffRowActive, staffRowBlocked } from "./staff";
 
 export interface AuthenticationDeps {
   readonly verifier: IdTokenVerifier;
@@ -63,6 +63,10 @@ export async function authenticateToken(authorization: string | undefined, deps:
   const { row, world } = read;
   if (!serverClientAllowed(principal, row)) {
     return refused(new AuthError(AUTH_REASON.SERVER_CLIENT_AUDIENCE, "this audience is accepted only for QA users of QA worlds"), principal, world);
+  }
+  // An operator's block wins over everything else the row says, and is told apart so the console can say so.
+  if (staffRowBlocked(row, principal.sub)) {
+    return refused(new AuthError(AUTH_REASON.ACCOUNT_BLOCKED, "this account is blocked"), principal, world);
   }
   // The row must still exist, be active, belong to this `sub` and grant the role the token carries.
   if (!staffRowActive(row, principal.sub) || row.worldId !== principal.worldId || row.role !== principal.role) {

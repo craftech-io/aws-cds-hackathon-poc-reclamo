@@ -48,6 +48,7 @@
     "console:invite": "sst shell --stage poc -- tsx scripts/console/invite.ts",
     "console:check-guests": "sst shell --stage poc -- tsx scripts/console/check-guests.ts",
     "console:unverify-staff": "sst shell --stage poc -- tsx scripts/console/unverify-staff.ts",
+    "console:block": "sst shell --stage poc -- tsx scripts/console/block.ts",
     "leads:export": "sst shell --stage poc -- tsx scripts/leads/export.ts",
     "leads:delete": "sst shell --stage poc -- tsx scripts/leads/delete.ts",
     "leads:notice-test": "sst shell --stage poc -- tsx scripts/leads/notice-test.ts",

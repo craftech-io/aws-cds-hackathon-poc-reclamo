@@ -3,16 +3,18 @@
 // code, shows the SMS-code screen instead of the views. An automation account (exempt on the server)
 // and a passed session go straight in. The BFF refuses every other procedure of a session that has not
 // passed it (PHONE_VERIFICATION_REQUIRED), so a status that cannot be read lets the console try and
-// the server decides; only an expired token goes back to the sign-in.
+// the server decides; only an expired token goes back to the sign-in. A blocked account (ACCOUNT_BLOCKED,
+// docs/architecture-guests.md §18) sees only the notice with Craftech's contact.
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { FullScreenMessage } from "../../components/FullScreenMessage";
 import { useSession } from "../../context/SessionContext";
 import { apiErrorOf } from "../../lib/api-error";
 import { AuthLangProvider, useAuthLang } from "../login/auth-lang";
-import { PhoneStatus, passed } from "./phone-model";
+import { BlockedScreen } from "./BlockedScreen";
+import { PhoneStatus, accountBlocked, passed } from "./phone-model";
 import { PhoneScreen } from "./PhoneScreen";
 
-type GateState = { readonly kind: "loading" } | { readonly kind: "open" } | { readonly kind: "pending"; readonly status: Extract<PhoneStatus, { readonly state: "ENROL" | "SIGN_IN" }> };
+type GateState = { readonly kind: "loading" } | { readonly kind: "open" } | { readonly kind: "blocked" } | { readonly kind: "pending"; readonly status: Extract<PhoneStatus, { readonly state: "ENROL" | "SIGN_IN" }> };
 
 function Loading() {
   const { copy } = useAuthLang();
@@ -35,8 +37,9 @@ export function PhoneGate({ children }: { readonly children: ReactNode }) {
       },
       (error: unknown) => {
         if (!live) return;
-        if (apiErrorOf(error).kind === "unauthorized") expireSession();
-        else setState({ kind: "open" });
+        const problem = apiErrorOf(error);
+        if (problem.kind === "unauthorized") expireSession();
+        else setState(accountBlocked(problem.reason) ? { kind: "blocked" } : { kind: "open" });
       },
     );
     return () => {
@@ -50,5 +53,6 @@ export function PhoneGate({ children }: { readonly children: ReactNode }) {
   }, []);
 
   if (state.kind === "open") return <>{children}</>;
+  if (state.kind === "blocked") return <AuthLangProvider><BlockedScreen /></AuthLangProvider>;
   return <AuthLangProvider>{state.kind === "loading" ? <Loading /> : <PhoneScreen status={state.status} onPassed={recheck} />}</AuthLangProvider>;
 }

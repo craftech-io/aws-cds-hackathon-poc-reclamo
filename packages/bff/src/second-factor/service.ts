@@ -15,6 +15,8 @@
 //               account's (one number, one account), queues a waiting self-signup world and sends its
 //               lead notice — once, never on a sign-in
 //   endSession  signing out ends the pass of the session
+//   blocked     the operator's block of the account, re-read strongly consistent and uncached: the
+//               router asks it before every SMS and every code, so a block stops them at once
 import { randomInt } from "node:crypto";
 import { ConnectorError } from "@reclamo/shared";
 import { AUDIT_ACTION, type AuditAction, type AuditSink } from "../auth/audit";
@@ -88,7 +90,7 @@ export class PassCache {
 
 export interface SecondFactorDeps {
   readonly ctx: RepoContext;
-  readonly worlds: Pick<Connector["worlds"], "getMeta">;
+  readonly worlds: Pick<Connector["worlds"], "getMeta" | "getStaff">;
   readonly leads: Pick<LeadsRepo, "phoneVerifiedOp">;
   readonly caps: Pick<SignupCaps, "count" | "takeAll">;
   readonly hashes: SecondFactorHashes;
@@ -281,6 +283,10 @@ export function secondFactorService(deps: SecondFactorDeps) {
       await audit(caller, AUDIT_ACTION.PHONE_ENROLLED, caller.selfSignup ? "SELF_SIGNUP" : "ACCOUNT");
       await afterEnrolment(caller, enrolment.requestId);
       return { status: "VERIFIED" };
+    },
+
+    async blocked(caller: SecondFactorCaller): Promise<boolean> {
+      return (await deps.worlds.getStaff(caller.worldId, caller.staffId))?.blocked === true;
     },
 
     async endSession(caller: SecondFactorCaller): Promise<{ readonly status: "ENDED" }> {
