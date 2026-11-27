@@ -33,6 +33,9 @@ describe("signup.start refusals [FL-112]", () => {
     ["INVALID_PHONE", { phone: "+5491100000000" }],
     ["PHONE_NOT_ACCEPTED", { phone: "+3197010203040" }],
     ["PHONE_NOT_ACCEPTED", { phone: "+447012345678" }],
+    ["PHONE_COUNTRY_NOT_ALLOWED", { phone: "+34612345678" }],
+    ["PHONE_COUNTRY_NOT_ALLOWED", { phone: "+31612345678" }],
+    ["PHONE_COUNTRY_NOT_ALLOWED", { phone: "+819012345678" }],
   ])("answers %s, writes no request and calls no Cognito", async (status, overrides) => {
     const harness = await createSignupHarness().ready();
     expect(await harness.signup.start(startInput(overrides), IP)).toEqual({ status });

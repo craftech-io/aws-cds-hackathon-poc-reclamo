@@ -74,6 +74,8 @@ export interface AuthCopy {
       readonly phone: string;
       /** A range that is not a person's mobile (machine-to-machine, satellite, personal numbering). */
       readonly notPersonal: string;
+      /** A number outside America: the SMS code goes only to countries of America. */
+      readonly countryNotAllowed: string;
       readonly consent: string;
       readonly plainText: string;
       readonly failed: string;
@@ -118,6 +120,7 @@ export interface AuthCopy {
     readonly errors: {
       readonly invalidPhone: string;
       readonly notPersonal: string;
+      readonly countryNotAllowed: string;
       readonly phoneInUse: string;
       readonly locked: string;
       readonly codeShape: string;

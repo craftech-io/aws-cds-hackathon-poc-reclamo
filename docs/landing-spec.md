@@ -640,6 +640,7 @@ aparece tras submit):
 | Error de red/servidor | No pudimos crear tu cuenta. Probá de nuevo. | We couldn't create your account. Please try again. |
 | Dominio descartable, reservado o de prueba, o sin dónde recibir correo (`EMAIL_NOT_ACCEPTED`) | Usá un email permanente, personal o de trabajo. | Use a permanent personal or work email. |
 | Rango que no es de un celular de persona (`PHONE_NOT_ACCEPTED`, `docs/architecture-guests.md` §17.7) | Usá un celular personal. | Use a personal mobile. |
+| Celular de fuera de América (`PHONE_COUNTRY_NOT_ALLOWED`, §17.7), con el enlace de contacto debajo | Por ahora solo aceptamos celulares de países de América. Si necesitás acceso, escribinos. | For now we only accept mobiles from countries of the Americas. If you need access, contact us. |
 | Celular sin prefijo o mal formado (`INVALID_PHONE`) | Escribí tu celular con el prefijo internacional, por ejemplo +54 9 11 1234 5678 | Enter your mobile with its international prefix, for example +1 202 555 0123 |
 
 **Atribución del lead**: al llegar a la landing, `sessionStorage` guarda `utm_*` y `referrer` (solo el
