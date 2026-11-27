@@ -298,7 +298,10 @@ date and text version: the terms and privacy policy (required) and being contact
 this solution (optional); they are kept only once the email is verified with the code. Every
 confirmed sign-up is a lead in the `Leads` table, apart from the demo data: an email never reaches
 logs, the compliance tape, audit trails, metrics or demo exports, and the guest's email only receives
-Cognito's messages. The data controller is Craftech (Ciudad Autónoma de Buenos Aires, Argentina);
+Cognito's messages. Every request leaves one access line in the logs (route, method, status, the
+viewer's IP, browser type, the verified user id and the duration, never a body, a token, an email or
+a phone), and every refusal of a security rule a named decision; all logs are kept 14 days. Where
+they are and how to read them: `docs/architecture.md` §12. The data controller is Craftech (Ciudad Autónoma de Buenos Aires, Argentina);
 privacy requests go to `sales@craftech.io` or https://craftech.io/contact/. Operators export and
 delete leads with `npm run leads:export` and `npm run leads:delete`. An operator blocks a console
 account with `npm run console:block -- --user <username or email>` (it marks the account's staff
