@@ -22,12 +22,17 @@ describe("signup.start refusals [FL-112]", () => {
     ["WEAK_PASSWORD", { password: "cortita1A" }],
     ["WEAK_PASSWORD", { password: "sinnumerosNiMayusculas" }],
     ["INVALID_EMAIL", { email: "qa-x@empresa-ficticia.ar" }],
-    ["INVALID_EMAIL", { email: "ana@nomail.ar" }],
+    ["EMAIL_NOT_ACCEPTED", { email: "ana@nomail.ar" }],
     ["EMAIL_NOT_ACCEPTED", { email: "ana@yopmail.com" }],
+    ["EMAIL_NOT_ACCEPTED", { email: "ana@emltmp.com" }],
+    ["EMAIL_NOT_ACCEPTED", { email: "ana@test.com" }],
     ["INVALID_PHONE", { phone: "11 5555 0100" }],
     ["INVALID_PHONE", { phone: "+54 11" }],
     ["INVALID_PHONE", { phone: "+0549115555010" }],
     ["INVALID_PHONE", { phone: "+1234567890123456" }],
+    ["INVALID_PHONE", { phone: "+5491100000000" }],
+    ["PHONE_NOT_ACCEPTED", { phone: "+3197010203040" }],
+    ["PHONE_NOT_ACCEPTED", { phone: "+447012345678" }],
   ])("answers %s, writes no request and calls no Cognito", async (status, overrides) => {
     const harness = await createSignupHarness().ready();
     expect(await harness.signup.start(startInput(overrides), IP)).toEqual({ status });

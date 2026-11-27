@@ -6,7 +6,7 @@
 export const SIGNUP_LIMITS = {
   /** Sign-up requests of all visitors. */
   globalPerHour: 20,
-  globalPerDay: 100,
+  globalPerDay: 40,
   /**
    * Sign-up requests per viewer IP (IPv6: per /64), every `signup.start` that passed the email checks
    * (confirmed or not), over the real day and the one before together.

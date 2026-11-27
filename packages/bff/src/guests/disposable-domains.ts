@@ -1,19 +1,29 @@
 // Disposable-mailbox domains refused by `signup.start` (EMAIL_NOT_ACCEPTED, docs/architecture-guests.md
 // §4): a code sent to a throwaway inbox makes a confirmed account nobody will ever come back to, and
-// takes one of the 40 self-signup worlds. Versioned here, lower case, no subdomains (a subdomain of a
-// listed domain is refused too). Adding a domain is a pull request. The MX hosts of a domain are checked
-// too (`isDisposableMailHost`): a host under a listed domain, or of a provider that only serves
-// temporary inboxes on domains of its customers' choosing, refuses the address whatever its domain.
-export const DISPOSABLE_DOMAINS: ReadonlySet<string> = new Set([
+// takes one of the 40 self-signup worlds. Two lists together: the maintained public one (the data-only
+// package `disposable-email-domains`, pinned, server side only) and this repository's own, for the
+// domains seen here first. Lower case, no subdomains (a subdomain of a listed domain is refused too).
+// Adding a domain is a pull request. The MX hosts of a domain are checked too (`isDisposableMailHost`):
+// a host under a listed domain, or of a provider that only serves temporary inboxes on domains of its
+// customers' choosing, refuses the address whatever its domain.
+import publicDisposableDomains from "disposable-email-domains";
+
+/** This repository's own list. */
+export const OWN_DISPOSABLE_DOMAINS: ReadonlySet<string> = new Set([
+  "10mail.org",
   "10minutemail.com",
+  "1secmail.com",
   "20minutemail.com",
   "33mail.com",
   "anonaddy.me",
+  "blondmail.com",
   "burnermail.io",
   "discard.email",
   "dispostable.com",
   "dropmail.me",
   "emailondeck.com",
+  "emlpro.com",
+  "emltmp.com",
   "euploading.com",
   "fakeinbox.com",
   "getairmail.com",
@@ -40,15 +50,20 @@ export const DISPOSABLE_DOMAINS: ReadonlySet<string> = new Set([
   "temp-mail.org",
   "tempail.com",
   "tempmail.dev",
+  "tempmail.lol",
   "tempmailo.com",
   "tempr.email",
   "throwawaymail.com",
   "trashmail.com",
   "trashmail.de",
+  "vomoto.com",
   "yopmail.com",
   "yopmail.fr",
   "yopmail.net",
 ]);
+
+/** Both lists, built once per container. */
+export const DISPOSABLE_DOMAINS: ReadonlySet<string> = new Set([...publicDisposableDomains.map((domain) => domain.toLowerCase()), ...OWN_DISPOSABLE_DOMAINS]);
 
 /** Providers whose MX hosts serve temporary inboxes on any domain pointed at them (e.g. `mx.smtp.is`). */
 export const DISPOSABLE_MAIL_HOST_DOMAINS: ReadonlySet<string> = new Set(["smtp.is"]);
