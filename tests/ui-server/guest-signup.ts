@@ -45,7 +45,7 @@ export interface SignupStack {
 const stacks = new WeakMap<FlowWorld, SignupStack>();
 
 /** Every domain receives mail: the UI server is offline, and the BFF's shape rules still apply. */
-const offlineResolver: MailDomainResolver = { receivesMail: async () => true };
+const offlineResolver: MailDomainResolver = { inspect: async () => ({ receives: true, exchangers: [] }) };
 
 function buildStack(world: FlowWorld): SignupStack {
   const ctx: RepoContext = { store: world.store, now: () => world.realNow() };
