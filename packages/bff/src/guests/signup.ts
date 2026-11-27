@@ -131,7 +131,11 @@ export function signupService(deps: SignupServiceDeps) {
       if (!mobile.ok) return { status: mobile.reason };
       const phone = mobile.phone;
       const verdict = await verdictOf(deps, input.email, qa);
-      if (!verdict.ok) return { status: verdict.reason };
+      if (!verdict.ok) {
+        // A mail server at a temporary-mail service's address: named in the log, never the address or the email.
+        if ("cause" in verdict) deps.log.warn("signup.email_not_accepted", { cause: verdict.cause });
+        return { status: verdict.reason };
+      }
 
       const email = verdict.email;
       const emailHash = deps.hashes.emailHash(email);
