@@ -71,10 +71,12 @@ export default $config({
 
   async run() {
     // Defaults every Lambda in the app inherits; a module can still override them per function.
+    // Log retention: the one number of infra/log-retention.ts (14 days).
+    const { LOG_RETENTION } = await import("./infra/log-retention");
     $transform(sst.aws.Function, (args) => {
       args.runtime ??= "nodejs22.x";
       args.architecture ??= "arm64";
-      args.logging ??= { retention: "1 month" };
+      args.logging ??= { retention: LOG_RETENTION };
     });
 
     // Infra modules, in dependency order (docs/build-plan.md §1). Every module exists since WP-02;

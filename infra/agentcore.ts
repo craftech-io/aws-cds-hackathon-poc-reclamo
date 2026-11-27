@@ -24,7 +24,7 @@
 //               packages/bff/src/agent/system-prompt.ts (the worker sends the turn's own); public network,
 //               idle microVMs stopped after 5 minutes. Created after the last forbid, so no turn ever runs
 //               without the fences. No prompt-caching field exists to set (PROMPT_CACHING).
-//   Log group   `/aws/bedrock-agentcore/runtimes/<runtimeId>-live`, 30 days, created after the Harness and
+//   Log group   `/aws/bedrock-agentcore/runtimes/<runtimeId>-live`, 14 days (infra/log-retention.ts), created after the Harness and
 //               before the endpoint (never the DEFAULT one, which AgentCore creates: §17 item 9).
 //   Endpoint    `live`, pinned to the Harness version of this deploy.
 //
@@ -46,7 +46,7 @@
 //   aws --profile craftech-demos bedrock-agentcore-control list-gateway-targets --gateway-identifier <id>  → 7 READY
 //   aws --profile craftech-demos bedrock-agentcore-control get-memory --memory-id <id>                     → ACTIVE, 3 strategies
 //   aws --profile craftech-demos logs describe-log-groups --log-group-name-prefix /aws/bedrock-agentcore/runtimes/harness_aws_cds_hackathon_poc_reclamo_poc
-//     → <runtimeId>-live with retentionInDays 30 (-DEFAULT: 30 days by §17 item 9)
+//     → <runtimeId>-live with retentionInDays 14 (-DEFAULT: 14 days by §17 item 9)
 
 import { DEFAULT_SYSTEM_PROMPT } from "../packages/bff/src/agent/system-prompt";
 import { ToolTarget } from "../packages/bff/src/agent-tools/common/targets";
