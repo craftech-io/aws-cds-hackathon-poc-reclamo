@@ -186,7 +186,7 @@ Generada desde las líneas "Prueba" de `docs/flows-catalog.md`; `npm run flows:c
 | FL-128 | Superficies neutrales | `scripts/lint/neutral-surfaces.test.ts` | — | `landing.spec.ts` | — | — | check de CI (excepción §2.1 de `docs/test-plan.md`); el copy visible dice "decisión de política", nunca "evaluación de política", para que "evaluación" por palabra completa no dé falsos positivos en la cinta ni en la glosa |
 | FL-129 | Enrolamiento del celular por SMS | `second-factor/service.test.ts`, `routers/phone.test.ts`, `guests/register.test.ts`, `guests/journey.test.ts`, `guests/signup.test.ts`, `handlers/lead-notifier.test.ts`, `views/signup/signup-model.test.ts`, `views/phone/phone-model.test.ts` | — | `phone.spec.ts` | — | — | en `SR` las cuentas son de automatización (exentas); un SMS real lo prueba el operador con su propio celular después del deploy |
 | FL-130 | Segundo factor por SMS en cada ingreso | `second-factor/service.test.ts`, `routers/phone.test.ts`, `worlds/guest-world.test.ts`, `views/phone/phone-model.test.ts` | — | `phone.spec.ts` | — | — | — |
-| FL-131 | Topes y reglas del código por SMS | `second-factor/service.test.ts`, `outbound/transports/sms.test.ts`, `infra/second-factor.test.ts`, `scripts/lint/chokepoint.test.ts`, `views/phone/phone-model.test.ts` | — | `phone.spec.ts` | — | — | — |
+| FL-131 | Topes y reglas del código por SMS | `second-factor/service.test.ts`, `second-factor/phone-number.test.ts`, `outbound/transports/sms.test.ts`, `infra/second-factor.test.ts`, `scripts/lint/chokepoint.test.ts`, `views/phone/phone-model.test.ts` | — | `phone.spec.ts` | — | — | — |
 <!-- MATRIX:END -->
 
 ## 3. Pruebas locales
