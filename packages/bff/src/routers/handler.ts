@@ -4,13 +4,15 @@ import type { AnyTRPCRouter } from "@trpc/server";
 import { awsLambdaRequestHandler } from "@trpc/server/adapters/aws-lambda";
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2, Context as LambdaContext } from "aws-lambda";
 import { API_PREFIX } from "./api-prefix";
-import { EDGE_REQUIRED, withEdgeGuard } from "./edge-guard";
+import { EDGE_REQUIRED, accessIpOf, withEdgeGuard } from "./edge-guard";
+import { withAccessLog } from "../lib/access-log";
 import { describeError } from "../auth/errors";
 import { passwordService } from "../guests/password";
 import { stageSignupDeps } from "../guests/runtime";
 import { auditEdge } from "../guests/service-deps";
 import { signupService } from "../guests/signup";
 import { createLogger } from "../lib/log";
+import { SECURITY_DECISION, recordSecurityDecision } from "../lib/security-decision";
 import { keySecret } from "../lib/secrets";
 import { appRouter } from "./index";
 import { createPublicHandler, routeRequest } from "./public-handler";
@@ -71,16 +73,20 @@ const publicHandler = createPublicHandler({
   },
 });
 
+const edgeKey = () => keySecret("EdgeOriginKey");
+
 /**
- * Lambda entry: the edge header on every route (routers/edge-guard.ts), then the public procedures under
- * `/api/public/*` or the console's root router (routers/public-handler.ts).
+ * Lambda entry: the access line of every request (lib/access-log.ts), the edge header on every route
+ * (routers/edge-guard.ts), then the public procedures under `/api/public/*` or the console's root
+ * router (routers/public-handler.ts).
  */
-export const handler: BffHandler = withEdgeGuard(routeRequest(createHandler(appRouter, createContext), publicHandler), {
-  key: () => keySecret("EdgeOriginKey"),
+export const handler: BffHandler = withAccessLog(withEdgeGuard(routeRequest(createHandler(appRouter, createContext), publicHandler), {
+  key: edgeKey,
   onKeyUnavailable: (error) => createLogger({ bindings: { service: "bff" } }).error("edge.key_unavailable", describeError(error)),
   onRefused: async () => {
     const log = createLogger({ bindings: { service: "bff" } });
     log.warn("edge.refused", { reason: EDGE_REQUIRED });
+    recordSecurityDecision(log, SECURITY_DECISION.EDGE_REQUIRED);
     await auditEdge(stageSignupDeps(log), { action: "EDGE_REQUIRED", outcome: EDGE_REQUIRED, refs: {} });
   },
-});
+}), { ipOf: (event) => accessIpOf(event, edgeKey) });

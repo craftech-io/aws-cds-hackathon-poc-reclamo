@@ -29,6 +29,7 @@ import type { SignupCaps } from "../guests/caps";
 import { type ProvisionInvoker, provisionOps } from "../guests/provision";
 import { safeEqual, ulid } from "../lib/crypto";
 import type { Logger } from "../lib/log";
+import { SECURITY_DECISION, recordSecurityDecision } from "../lib/security-decision";
 import { SECOND_FACTOR_LIMITS } from "../leads/limits";
 import type { LeadsRepo } from "../leads/repo";
 import { type SmsCapScope, takeSms } from "./caps";
@@ -201,7 +202,10 @@ export function secondFactorService(deps: SecondFactorDeps) {
       if (caller.automation) return { status: "NOT_REQUIRED" };
       const account = await repo.accountPhone(caller.sub);
       const where = target(account, input.phone);
-      if ("status" in where) return where;
+      if ("status" in where) {
+        if (where.status === "PHONE_NOT_ACCEPTED" || where.status === "PHONE_COUNTRY_NOT_ALLOWED") recordSecurityDecision(deps.log, SECURITY_DECISION[where.status]);
+        return where;
+      }
       if (await passed(caller)) return { status: "NOT_REQUIRED" };
       const phoneHash = deps.hashes.phoneHash(where.phone);
       if (where.purpose === "ENROL") {
@@ -215,6 +219,7 @@ export function secondFactorService(deps: SecondFactorDeps) {
       const send = { sub: caller.sub, ipHash: deps.hashes.ipHash(viewerIp), abroad: !isHomeNumber(where.phone), ...(where.purpose === "ENROL" ? { enrolPhoneHash: phoneHash } : {}) };
       const full = await takeSms(deps.caps, send, now);
       if (full) {
+        recordSecurityDecision(deps.log, SECURITY_DECISION[`SMS_CAP_${full}`]);
         await audit(caller, AUDIT_ACTION.SECOND_FACTOR_REFUSED, `SMS_CAP_${full}`);
         return { status: "RATE_LIMITED", limit: full };
       }
@@ -259,6 +264,7 @@ export function secondFactorService(deps: SecondFactorDeps) {
         const attemptsLeft = Math.max(0, SECOND_FACTOR_LIMITS.attemptsPerCode - used);
         if (attemptsLeft === 0) {
           await repo.burn({ ...code, attempts: used });
+          recordSecurityDecision(deps.log, SECURITY_DECISION.SMS_CODE_BURNT);
           await audit(caller, AUDIT_ACTION.SECOND_FACTOR_REFUSED, "CODE_BURNT");
         }
         return { status: "CODE_MISMATCH", attemptsLeft };

@@ -3,7 +3,8 @@
 // gate. Redaction is not optional (docs/architecture.md §12): the common masker of lib/mask.ts
 // (E.164, emails, CUIT/CUIL, DNI, CBU/CVU, cards by Luhn, secrets next to "clave"/"PIN") runs on
 // every string, amounts are masked, raw provider events, message bodies, receipt fields and tool
-// results are dropped, and an address only ever appears as a hash.
+// results are dropped, and an email or phone address only ever appears as a hash. The one line with
+// the viewer's IP is the access line (lib/access-log.ts), kept 14 days for security investigations.
 import { randomUUID } from "node:crypto";
 import { MASK_TOKEN, maskSensitive } from "./mask";
 

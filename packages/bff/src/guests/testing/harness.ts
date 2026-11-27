@@ -35,6 +35,8 @@ export interface HarnessOptions {
   readonly start?: Date;
   readonly open?: boolean;
   readonly mailReady?: boolean;
+  /** Collects every log line of the services (security decisions included). */
+  readonly logLines?: string[];
 }
 
 export function createSignupHarness(options: HarnessOptions = {}) {
@@ -42,7 +44,8 @@ export function createSignupHarness(options: HarnessOptions = {}) {
   const now = () => new Date(clock.getTime());
   const { connector, store } = createMemoryConnector({ now });
   const ctx: RepoContext = { store, now };
-  const log = silentLogger();
+  const lines = options.logLines;
+  const log = lines ? createLogger({ level: "info", sink: (line) => void lines.push(line) }) : silentLogger();
   const leads = leadsRepo(ctx);
   const caps = signupCaps(ctx);
   const hashes = leadHashes(TEST_PHONE_HASH_KEY);

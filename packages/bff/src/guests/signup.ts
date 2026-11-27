@@ -34,8 +34,18 @@ import {
   passwordProblem,
 } from "./schemas";
 import { type SignupServiceDeps, afterRegistration, auditEdge, randomSignupId } from "./service-deps";
+import { SECURITY_DECISION, type SecurityDecision, recordSecurityDecision } from "../lib/security-decision";
 
 type Rejection = Exclude<SignupStartResult["status"], "CODE_SENT">;
+
+// Refusals of `signup.start` that are a security rule (lib/security-decision.ts); a typo is not one.
+const DECISION_OF: Partial<Record<Rejection, SecurityDecision>> = {
+  EMAIL_NOT_ACCEPTED: SECURITY_DECISION.SIGNUP_EMAIL_NOT_ACCEPTED,
+  PHONE_NOT_ACCEPTED: SECURITY_DECISION.SIGNUP_PHONE_NOT_ACCEPTED,
+  PHONE_COUNTRY_NOT_ALLOWED: SECURITY_DECISION.SIGNUP_PHONE_COUNTRY_NOT_ALLOWED,
+  RATE_LIMITED: SECURITY_DECISION.SIGNUP_RATE_LIMITED,
+  SIGNUP_UNAVAILABLE: SECURITY_DECISION.SIGNUP_UNAVAILABLE,
+};
 
 function consentsOf(input: SignupStartInput, at: string): SignupRequest["consents"] {
   const version = CURRENT_SIGNUP_CONSENT.version;
@@ -81,6 +91,8 @@ async function liveRequest(deps: SignupServiceDeps, signupId: string, qa: QaScop
 
 export function signupService(deps: SignupServiceDeps) {
   const reject = async (status: Rejection, ipHash: string | undefined, qa: QaScope | undefined): Promise<SignupStartResult> => {
+    const decision = DECISION_OF[status];
+    if (decision && !qa) recordSecurityDecision(deps.log, decision);
     if (status === "RATE_LIMITED" || status === "SIGNUP_UNAVAILABLE") {
       await auditEdge(deps, { action: "SIGNUP_REJECTED", outcome: status, refs: ipHash ? { ipHash: ipHash.slice(0, 16) } : {}, ...(qa ? { qa: true } : {}) });
     }
@@ -128,13 +140,13 @@ export function signupService(deps: SignupServiceDeps) {
       if (!input.acceptTerms) return { status: "CONSENT_REQUIRED" };
       if (passwordProblem(input.password)) return { status: "WEAK_PASSWORD" };
       const mobile = checkPhone(input.phone);
-      if (!mobile.ok) return { status: mobile.reason };
+      if (!mobile.ok) return reject(mobile.reason, ipHash, qa);
       const phone = mobile.phone;
       const verdict = await verdictOf(deps, input.email, qa);
       if (!verdict.ok) {
         // A mail server at a temporary-mail service's address: named in the log, never the address or the email.
         if ("cause" in verdict) deps.log.warn("signup.email_not_accepted", { cause: verdict.cause });
-        return { status: verdict.reason };
+        return reject(verdict.reason, ipHash, qa);
       }
 
       const email = verdict.email;

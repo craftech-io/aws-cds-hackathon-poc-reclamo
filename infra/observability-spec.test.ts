@@ -4,7 +4,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { EDGE_CHALLENGE_ENFORCED, SIGNUP_FUNCTION_BUDGETS, WAF_SIGNUP_BLOCKS_ALARM } from "./guest-limits";
+import { SIGNUP_FUNCTION_BUDGETS } from "./guest-limits";
 import { LAMBDA_CAPABILITIES, type LambdaName } from "./iam-capabilities";
 import * as spec from "./observability-spec";
 
@@ -15,7 +15,7 @@ const lineOf = (start: string): string => architecture.split("\n").find((line) =
 const ticked = (line: string): string[] => [...line.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? "");
 const BFF = "packages/bff/src";
 const LAMBDAS = new Set(Object.keys(LAMBDA_CAPABILITIES));
-const place: spec.AlarmPlace = { app: APP, stage: "poc", wafWebAclMetric: "EdgeWebAcl", wafRuleMetric: (rule) => `Edge${rule}` };
+const place: spec.AlarmPlace = { app: APP, stage: "poc" };
 const alarm = (key: string): spec.AlarmSpec => {
   const found = spec.ALARMS.find((item) => item.key === key);
   if (!found) throw new Error(`no alarm ${key}`);
@@ -43,14 +43,16 @@ describe("logs only (ADR-0021 §11, docs/architecture.md §12)", () => {
     expect(architecture).toContain("no hay dashboards de CloudWatch ni tracing propio y Model Invocation Logging está deshabilitado");
   });
 
-  it("gives every Function's log group 30 days through the $transform of sst.config.ts, which no module overrides", () => {
-    expect(code("sst.config.ts")).toMatch(/\$transform\(sst\.aws\.Function,[\s\S]*args\.logging \?\?= \{ retention: "1 month" \}/);
+  it("gives every Function's log group 14 days through the $transform of sst.config.ts, which no module overrides", () => {
+    expect(code("sst.config.ts")).toMatch(/\$transform\(sst\.aws\.Function,[\s\S]*args\.logging \?\?= \{ retention: LOG_RETENTION \}/);
+    expect(read("infra/log-retention.ts")).toContain('export const LOG_RETENTION = "2 weeks";');
+    expect(read("infra/log-retention.ts")).toContain("export const LOG_RETENTION_DAYS = 14;");
     const sstRetention = resolve(process.cwd(), ".sst/platform/src/components/aws/logging.ts");
-    if (existsSync(sstRetention)) expect(readFileSync(sstRetention, "utf8")).toContain('"1 month": 30');
+    if (existsSync(sstRetention)) expect(readFileSync(sstRetention, "utf8")).toContain('"2 weeks": 14');
     for (const path of INFRA_SOURCES.filter((source) => source !== "sst.config.ts")) expect(code(path), path).not.toMatch(/\blogging\s*:/);
   });
 
-  it("leaves no log group of its own without a retention: 30 days, the anchors 180", () => {
+  it("leaves no log group of its own without a retention: 14 days, the anchors 180 (audit, on purpose)", () => {
     let groups = 0;
     for (const path of INFRA_SOURCES) {
       const text = code(path);
@@ -62,7 +64,7 @@ describe("logs only (ADR-0021 §11, docs/architecture.md §12)", () => {
     }
     expect(groups).toBe(2);
     expect(read("infra/storage-keys.ts")).toContain("export const ANCHOR_RETENTION_DAYS = 180;");
-    expect(read("infra/agentcore-spec.ts")).toMatch(/AGENT_LOG_RETENTION_DAYS = 30\b/);
+    expect(read("infra/agentcore-spec.ts")).toMatch(/AGENT_LOG_RETENTION_DAYS = LOG_RETENTION_DAYS\b/);
   });
 
   it("declares the DEFAULT runtime group and aws/spans as manual configuration with their verification (§17 items 2 and 9)", () => {
@@ -72,7 +74,7 @@ describe("logs only (ADR-0021 §11, docs/architecture.md §12)", () => {
     expect(item(2)).toContain("aws --profile craftech-demos logs describe-log-groups --log-group-name-prefix aws/spans");
     expect(item(9)).toContain("-DEFAULT");
     expect(item(9)).toContain("put-retention-policy");
-    expect(item(9)).toContain("--retention-in-days 30");
+    expect(item(9)).toContain("--retention-in-days 14");
     expect(item(9)).toContain("aws --profile craftech-demos logs describe-log-groups --log-group-name-prefix /aws/bedrock-agentcore/runtimes/");
   });
 
@@ -167,7 +169,7 @@ describe("metrics ReclamoAgent/* (docs/architecture.md §12)", () => {
 
 describe("alarms (docs/architecture.md §12)", () => {
   it("has an alarm for every metric alarm of §12 (the SES reputation ones live in infra/leads.ts)", () => {
-    const names = new Set([...spec.METRICS.map((metric) => metric.name), "WafSignupBlocks", "SesComplaintRate"]);
+    const names = new Set([...spec.METRICS.map((metric) => metric.name), "SignupRateLimited", "SesComplaintRate"]);
     const documented = ticked(lineOf("- Alarmas:")).filter((token) => names.has(token));
     const keys = new Set(spec.ALARMS.map((item) => item.key));
     for (const name of documented) {
@@ -178,9 +180,9 @@ describe("alarms (docs/architecture.md §12)", () => {
     expect(new Set(spec.ALARMS.map((item) => item.key)).size).toBe(spec.ALARMS.length);
   });
 
-  it("keeps the thresholds of §12: TurnErrors > 5 in 15 min, WafSignupBlocks > 50 in 5 min, GuestWorldsQueued > 20 for an hour", () => {
+  it("keeps the thresholds of §12: TurnErrors > 5 in 15 min, SignupRateLimited > 50 in 5 min, GuestWorldsQueued > 20 for an hour", () => {
     expect(alarm("TurnErrors")).toMatchObject({ threshold: 5, periodSeconds: 900 });
-    expect(alarm("WafSignupBlocks")).toMatchObject({ threshold: WAF_SIGNUP_BLOCKS_ALARM.blocks, periodSeconds: WAF_SIGNUP_BLOCKS_ALARM.periodSeconds });
+    expect(alarm("SignupRateLimited")).toMatchObject({ threshold: 50, periodSeconds: 300 });
     expect(alarm("GuestWorldsQueued")).toMatchObject({ threshold: 20, periodSeconds: 3_600, terms: [{ kind: "metric", metric: "GuestWorldsQueued", stat: "Minimum" }] });
     for (const key of ["PolicyViolations", "ChainBroken", "ScanFailures", "TurnCapHits", "GlobalCapHits", "AgentKilled", "MalwareFindings", "WorldResetStuck", "WorldCreateStuck", "LeadNoticeFailed", "INVALID_TRANSITION"]) {
       expect(alarm(key), key).toMatchObject({ threshold: 0, terms: [{ kind: "metric", metric: key, stat: "Sum" }] });
@@ -193,13 +195,11 @@ describe("alarms (docs/architecture.md §12)", () => {
     expect(queries[1]?.metric?.dimensions).toEqual({ QueueName: `${APP}-poc-AnchorWriteFailures` });
   });
 
-  it("watches the rules of the edge web ACL that stop a sign-up in WafSignupBlocks (rule 6 only while it challenges)", () => {
-    const queries = spec.alarmQueries(alarm("WafSignupBlocks"), place);
-    const blocked = { namespace: "AWS/WAFV2", metricName: "BlockedRequests", stat: "Sum", period: 300, dimensions: { WebACL: "EdgeWebAcl", Rule: "EdgePublicPostRate" } };
-    const challenged = { namespace: "AWS/WAFV2", metricName: "ChallengeRequests", stat: "Sum", period: 300, dimensions: { WebACL: "EdgeWebAcl", Rule: "EdgeSignupTokenGuard" } };
-    expect(queries.filter((query) => query.metric !== undefined).map((query) => query.metric)).toEqual(EDGE_CHALLENGE_ENFORCED ? [blocked, challenged] : [blocked]);
-    const waf = read("infra/waf.ts");
-    for (const { rule } of spec.WAF_SIGNUP_RULES) expect(waf).toContain(`name: "${rule}"`);
+  it("watches the sign-up refusals of the code's caps in SignupRateLimited, from the security decisions of the Bff", () => {
+    const queries = spec.alarmQueries(alarm("SignupRateLimited"), place);
+    expect(queries.map((query) => query.metric)).toEqual([{ namespace: "ReclamoAgent", metricName: "SecurityDecisions", stat: "Sum", period: 300, dimensions: { decision: "SIGNUP_RATE_LIMITED" } }]);
+    expect(read(`${BFF}/lib/security-decision.ts`)).toContain('"SIGNUP_RATE_LIMITED"');
+    expect(code("infra/observability.ts")).not.toContain("AWS/WAFV2");
   });
 
   it("names every alarm <app>-<stage>-<key>, one query returning data", () => {
