@@ -67,6 +67,12 @@ describe("CloudFront parts of the Router (no tags, shared account)", () => {
     expect(notOwned).toContain('Resource: "*"');
   });
 
+  it("reads the account's shared edge web ACL demos-borde by its name only, in the edge policy", () => {
+    expect(statement("SharedEdgeWebAcl")).toMatch(/Action: wafv2:GetWebACL\n\s+Resource: !Sub "arn:\$\{AWS::Partition\}:wafv2:\$\{Region\}:\$\{AWS::AccountId\}:global\/webacl\/demos-borde\/\*"/);
+    expect(block(template, "  DeployEdgePolicy:", "  DeployDnsAndIamPolicy:")).toContain("Sid: SharedEdgeWebAcl");
+    expect(allows.filter(({ body }) => body.includes("demos-borde")).map(({ sid }) => sid)).toEqual(["SharedEdgeWebAcl"]);
+  });
+
   it("attaches the edge policy to the deploy role", () => {
     expect(block(template, "ManagedPolicyArns:", "Tags:")).toContain("- !Ref DeployEdgePolicy");
   });

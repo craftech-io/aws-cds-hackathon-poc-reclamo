@@ -1,7 +1,8 @@
 // Numbers of the guest self-signup that the INFRASTRUCTURE enforces (docs/architecture-guests.md §7,
 // §8 and §9), as plain data. No SST or Pulumi dependency: infra/waf.ts, infra/leads.ts and
 // infra/auth.ts build their resources from here, and infra/waf.test.ts and infra/leads.test.ts check
-// every value against the document. Changing a number is a pull request.
+// every value against the document. Changing a number is a pull request. The edge's rules are the
+// shared `demos-borde`'s (craftech/demos), not this app's.
 //
 // The caps the CODE enforces with the real clock (sign-ups per hour, per IP and per canonical email,
 // auth emails, resends, recoveries, guest worlds, lead notices) live next to the code that counts
@@ -11,32 +12,12 @@
 /** Every rate rule of both web ACLs evaluates five minutes. */
 export const WAF_WINDOW_SECONDS = 300;
 
-/** Edge web ACL (`CLOUDFRONT`, on the Router): §8. */
-export const EDGE_WAF_LIMITS = {
-  /** POSTs per IP to the public API (`/api/public/*` or a path containing `signup.`/`password.`). */
-  publicPostsPerIp: 10,
-  /** Requests per IP to `/api/*`. */
-  apiRequestsPerIp: 1_000,
-  /** HTTP status of a request over the public-API rate, with a fixed JSON body. */
-  rateLimitedStatus: 429,
-  /**
-   * Life of a solved challenge. The form of `/signup` (and of `/login/recover`) is filled after the
-   * interstitial, and its POST must still carry a valid token: an hour covers a slow visitor, a
-   * reload gets a new one. WAF's default (300 s) would expire mid-form.
-   */
-  challengeImmunitySeconds: 3_600,
-} as const;
-
 /**
- * Whether rules 5 and 6 of the edge ACL act (Challenge) or only count (§8). They COUNT on `poc`: WAF's
- * interstitial runs inline script and `challenge.js` from `*.token.awswaf.com`, which the console's CSP
- * (`script-src 'self'`) refuses, so a challenged visitor never reached the form; and the JavaScript
- * integration has no URL to allow (the edge ACL's `ApplicationIntegrationURL` is empty: WAF exposes it
- * only with the ATP, ACFP or targeted Bot Control groups, which cost per request). The sign-up stays
- * protected by the reputation and anonymous-IP lists, the two rate rules, the code caps and the email
- * code; both rules keep their metrics. `true` again only with a CSP-compatible integration.
+ * The edge is the account's shared web ACL (`demos-borde`, infra/web-spec.ts), which blocks the sign-up
+ * from hosting-provider addresses. A GitHub-hosted runner is one: the post-deploy checks of the sign-up
+ * surface read an edge refusal of the runner as a warning, never as a closed sign-up (scripts/scenarios).
  */
-export const EDGE_CHALLENGE_ENFORCED = false;
+export const SHARED_EDGE_BLOCKS_HOSTING_SIGNUP = true;
 
 /** Cognito web ACL (`REGIONAL`, on the user pool): §8. */
 export const COGNITO_WAF_LIMITS = {
@@ -56,9 +37,6 @@ export const SES_REPUTATION_ALARMS = {
   periodSeconds: 3_600,
   evaluationPeriods: 1,
 } as const;
-
-/** `WafSignupBlocks` (WP-37 wires the alarm on these numbers): rules 3 or 6 of the edge ACL. */
-export const WAF_SIGNUP_BLOCKS_ALARM = { blocks: 50, periodSeconds: WAF_WINDOW_SECONDS } as const;
 
 /** Lambda budgets of the self-signup's functions (Cognito waits at most 5 s for a trigger). */
 export const SIGNUP_FUNCTION_BUDGETS = {

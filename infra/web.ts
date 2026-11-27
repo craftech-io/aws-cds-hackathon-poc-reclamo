@@ -26,8 +26,11 @@
 // without CloudFront dodges neither the web ACL nor its reserved concurrency. Code: web-spec.ts
 // `edgeHeaderInjection`, tested by edge-header.test.ts.
 //
-// AWS WAF: the edge web ACL of infra/waf.ts, created by the Router itself (`waf` + `transform.waf`)
-// and associated with its distribution.
+// AWS WAF: the shared web ACL of the account's demos, `demos-borde` (CLOUDFRONT), created and kept by
+// the `craftech/demos` project; here it is only looked up by name on every deploy and associated with
+// the distribution (`transform.cdn` → `webAclArn`). It has to exist before the deploy. Its logs, 14 days,
+// strike the `authorization` header, which is where the console sends its id token
+// (`Authorization: Bearer <id token>`). The Cognito web ACL of infra/waf.ts stays this app's own.
 //
 // Security headers (CSP, HSTS, no framing, nosniff, referrer): the response headers policy the
 // bootstrap creates, read by name and attached to every cache behavior. The deploy role cannot
@@ -37,14 +40,13 @@
 //   curl -sI https://reclamo.demo.craftech.io                     → 200 with CSP, HSTS, X-Frame-Options DENY
 //   curl -sI https://reclamo.demo.craftech.io/legal/privacy.html  → 200, content-type text/html
 //   aws --profile craftech-demos cloudfront get-distribution-config --id <id> --query DistributionConfig.WebACLId
-//                                                                  → the ARN of <app>-poc-edge
+//                                                                  → the ARN of demos-borde
 
 import { authWebEnvironment } from "./auth";
 import { consoleHeadersPolicyName, routerKeyValueStoreName } from "./ci-spec";
 import { appDomain, dns } from "./dns";
 import { EdgeOriginKey } from "./secrets";
-import { applyEdgeWaf } from "./waf";
-import { EDGE_KVS_KEY, LEGAL_PAGES, STATIC_FILE_OPTIONS, edgeHeaderInjection, legalUrl } from "./web-spec";
+import { EDGE_KVS_KEY, LEGAL_PAGES, SHARED_EDGE_WEB_ACL, STATIC_FILE_OPTIONS, edgeHeaderInjection, legalUrl } from "./web-spec";
 
 export { API_PATH, LEGAL_PAGES } from "./web-spec";
 
@@ -56,6 +58,9 @@ export const legalUrls = {
 
 // Read by name (CloudFront's id for a store), created by the bootstrap.
 const bootstrapKvStoreArn = aws.cloudfront.KeyValueStore.get("RouterBootstrapKvStore", routerKeyValueStoreName($app.name, $app.stage)).arn;
+
+// The shared edge web ACL, read by name (the deploy role may only read it: bootstrap SharedEdgeWebAcl).
+const sharedEdgeWebAcl = aws.wafv2.getWebAclOutput({ name: SHARED_EDGE_WEB_ACL, scope: "CLOUDFRONT" });
 
 // Security headers: the policy the bootstrap creates, read by name. The console takes the password
 // and the TOTP code itself, so a script it did not ship must not run and no other site may frame it.
@@ -73,13 +78,11 @@ export const router = new sst.aws.Router("Router", {
   },
   // OAC would clobber the Bearer token of the console. Each handler authenticates itself.
   protection: "none",
-  // The edge web ACL of infra/waf.ts, associated with the distribution.
-  waf: true,
   // The injection drops and adds the edge headers; the store replaces the one SST would create.
   edge: { viewerRequest: { injection: edgeHeaderInjection(), kvStore: bootstrapKvStoreArn } },
   transform: {
-    waf: applyEdgeWaf,
     cdn: (args) => {
+      args.webAclArn = sharedEdgeWebAcl.arn;
       args.defaultCacheBehavior = withHeadersPolicy(args.defaultCacheBehavior, consoleHeadersPolicyId);
       if (args.orderedCacheBehaviors !== undefined) {
         args.orderedCacheBehaviors = $util

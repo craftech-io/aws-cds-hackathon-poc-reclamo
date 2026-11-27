@@ -55,6 +55,14 @@ export function lambdaRouteFor(uri: string): EdgeFunction | undefined {
 // ---- Edge header (docs/architecture-guests.md §4) ------------------------------------------------
 
 /** Prefix of every header the edge owns; whatever a client sends under it is dropped first. */
+/**
+ * The account's shared edge web ACL (CLOUDFRONT): created and kept by the `craftech/demos` project, only
+ * looked up by name here (infra/web.ts). Its rules: block list, IP reputation, sign-ups from hosting
+ * addresses, 20 requests / 5 min per IP on `signup.`/`password.`, 30 on the SMS-code routes (`phone.`
+ * here) and 5,000 on `/api/` (docs/architecture-guests.md §8).
+ */
+export const SHARED_EDGE_WEB_ACL = "demos-borde";
+
 export const EDGE_HEADER_PREFIX = "x-reclamo-";
 /** `EdgeOriginKey`, read by the viewer-request function from the Router's key-value store. */
 export const EDGE_HEADER = "x-reclamo-edge";

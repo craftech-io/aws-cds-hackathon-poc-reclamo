@@ -135,4 +135,5 @@ export const FIXED_NAMES: ReadonlyArray<readonly [string, string]> = [
   ["aws-cds-hackathon-poc-reclamo-poc-media-776805327629", `${P}s3:::\${AppName}-\${DeployStage}-media-\${AWS::AccountId}"`],
   ["aws-cds-hackathon-poc-reclamo-poc-edge", `${P}wafv2:${REGIONAL}:global/webacl/\${AppName}-\${DeployStage}-edge/*"`],
   ["aws-cds-hackathon-poc-reclamo-poc-auth", `${P}wafv2:${REGIONAL}:regional/webacl/\${AppName}-\${DeployStage}-auth/*"`],
+  ["demos-borde", `${P}wafv2:${REGIONAL}:global/webacl/demos-borde/*"`],
 ];
