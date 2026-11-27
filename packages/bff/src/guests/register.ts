@@ -2,9 +2,12 @@
 // trigger runs it, and `signup.confirm` runs it again in case the trigger failed. It registers only
 // from the request the confirmation named (`clientMetadata.signupId`) and only when that request
 // carries the confirmed `sub`: another request, another `sub` or none registers nothing. One
-// transaction writes the lead (with the consents of THAT request), the request as `CONFIRMED`, the
-// canonical-email counter, the world `REGISTERED`, its `GUEST` staff row and the provisioning ticket,
-// plus the audit entry (no email). A second run finds the request confirmed and changes nothing.
+// transaction writes the lead (with the consents of THAT request, pending its mobile), the request as
+// `CONFIRMED`, the canonical-email counter, the world `PHONE_PENDING`, its `GUEST` staff row and the
+// account's pending phone (the number of the form, docs/architecture-guests.md §17), plus the audit
+// entry (no email). The world's ticket and the lead notice wait for the mobile's verification; the
+// scenario runner's account (automation, no phone) gets its world `REGISTERED` and its ticket at once.
+// A second run finds the request confirmed and changes nothing.
 import { ConnectorError, worldKindOf } from "@reclamo/shared";
 import type { Connector } from "../connector/port";
 import type { RepoContext } from "../connector/codec";
@@ -12,11 +15,13 @@ import { ulid } from "../lib/crypto";
 import { GUEST_WORLD_PATTERN } from "../leads/keys";
 import { SOURCE_POC } from "../leads/limits";
 import { provisionOps } from "./provision";
+import { secondFactorRepo } from "../second-factor/repo";
 import type { Lead, SignupRequest } from "../leads/records";
 import type { LeadsRepo } from "../leads/repo";
 
 export type RegisterOutcome =
-  | { readonly status: "REGISTERED"; readonly worldId: string; readonly requestId: string }
+  /** `requestId` only when the world went to the queue at once (the scenario runner's); a visitor's waits for its mobile. */
+  | { readonly status: "REGISTERED"; readonly worldId: string; readonly requestId?: string }
   | { readonly status: "ALREADY_REGISTERED"; readonly worldId: string }
   /** The request is not this `sub`'s, is not `CODE_SENT`, or names no valid world. */
   | { readonly status: "MISMATCH" };
@@ -51,7 +56,7 @@ function leadOf(request: SignupRequest, sub: string, worldId: string, now: Date)
     worldId,
     signupAtReal: request.startedAtReal,
     confirmedAtReal: now.toISOString(),
-    ...(request.qa ? { qa: request.qa } : {}),
+    ...(request.qa ? { qa: request.qa } : { phoneStatus: "PENDING" as const }),
   };
 }
 
@@ -69,13 +74,17 @@ export async function registerSignup(request: SignupRequest, sub: string, deps: 
   const now = deps.ctx.now();
   const requestId = ulid(now.getTime());
   const provision = provisionOps(deps.ctx);
+  const kind = request.qa ? "QA" : "GUEST";
+  // A visitor's world waits for the account's mobile (§17): no ticket, no notice until then.
+  const visitor = request.qa
+    ? [provision.ticketOp(worldId, requestId)]
+    : [deps.leads.canonOp(request.canonHash), secondFactorRepo(deps.ctx).pendingPhoneOp({ sub, ...(request.phone ? { phone: request.phone } : {}), locale: request.locale })];
   const ops = [
     deps.leads.confirmOp(request, sub),
     deps.leads.putLeadOp(leadOf(request, sub, worldId, now)),
-    ...(request.qa ? [] : [deps.leads.canonOp(request.canonHash)]),
-    provision.worldOp(worldId, request.qa ? "QA" : "GUEST"),
-    provision.staffOp(worldId, sub),
-    provision.ticketOp(worldId, requestId),
+    provision.worldOp(worldId, kind),
+    provision.staffOp(worldId, sub, kind),
+    ...visitor,
     deps.connector.audit.appendOp({
       worldId,
       epoch: 1,
@@ -83,13 +92,13 @@ export async function registerSignup(request: SignupRequest, sub: string, deps: 
       ts: now.toISOString(),
       action: "GUEST_REGISTERED",
       actor: "SYSTEM",
-      refs: { origin: "SIGNUP", requestId, locale: request.locale },
+      refs: { origin: "SIGNUP", ...(request.qa ? { requestId } : { mobile: "PENDING" }), locale: request.locale },
       primaryRef: `STAFF#stf-${worldId}`,
     }),
   ];
   try {
     await deps.connector.transact(ops);
-    return { status: "REGISTERED", worldId, requestId };
+    return { status: "REGISTERED", worldId, ...(request.qa ? { requestId } : {}) };
   } catch (error) {
     if (!(error instanceof ConnectorError) || error.code !== "CONFLICT") throw error;
     // The other runner (trigger or repair) won: the request says so.

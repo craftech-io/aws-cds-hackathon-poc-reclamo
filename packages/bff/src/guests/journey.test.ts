@@ -13,7 +13,7 @@ async function signedUp(harness: Awaited<ReturnType<ReturnType<typeof createSign
 }
 
 describe("guest self-signup, end to end in memory [FL-112] [FL-113]", () => {
-  it("creates an UNCONFIRMED account with only the request, then on the code registers lead, world, staff row and ticket once", async () => {
+  it("[FL-129] creates an UNCONFIRMED account with only the request, on the code registers lead and world pending the mobile, and on the SMS code queues the world and notifies once", async () => {
     const harness = await createSignupHarness().ready();
     const signupId = await signedUp(harness);
 
@@ -27,17 +27,24 @@ describe("guest self-signup, end to end in memory [FL-112] [FL-113]", () => {
     expect(mail?.body).toContain(mail?.code ?? "?");
 
     const confirmed = await harness.signup.confirm({ signupId, code: harness.cognito.lastCode("ana.prospecto@empresa-ficticia.ar") ?? "" });
-    expect(confirmed).toEqual({ status: "CONFIRMED", worldStatus: "REGISTERED", email: "ana.prospecto@empresa-ficticia.ar" });
+    expect(confirmed).toEqual({ status: "CONFIRMED", worldStatus: "PHONE_PENDING", email: "ana.prospecto@empresa-ficticia.ar" });
 
     const sub = user?.sub ?? "";
     const worldId = harness.hashes.guestWorldId(sub);
     const lead = await harness.leads.getLead(sub);
     expect(lead).toMatchObject({ worldId, email: "ana.prospecto@empresa-ficticia.ar", name: "Ana", sourcePoc: "reclamo-en-regla", utm: { source: "linkedin", campaign: "q4" } });
-    expect(lead?.consents.terms.textVersion).toBe("signup-v1");
+    expect(lead?.consents.terms.textVersion).toBe("signup-v2");
+    expect(lead).toMatchObject({ phoneStatus: "PENDING" });
+    expect((await harness.connector.worlds.getMeta(worldId))?.status).toBe("PHONE_PENDING");
+    expect(harness.invoked).toEqual({ worlds: [], notices: [] });
+    expect(await harness.enrolPhone(sub)).toEqual({ status: "VERIFIED" });
+    expect(harness.sms.outbox).toEqual([{ phone: "+5491155550100", text: expect.stringMatching(/^Tu código de Reclamo en regla es \d{6}\. Vence en 10 minutos\.$/) }]);
+    expect(await harness.leads.getLead(sub)).toMatchObject({ phoneStatus: "VERIFIED", phone: "+5491155550100", phoneVerifiedAtReal: harness.now().toISOString() });
     const meta = await harness.connector.worlds.getMeta(worldId);
     expect(meta).toMatchObject({ kind: "GUEST", status: "REGISTERED", origin: "SIGNUP", template: "guest" });
     const staff = await harness.connector.worlds.getStaff(worldId, `stf-${worldId}`);
     expect(staff).toMatchObject({ role: "GUEST", cognitoSubKey: `SUB#${sub}`, active: true });
+    expect(staff?.automation).toBeUndefined();
     expect(harness.invoked.worlds).toHaveLength(1);
     expect(harness.invoked.worlds[0]).toMatchObject({ kind: "WORLD_CREATE", worldId });
     expect(harness.invoked.notices).toEqual([{ leadId: sub }]);
@@ -59,6 +66,8 @@ describe("guest self-signup, end to end in memory [FL-112] [FL-113]", () => {
     const confirmed = await harness.signup.confirm({ signupId, code: "123456" });
     expect(confirmed.status).toBe("CONFIRMED");
     expect(await harness.leads.getLead(user?.sub ?? "")).toBeDefined();
+    expect(harness.invoked.notices).toEqual([]);
+    await harness.enrolPhone(user?.sub ?? "");
     expect(harness.invoked.notices).toHaveLength(1);
   });
 });
@@ -132,6 +141,8 @@ describe("the world of a guest [FL-120] [FL-121] [FL-124]", () => {
     const sub = harness.cognito.user("ana.prospecto@empresa-ficticia.ar")?.sub ?? "";
     const worldId = harness.hashes.guestWorldId(sub);
     const caller = { sub, worldId, sessionId: "0f8e7d6c-session" };
+    expect((await harness.guestWorld.status(caller)).worldStatus).toBe("PHONE_PENDING");
+    await harness.enrolPhone(sub);
 
     expect(await harness.guestWorld.status(caller)).toEqual({ worldStatus: "REGISTERED", queuePosition: 0 });
     const firstLogin = (await harness.leads.getLead(sub))?.lastLoginAtReal;

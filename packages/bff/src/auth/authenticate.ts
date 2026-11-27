@@ -3,6 +3,7 @@
 // apply the `ServerClient` rule. The outcome keeps the principal of a refused request so the caller
 // can audit the denial in the right world. The in-process principal of the QaDriver skips the token
 // and the staff row (it has neither) but not the world checks.
+import { worldKindOf } from "@reclamo/shared";
 import { AUTH_REASON, AuthError } from "./errors";
 import { isSignupWorld } from "./guest-identity";
 import { type IdTokenVerifier, bearerToken } from "./jwt";
@@ -70,7 +71,15 @@ export async function authenticateToken(authorization: string | undefined, deps:
   if (!worldUsable(world)) {
     return refused(new AuthError(AUTH_REASON.WORLD_NOT_READY, "this world is not ready"), principal, world);
   }
-  return { ok: true, principal, world };
+  return { ok: true, principal: { ...principal, automation: automationAccount(row) }, world };
+}
+
+/**
+ * The one exemption of the SMS code (docs/architecture-guests.md §17): the server-written mark of the
+ * staff row, honoured only in a QA world (`qa-*`, `qamin`), so a mark on any other row counts nothing.
+ */
+export function automationAccount(row: StaffRow): boolean {
+  return row.automation === true && worldKindOf(row.worldId) === "QA";
 }
 
 /** The QaDriver's server-built principal: only in QA worlds (and `GUEST` only in `qa-*`). */

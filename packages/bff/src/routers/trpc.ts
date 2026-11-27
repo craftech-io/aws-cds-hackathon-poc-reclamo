@@ -8,8 +8,10 @@
 //                         token only for qa-* users in qa-* worlds → else 401); a RESETTING world
 //                         answers WORLD_RESETTING except `clock.resetStatus`; a self-signup world
 //                         not yet READY answers WORLD_NOT_READY except `guest.status`,
-//                         `guest.requestWorld` and `account.session`; every mutation refuses
-//                         COMPLIANCE (FL-095)
+//                         `guest.requestWorld` and `account.session`; a session that has not
+//                         passed the SMS code (docs/architecture-guests.md §17) answers
+//                         PHONE_VERIFICATION_REQUIRED except `account.session` and `phone.*`;
+//                         every mutation refuses COMPLIANCE (FL-095) but `phone.*`
 //   roleProcedure(roles)  world + one of the roles
 //   recentLoginProcedure  world + interactive sign-in at most 15 minutes old (real clock): approving
 //                         money, answering in writing and resetting a world
@@ -25,11 +27,14 @@ import { StaffRole, type WorldKind, worldKindOf } from "@reclamo/shared";
 import { AUDIT_ACTION, actorOf } from "../auth/audit";
 import { type AuthOutcome, authenticateInProcess, authenticateToken } from "../auth/authenticate";
 import { AUTH_REASON, AUTH_REFUSAL, AuthError, type AuthReason, type AuthRefusal, describeError } from "../auth/errors";
-import { WORLD_PENDING_PATHS } from "../auth/guest-identity";
+import { SECOND_FACTOR_PATHS, SECOND_FACTOR_PENDING_PATHS, WORLD_PENDING_PATHS } from "../auth/guest-identity";
 import { type Principal, isSignInFresh } from "../auth/principal";
 import type { WorldMeta } from "../auth/staff";
 import { type Logger, correlationIdFrom } from "../lib/log";
+import { secondFactorCaller } from "../second-factor/caller";
+import type { SecondFactorCheck } from "../second-factor/service";
 import { type ContextDeps, defaultDeps } from "./deps";
+import { VIEWER_IP_HEADER } from "./edge-guard";
 import { reasonOf, toTrpcError } from "./errors";
 
 /** Mutable hints a procedure leaves for the HTTP answer (routers/handler.ts). */
@@ -47,8 +52,10 @@ export interface Context {
   /** Principal built on the server by the QaDriver (`createInProcessContext`); `null` over HTTP. */
   readonly inProcess: Principal | null;
   readonly response: ResponseHints;
-  /** Authentication of this request, shared by the calls of a batch. */
-  readonly memo: { auth?: Promise<AuthOutcome> };
+  /** The viewer IP the Router saw (`x-reclamo-viewer-ip`, trusted after the edge guard); the SMS caps hash it. */
+  readonly viewerIp: string | undefined;
+  /** Authentication of this request and its SMS-code check, shared by the calls of a batch. */
+  readonly memo: { auth?: Promise<AuthOutcome>; secondFactor?: Promise<SecondFactorCheck | AuthError> };
 }
 
 export interface WorldContext extends Context {
@@ -81,7 +88,16 @@ export function createContextFactory(resolveDeps: () => ContextDeps) {
   return async ({ event }: CreateContextOptions): Promise<Context> => {
     const deps = resolveDeps();
     const correlationId = correlationIdOf(event);
-    return { correlationId, deps, log: deps.loggerFor(correlationId), authorization: header(event.headers, "authorization"), inProcess: null, response: { accepted: false }, memo: {} };
+    return {
+      correlationId,
+      deps,
+      log: deps.loggerFor(correlationId),
+      authorization: header(event.headers, "authorization"),
+      viewerIp: header(event.headers, VIEWER_IP_HEADER),
+      inProcess: null,
+      response: { accepted: false },
+      memo: {},
+    };
   };
 }
 
@@ -98,7 +114,7 @@ export interface InProcessContextOptions {
 /** Context of `appRouter.createCaller` for the QaDriver: the real procedures with a server-built principal. */
 export function createInProcessContext(options: InProcessContextOptions): Context {
   const correlationId = correlationIdFrom(options.correlationId);
-  return { correlationId, deps: options.deps, log: options.deps.loggerFor(correlationId), authorization: undefined, inProcess: options.principal, response: { accepted: false }, memo: {} };
+  return { correlationId, deps: options.deps, log: options.deps.loggerFor(correlationId), authorization: undefined, viewerIp: undefined, inProcess: options.principal, response: { accepted: false }, memo: {} };
 }
 
 const t = initTRPC.context<Context>().create({
@@ -191,21 +207,44 @@ export const worldProcedure = baseProcedure.use(async ({ ctx, next, path, type }
   const { principal, world } = outcome;
   const log = ctx.log.child({ worldId: principal.worldId, staffId: principal.staffId, role: principal.role });
   const worldContext: WorldContext = { ...ctx, principal, world, log };
-  // `guest.status` and `guest.requestWorld` answer in any status of the world; `account.session` too
-  // while a self-signup world is being prepared (never during a reset, as before).
+  // A session that has not passed the SMS code reaches only who it is and the code (docs/architecture-guests.md §17).
+  ctx.memo.secondFactor ??= secondFactorOf(worldContext);
+  const secondFactor = await ctx.memo.secondFactor;
+  if (secondFactor instanceof AuthError) return deny(worldContext, path, secondFactor);
+  if (secondFactor === "REQUIRED" && !SECOND_FACTOR_PENDING_PATHS.has(path)) {
+    return deny(worldContext, path, new AuthError(AUTH_REASON.PHONE_VERIFICATION_REQUIRED, "verify the code we sent to your mobile to continue"));
+  }
+  // `guest.status` and `guest.requestWorld` answer in any status of the world; `account.session` and
+  // `phone.*` too while a self-signup world is being prepared (and `phone.*` during a reset).
   const pending = WORLD_PENDING_PATHS.has(path);
-  if (world.status === "RESETTING" && path !== RESET_STATUS_PATH && !path.startsWith("guest.")) {
+  if (world.status === "RESETTING" && path !== RESET_STATUS_PATH && !path.startsWith("guest.") && !SECOND_FACTOR_PATHS.has(path)) {
     return deny(worldContext, path, new AuthError(AUTH_REASON.WORLD_RESETTING, "the world is being reset"));
   }
   if (world.status !== "READY" && world.status !== "RESETTING" && !pending) {
     return deny(worldContext, path, new AuthError(AUTH_REASON.WORLD_NOT_READY, "the world is not ready yet"));
   }
-  // Every mutation refuses COMPLIANCE, whichever builder the router used (FL-095).
-  if (type === "mutation" && principal.role === "COMPLIANCE") {
+  // Every mutation refuses COMPLIANCE, whichever builder the router used (FL-095), but the SMS code of its own session.
+  if (type === "mutation" && principal.role === "COMPLIANCE" && !SECOND_FACTOR_PATHS.has(path)) {
     return deny(worldContext, path, new AuthError(AUTH_REASON.READ_ONLY_ROLE, "the compliance role is read-only"), principal, world);
   }
   return next({ ctx: worldContext });
 });
+
+/**
+ * Whether this session passed the SMS code. Without the service (a misconfigured deploy) every
+ * account but an automation one is held: fail closed. A storage outage is AUTH_UNAVAILABLE (503).
+ */
+async function secondFactorOf(ctx: WorldContext): Promise<SecondFactorCheck | AuthError> {
+  const caller = secondFactorCaller(ctx.principal, ctx.world);
+  if (caller.automation) return "EXEMPT";
+  const service = ctx.deps.secondFactor?.(ctx.log);
+  if (!service) return "REQUIRED";
+  try {
+    return await service.check(caller);
+  } catch (error) {
+    return new AuthError(AUTH_REASON.AUTH_UNAVAILABLE, "could not read the session's SMS code", { cause: error });
+  }
+}
 
 /** 403 CROSS_WORLD (and `AuditLog DENY CROSS_WORLD`) unless the id belongs to the world of the principal. */
 export async function assertWorld(ctx: WorldContext, path: string, worldIdOfInput: string): Promise<void> {

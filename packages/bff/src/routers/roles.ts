@@ -97,6 +97,13 @@ export const ACCESS = {
   // The world of a guest account: answered in any status of a self-signup world (auth/guest-identity.ts).
   "guest.status": read(["GUEST"]),
   "guest.requestWorld": write(["GUEST"]),
+
+  // The SMS code of the account's own session (docs/architecture-guests.md §17): every role, before the
+  // session passed it; COMPLIANCE's mutations here are its own sign-in, never a change to the world.
+  "phone.status": read(),
+  "phone.sendCode": write(ALL_ROLES),
+  "phone.verify": write(ALL_ROLES),
+  "phone.endSession": write(ALL_ROLES),
 } as const satisfies Readonly<Record<string, AccessRule>>;
 
 export type ProcedurePath = keyof typeof ACCESS;

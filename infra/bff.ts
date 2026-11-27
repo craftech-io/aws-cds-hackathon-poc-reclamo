@@ -46,6 +46,7 @@ import { CAPABILITIES, LAMBDA_CAPABILITIES, WORLD_LEADING_KEYS, type BucketName,
 import { lateLinks, links } from "./late-links";
 import { leadNotice, leadNotifier, leadsPermissions, sendLeadNoticeProbe } from "./leads";
 import { MalwarePlan, malwarePlan } from "./malware";
+import { SMS_PUBLISH_PERMISSIONS } from "./messaging-sms";
 import { inboundWhatsApp } from "./messaging-whatsapp";
 import { fixedRole, functionData, grantMockInvoke } from "./mocks";
 import { QA_DLQ_ALARM_LINK } from "./observability-spec";
@@ -330,7 +331,7 @@ export const bff = new sst.aws.Function("Bff", {
   ],
   // Its tables go in a managed policy (bffTables); the rest stays inline.
   policies: $util.all([bffTables.arn]),
-  permissions: [...objectPermissions("Bff"), ...leadsPermissions("Bff", tables.Leads.arn), cognitoStatement(LAMBDA_CAPABILITIES.Bff.actions)],
+  permissions: [...objectPermissions("Bff"), ...leadsPermissions("Bff", tables.Leads.arn), cognitoStatement(LAMBDA_CAPABILITIES.Bff.actions), ...SMS_PUBLISH_PERMISSIONS],
   transform: { role: fixedRole("Bff") },
 });
 

@@ -74,7 +74,10 @@ async function guestStack() {
 async function registeredGuestWorld(harness: SignupHarness, sub: string, suffix: string, worldId = `gs-${suffix}`): Promise<string> {
   const ops = provisionOps(harness.ctx);
   const requestId = ulid(harness.now().getTime());
-  await harness.connector.transact([ops.worldOp(worldId, worldId.startsWith("gs-") ? "GUEST" : "QA"), ops.staffOp(worldId, sub), ops.ticketOp(worldId, requestId)]);
+  const kind = worldId.startsWith("gs-") ? "GUEST" : "QA";
+  await harness.connector.transact([ops.worldOp(worldId, kind), ops.staffOp(worldId, sub, kind)]);
+  // A visitor's world is queued with its ticket once the account verified its mobile (§17); QA's at once.
+  await harness.connector.transact(kind === "GUEST" ? ops.phoneVerifiedOps(worldId, requestId) : [ops.ticketOp(worldId, requestId)]);
   await harness.deps.invoker.createWorld({ kind: "WORLD_CREATE", worldId, requestId });
   return worldId;
 }

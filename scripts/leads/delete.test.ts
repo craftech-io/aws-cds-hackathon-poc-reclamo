@@ -14,6 +14,7 @@ async function confirmed() {
   if (started.status !== "CODE_SENT") throw new Error(started.status);
   await harness.signup.confirm({ signupId: started.signupId, code: harness.cognito.lastCode(EMAIL) ?? "" });
   const sub = harness.cognito.user(EMAIL)?.sub ?? "";
+  await harness.enrolPhone(sub);
   const order: string[] = [];
   const accounts = {
     signOutEverywhere: async () => void order.push("signOut"),
@@ -67,5 +68,15 @@ describe("leads:delete [FL-127]", () => {
     await deleteLead(EMAIL, deps);
     const meta = await harness.store.get("Worlds", keys.worldMeta(worldId));
     expect(meta).toMatchObject({ status: "EXPIRED", guestIndexKey: "GUEST#EXPIRED" });
+  });
+
+  it("[FL-127] removes the account's mobile too: its phone, its last code and the owner of its number", async () => {
+    const { harness, sub, deps } = await confirmed();
+    const phone = await harness.store.get("Leads", leadsKeys.accountPhone(sub));
+    expect(phone).toMatchObject({ status: "VERIFIED" });
+    await deleteLead(EMAIL, deps);
+    expect(await harness.store.get("Leads", leadsKeys.accountPhone(sub))).toBeUndefined();
+    expect(await harness.store.get("Leads", leadsKeys.phoneCode(sub))).toBeUndefined();
+    expect(await harness.store.get("Leads", leadsKeys.phoneOwner(String(phone?.phoneHash)))).toBeUndefined();
   });
 });

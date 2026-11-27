@@ -24,6 +24,7 @@ import { RecordingScheduler, fakeNetworks } from "../timers/testing";
 import type { TimerQueueEvent } from "../timers/events";
 import type { AccountPorts, PasswordAdmin } from "./account";
 import type { ContextDeps } from "./deps";
+import { passedSecondFactor } from "../second-factor/doubles";
 import type { EmailsPorts } from "./emails";
 import { createCaller } from "./index";
 import type { ExportStore } from "./register";
@@ -128,6 +129,7 @@ export function consoleRig() {
     audit: connectorAuditSink(connector.audit, now),
     wallClock: now,
     loggerFor: (correlationId) => createLogger({ correlationId, sink: (line) => void lines.push(line), now }),
+    secondFactor: passedSecondFactor(),
     registerPorts: { connector, chainKey: () => TEST_CHAIN_KEY, anchors, exports },
     emailsPorts: {
       connector,

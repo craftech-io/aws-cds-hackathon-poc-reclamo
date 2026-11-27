@@ -13,6 +13,8 @@ import { dynamoConnector } from "../connector/dynamo/connector";
 import type { GuestWorldService } from "../guests/world-status";
 import { type LeadHashes, leadHashes } from "../leads/keys";
 import { stageGuestWorld } from "../guests/runtime";
+import type { SecondFactorService } from "../second-factor/service";
+import { stageSecondFactor } from "../second-factor/runtime";
 import { type Logger, createLogger } from "../lib/log";
 import { keySecret } from "../lib/secrets";
 
@@ -30,6 +32,8 @@ export interface ContextDeps {
   readonly guestWorldOf?: GuestWorldOf;
   /** `guest.status` and `guest.requestWorld` (guests/world-status.ts), per request logger. */
   readonly guestWorld?: (log: Logger) => GuestWorldService;
+  /** The SMS code of every account (second-factor/service.ts); absent, every session but automation is held. */
+  readonly secondFactor?: (log: Logger) => SecondFactorService;
 }
 
 let cached: ContextDeps | undefined;
@@ -59,14 +63,16 @@ export function defaultDeps(): ContextDeps {
   if (cached) return cached;
   const connector = dynamoConnector();
   const wallClock = () => new Date();
+  const audit = connectorAuditSink(connector.audit, wallClock);
   cached = {
     verifier: lazyVerifier(),
     directory: withStaffCache(connectorWorldDirectory(connector.worlds), wallClock),
-    audit: connectorAuditSink(connector.audit, wallClock),
+    audit,
     wallClock,
     loggerFor: (correlationId) => createLogger({ correlationId, bindings: { service: "bff" } }),
     guestWorldOf: lazyGuestWorldOf(),
     guestWorld: stageGuestWorld,
+    secondFactor: (log) => stageSecondFactor(log, audit),
   };
   return cached;
 }

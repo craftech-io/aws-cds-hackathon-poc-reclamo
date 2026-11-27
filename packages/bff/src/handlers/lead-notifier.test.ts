@@ -6,12 +6,13 @@ import { type LeadNotifierDeps, notifyLead } from "../leads/notifier";
 import { createSignupHarness, silentLogger, startInput } from "../guests/testing/harness";
 import { createLeadNotifierHandler } from "./lead-notifier";
 
-async function confirmedLead() {
+async function confirmedLead(verified = true) {
   const harness = await createSignupHarness().ready();
   const started = await harness.signup.start(startInput({ acceptContact: true }), "203.0.113.7");
   if (started.status !== "CODE_SENT") throw new Error(started.status);
   await harness.signup.confirm({ signupId: started.signupId, code: harness.cognito.lastCode("ana.prospecto@empresa-ficticia.ar") ?? "" });
   const sub = harness.cognito.user("ana.prospecto@empresa-ficticia.ar")?.sub ?? "";
+  if (verified) await harness.enrolPhone(sub);
   const sent: LeadNotice[] = [];
   let mailbox = "ventas@craftech.io";
   let failing = false;
@@ -48,6 +49,21 @@ async function edgeAudit(harness: Awaited<ReturnType<typeof confirmedLead>>["har
 }
 
 describe("lead notifier [FL-126]", () => {
+  it("[FL-129] skips a lead whose mobile is not verified yet, and audits it without the email", async () => {
+    const { harness, sub, sent, deps } = await confirmedLead(false);
+    expect(await notifyLead({ leadId: sub }, deps)).toBe("PHONE_PENDING");
+    expect(sent).toEqual([]);
+    const audit = await edgeAudit(harness);
+    expect(audit.map((item) => item.outcome)).toContain("PHONE_PENDING");
+    expect(JSON.stringify(audit)).not.toContain("@");
+  });
+
+  it("[FL-129] carries the verified mobile in the notice", async () => {
+    const { sub, sent, deps } = await confirmedLead();
+    expect(await notifyLead({ leadId: sub }, deps)).toBe("SENT");
+    expect(sent[0]?.text).toContain("Celular verificado: +5491155550100");
+  });
+
   it("sends one plain notice to the configured mailbox, once", async () => {
     const { sub, sent, deps, harness } = await confirmedLead();
     expect(await notifyLead({ leadId: sub }, deps)).toBe("SENT");

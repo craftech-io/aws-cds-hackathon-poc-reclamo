@@ -9,6 +9,7 @@ import { TEST_POOL, claimsOf, createTestDeps, staffRow } from "../auth/testing";
 import { appRouter, createCaller } from "./index";
 import { ACCESS, type ProcedurePath } from "./roles";
 import { RESET_STATUS_PATH, assertWorld, createContextFactory, createInProcessContext, router, worldProcedure } from "./trpc";
+import { SECOND_FACTOR_PATHS } from "../auth/guest-identity";
 
 const { issuer, directory, audit, deps } = createTestDeps();
 for (const [worldId, status] of [["g01", "READY"], ["g02", "READY"], ["g04", "RESETTING"], ["g05", "CREATING"], ["qa-r1-sc18", "READY"], ["qamin", "READY"], ["demo", "READY"]] as const) {
@@ -106,10 +107,10 @@ describe("isolation between worlds in the console [FL-099]", () => {
     for (const path of PATHS) expect(await failureOf(() => callPath(caller, path)), path).toEqual({ status: 401, reason: AUTH_REASON.TOKEN_MISSING });
   });
 
-  it("answers WORLD_RESETTING to everything but clock.resetStatus and the guest's own world status while the world is being reset", async () => {
+  it("answers WORLD_RESETTING to everything but clock.resetStatus, the guest's own world status and the SMS code while the world is being reset", async () => {
     const caller = createCaller(await contextFor({ event: { headers: { authorization: `Bearer ${guest("04")}` } } }));
     for (const path of PATHS) {
-      if (path === RESET_STATUS_PATH || path.startsWith("guest.")) expect(await passesGuards(() => callPath(caller, path)), path).toBe(true);
+      if (path === RESET_STATUS_PATH || path.startsWith("guest.") || SECOND_FACTOR_PATHS.has(path)) expect(await passesGuards(() => callPath(caller, path)), path).toBe(true);
       else expect(await failureOf(() => callPath(caller, path)), path).toEqual({ status: 409, reason: AUTH_REASON.WORLD_RESETTING });
     }
   });

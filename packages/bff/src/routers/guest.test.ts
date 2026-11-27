@@ -70,7 +70,7 @@ describe("an expired self-signup world asked for again [FL-124]", () => {
     expect(await reasonOf(() => caller.inbox.list())).toBe("WORLD_NOT_READY");
     expect(await caller.guest.requestWorld()).toEqual({ status: "REGISTERED" });
     expect((await harness.connector.worlds.getMeta(worldId))?.status).toBe("REGISTERED");
-    expect(harness.invoked.worlds).toHaveLength(2);
+    expect(harness.invoked.worlds).toHaveLength(1);
   });
 });
 

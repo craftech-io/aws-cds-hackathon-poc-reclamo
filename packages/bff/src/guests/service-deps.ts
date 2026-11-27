@@ -46,13 +46,16 @@ export async function auditEdge(deps: { readonly connector: Pick<Connector, "wri
   }
 }
 
-/** The asynchronous invocations after a registration; a failure leaves the ticket for the janitor's pass. */
-export async function afterRegistration(deps: Pick<SignupServiceDeps, "invoker" | "log">, registered: { readonly worldId: string; readonly requestId: string }, sub: string, qa: boolean): Promise<void> {
-  const results = await Promise.allSettled([
-    deps.invoker.createWorld({ kind: "WORLD_CREATE", worldId: registered.worldId, requestId: registered.requestId }),
-    ...(qa ? [] : [deps.invoker.notifyLead({ leadId: sub })]),
-  ]);
-  for (const result of results) {
-    if (result.status === "rejected") deps.log.warn("signup.invoke_failed", { errorName: result.reason instanceof Error ? result.reason.name : "UnknownError" });
+/**
+ * The asynchronous invocation after a registration whose world went to the queue at once (the
+ * scenario runner's); a visitor's world and its lead notice wait for the account's mobile (§17). A
+ * failure leaves the ticket for the janitor's pass.
+ */
+export async function afterRegistration(deps: Pick<SignupServiceDeps, "invoker" | "log">, registered: { readonly worldId: string; readonly requestId?: string }): Promise<void> {
+  if (registered.requestId === undefined) return;
+  try {
+    await deps.invoker.createWorld({ kind: "WORLD_CREATE", worldId: registered.worldId, requestId: registered.requestId });
+  } catch (error) {
+    deps.log.warn("signup.invoke_failed", { errorName: error instanceof Error ? error.name : "UnknownError" });
   }
 }

@@ -16,10 +16,15 @@ export const StaffRow = z.looseObject({
   cognitoSubKey: z.string().regex(/^SUB#.+$/),
   /** Absent means active; only an explicit `false` disables the account. */
   active: z.boolean().optional(),
+  /**
+   * An automation account (no person, cannot receive an SMS): written only by the server (the QaDriver,
+   * the seed), honoured only in a QA world, and the one exemption of the SMS code (docs/architecture-guests.md §17).
+   */
+  automation: z.literal(true).optional(),
 });
 export type StaffRow = z.infer<typeof StaffRow>;
 
-export const WorldStatus = z.enum(["REGISTERED", "CREATING", "READY", "RESETTING", "EXPIRING", "EXPIRED"]);
+export const WorldStatus = z.enum(["PHONE_PENDING", "REGISTERED", "CREATING", "READY", "RESETTING", "EXPIRING", "EXPIRED"]);
 export type WorldStatus = z.infer<typeof WorldStatus>;
 
 export const WorldMeta = z.looseObject({

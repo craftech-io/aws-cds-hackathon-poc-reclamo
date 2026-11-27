@@ -17,13 +17,14 @@ function confirmation(sub: string, signupId: string | undefined, userName = "ana
 }
 
 describe("post-confirmation trigger [FL-113] [FL-116]", () => {
-  it("registers once: a second run changes nothing and invokes nothing", async () => {
+  it("registers once and invokes nothing: the world and the lead notice wait for the account's mobile (§17)", async () => {
     const { harness, signupId, sub } = await codeSent();
     const deps = { ctx: harness.ctx, connector: harness.connector, leads: harness.leads, invoker: harness.deps.invoker, log: silentLogger() };
     expect(await onConfirmation(confirmation(sub, signupId), deps)).toBe("REGISTERED");
     expect(await onConfirmation(confirmation(sub, signupId), deps)).toBe("ALREADY_REGISTERED");
-    expect(harness.invoked.worlds).toHaveLength(1);
-    expect(harness.invoked.notices).toHaveLength(1);
+    expect(harness.invoked.worlds).toEqual([]);
+    expect(harness.invoked.notices).toEqual([]);
+    expect((await harness.connector.worlds.getMeta(harness.hashes.guestWorldId(sub)))?.status).toBe("PHONE_PENDING");
   });
 
   it("registers nothing for a signupId whose request is of another sub, and audits SIGNUP_MISMATCH without the email", async () => {

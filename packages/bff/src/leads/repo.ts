@@ -103,6 +103,12 @@ export function leadsRepo(ctx: RepoContext) {
       return { kind: "put", table: TABLE, item: { ...item, expiresAt: expiresAt(now, LEADS_TTL_SECONDS.lead) }, condition: cond.absent() };
     },
 
+    /** The verified mobile of a self-signup's lead (§17); the notice goes after it. */
+    phoneVerifiedOp(sub: string, phone: string, at: Date): WriteOp {
+      const atReal = at.toISOString();
+      return { kind: "update", table: TABLE, key: leadsKeys.lead(sub), condition: cond.present(), update: { set: { phoneStatus: "VERIFIED", phone, phoneVerifiedAtReal: atReal, updatedAt: atReal } } };
+    },
+
     canonOp(canonHash: string): WriteOp {
       return { kind: "update", table: TABLE, key: leadsKeys.canon(canonHash), update: { add: { confirmed: 1 }, set: { entity: "CanonCounter", updatedAt: ctx.now().toISOString() } } };
     },

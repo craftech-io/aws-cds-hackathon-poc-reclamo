@@ -32,6 +32,16 @@ export interface Principal {
    * (`auth.session` with the same `sessionKey`) are the same session.
    */
   readonly sessionId: string;
+  /**
+   * The sign-in session the SMS code binds its pass to (docs/architecture-guests.md §17): the token's
+   * `origin_jti`, which a refresh keeps and a new sign-in changes, or `auth_time:<n>` when it has none.
+   */
+  readonly signInKey: string;
+  /**
+   * An automation account exempt from the SMS code: the staff row's server-written mark in a QA world
+   * (auth/authenticate.ts), or the QaDriver's in-process principal. Never from a claim.
+   */
+  readonly automation: boolean;
 }
 
 /**
@@ -95,7 +105,14 @@ export function principalFromClaims(claims: IdTokenClaims, audience: TokenAudien
     authTime: claims.auth_time,
     audience,
     sessionId: sessionIdOf(claims),
+    signInKey: signInKeyOf(claims),
+    automation: false,
   };
+}
+
+/** `origin_jti`, or the instant of the interactive sign-in when the token carries none. */
+export function signInKeyOf(claims: Pick<IdTokenClaims, "origin_jti" | "auth_time">): string {
+  return claims.origin_jti ?? `auth_time:${claims.auth_time}`;
 }
 
 /**
@@ -145,6 +162,8 @@ export function inProcessPrincipal(input: InProcessPrincipalInput): Principal {
     authTime: input.authTime,
     audience: "in-process",
     sessionId: "qa",
+    signInKey: "in-process",
+    automation: true,
   };
 }
 

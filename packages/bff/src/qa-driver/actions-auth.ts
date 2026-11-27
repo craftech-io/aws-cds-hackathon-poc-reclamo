@@ -24,7 +24,7 @@
 // Every Cognito error comes back with an explicit reason (cognito-refusal.ts).
 import { ToolError } from "@reclamo/shared";
 import { keys } from "../connector/keys";
-import { qaSignupEmail } from "../guests/signup";
+import { QA_SIGNUP_PHONE, qaSignupEmail } from "../guests/signup";
 import { probeLeadNotice } from "../leads/probe";
 import { leadsRepo } from "../leads/repo";
 import type { QaScope } from "../leads/keys";
@@ -64,8 +64,9 @@ export async function authSession(input: QaInput<"auth.session">, ctx: ActionCon
   const staffId = qaStaffId(input.role);
   const staff = await ctx.ports.data.worlds.getStaff(worldId, staffId);
   // A user the janitor deleted and this call recreated has a new `sub`: its row follows it.
-  if (staff?.cognitoSubKey !== keys.subKey(sub) || staff.role !== input.role || !staff.active) {
-    await ctx.ports.data.worlds.putStaff({ worldId, staffId, role: input.role, displayName: `QA ${input.role.toLowerCase()}`, cognitoSubKey: keys.subKey(sub), active: true }, { replace: true });
+  if (staff?.cognitoSubKey !== keys.subKey(sub) || staff.role !== input.role || !staff.active || staff.automation !== true) {
+    // An automation account: no person, no phone; exempt from the SMS code only because this server writes the mark (§17).
+    await ctx.ports.data.worlds.putStaff({ worldId, staffId, role: input.role, displayName: `QA ${input.role.toLowerCase()}`, cognitoSubKey: keys.subKey(sub), active: true, automation: true }, { replace: true });
   }
   const password = ctx.ports.newPassword();
   await cognito.setPassword(username, password);
@@ -85,6 +86,7 @@ export async function guestSignup(input: QaInput<"guest.signup">, ctx: ActionCon
     {
       email: qaSignupEmail(qa),
       password: ctx.ports.newPassword(),
+      phone: QA_SIGNUP_PHONE,
       acceptTerms: true,
       acceptContact: input.acceptContact,
       locale: input.locale,

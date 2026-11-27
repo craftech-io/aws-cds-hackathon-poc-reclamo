@@ -29,12 +29,25 @@ export const SIGNUP_CONSENT_VERSIONS = {
     },
     sha256: "656f62ccf4eb3e25a58469c986f7eaa0739542e4aa14fc46ae67d2dd64316ae4",
   },
+  // The mobile of the account is verified by SMS and its code asked at every sign-in (docs/architecture-guests.md §17).
+  "signup-v2": {
+    version: "signup-v2",
+    terms: {
+      es: "Acepto los {terms} y la {privacy}, y que mi celular se use para verificar mi cuenta y protegerla con un código por SMS en cada ingreso.",
+      en: "I accept the {terms} and the {privacy}, and that my mobile is used to verify my account and protect it with an SMS code at every sign-in.",
+    },
+    contact: {
+      es: "Craftech puede contactarme sobre esta solución.",
+      en: "Craftech may contact me about this solution.",
+    },
+    sha256: "1c404926f211646b60c107a9641791fa324949a7ab623790b97c7a7b42b7656a",
+  },
 } as const satisfies Readonly<Record<string, SignupConsentTexts>>;
 
 export type SignupConsentVersion = keyof typeof SIGNUP_CONSENT_VERSIONS;
 
 /** The version the form shows today. */
-export const CURRENT_SIGNUP_CONSENT: SignupConsentTexts = SIGNUP_CONSENT_VERSIONS["signup-v1"];
+export const CURRENT_SIGNUP_CONSENT: SignupConsentTexts = SIGNUP_CONSENT_VERSIONS["signup-v2"];
 
 /** Link texts of the terms consent, per language. */
 export const SIGNUP_CONSENT_LINKS: Readonly<Record<SignupLocale, { readonly terms: string; readonly privacy: string }>> = {

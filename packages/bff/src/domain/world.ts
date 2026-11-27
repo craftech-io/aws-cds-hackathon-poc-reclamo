@@ -5,8 +5,11 @@ import { z } from "zod";
 import { CapAction, ChannelMode, GuestOrigin, IsoInstant, StaffRole, WorldId, WorldKind, worldKindOf } from "@reclamo/shared";
 import { Cents, Epoch, Id, StaffId, Versioned } from "./common";
 
-/** `EXPIRING` and `EXPIRED` only for self-signup worlds (`gs-*`, docs/architecture-guests.md §5-§6). */
-export const WorldStatus = z.enum(["REGISTERED", "CREATING", "READY", "RESETTING", "EXPIRING", "EXPIRED"]);
+/**
+ * `PHONE_PENDING`, `EXPIRING` and `EXPIRED` only for self-signup worlds (`gs-*`, docs/architecture-guests.md
+ * §5-§6, §17): `PHONE_PENDING` from the confirmation until the account verifies its mobile, outside the queue.
+ */
+export const WorldStatus = z.enum(["PHONE_PENDING", "REGISTERED", "CREATING", "READY", "RESETTING", "EXPIRING", "EXPIRED"]);
 export type WorldStatus = z.infer<typeof WorldStatus>;
 
 export const WorldTemplate = z.enum(["demo", "guest", "qa-min", "models"]);
@@ -108,6 +111,8 @@ export const Staff = z.object({
   cognitoSubKey: z.string().regex(/^SUB#[A-Za-z0-9-]{1,128}$/),
   /** An inactive row stops a still-valid token at the next request (auth/staff.ts). */
   active: z.boolean().default(true),
+  /** Automation account of a QA world, exempt from the SMS code (auth/staff.ts); only the server writes it. */
+  automation: z.literal(true).optional(),
   ...Versioned,
 });
 export type Staff = z.infer<typeof Staff>;

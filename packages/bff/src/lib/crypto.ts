@@ -3,7 +3,8 @@
 // lib/secrets.ts), so these functions stay pure. There is one secret per purpose
 // (docs/architecture.md §3) and, inside a purpose, one HKDF-SHA256 subkey per use: `SessionKey` →
 // `session`, `runtime-session`; `PhoneHashKey` → `phone-hash`, `email-hash` and, for the guest
-// self-signup (docs/architecture-guests.md), `lead-email`, `signup-ip`, `guest-world`.
+// self-signup (docs/architecture-guests.md), `lead-email`, `signup-ip`, `guest-world`, and, for the SMS
+// code of every account (§17), `account-phone`, `phone-code`, `second-factor`.
 import { createHash, createHmac, hkdfSync, randomBytes, timingSafeEqual } from "node:crypto";
 
 export type SecretKey = string | Uint8Array;
@@ -66,7 +67,7 @@ export function newNonce(nowMs?: number): string {
 /** Subkeys of each secret, by purpose (docs/architecture.md §3). */
 export const SUBKEY_PURPOSES = {
   SessionKey: ["session", "runtime-session"],
-  PhoneHashKey: ["phone-hash", "email-hash", "lead-email", "signup-ip", "guest-world"],
+  PhoneHashKey: ["phone-hash", "email-hash", "lead-email", "signup-ip", "guest-world", "account-phone", "phone-code", "second-factor"],
 } as const;
 
 export type SubkeySecret = keyof typeof SUBKEY_PURPOSES;

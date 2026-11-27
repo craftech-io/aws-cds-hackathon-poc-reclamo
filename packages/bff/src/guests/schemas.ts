@@ -5,6 +5,7 @@
 // text per status (docs/landing-spec.md §9).
 import { z } from "zod";
 import { EMAIL_MAX_LENGTH } from "./email-domain";
+import { PhoneField } from "../second-factor/phone-number";
 
 export const Locale = z.enum(["es", "en"]);
 export type Locale = z.infer<typeof Locale>;
@@ -54,6 +55,8 @@ export const SignupStartInput = z
   .object({
     email: Email,
     password: Password,
+    /** The mobile to verify after the email (E.164 once normalized; INVALID_PHONE otherwise). */
+    phone: PhoneField,
     name: leadText(80).optional(),
     company: leadText(80).optional(),
     jobTitle: leadText(80).optional(),
@@ -74,7 +77,7 @@ export const PasswordResetInput = z.object({ email: Email, code: Code, newPasswo
 
 export type SignupStartResult =
   | { readonly status: "CODE_SENT"; readonly signupId: string }
-  | { readonly status: "INVALID_EMAIL" | "EMAIL_NOT_ACCEPTED" | "WEAK_PASSWORD" | "CONSENT_REQUIRED" | "RATE_LIMITED" | "SIGNUP_UNAVAILABLE" };
+  | { readonly status: "INVALID_EMAIL" | "EMAIL_NOT_ACCEPTED" | "INVALID_PHONE" | "WEAK_PASSWORD" | "CONSENT_REQUIRED" | "RATE_LIMITED" | "SIGNUP_UNAVAILABLE" };
 
 export type SignupConfirmResult =
   | { readonly status: "CONFIRMED"; readonly worldStatus: string; readonly email: string }

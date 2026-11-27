@@ -8,6 +8,7 @@ import type { ContextDeps } from "./deps";
 import { createHandler, stripApiPrefix } from "./handler";
 import { appRouter } from "./index";
 import { acceptedAsync, createContextFactory, recentLoginProcedure, roleProcedure, router, worldProcedure } from "./trpc";
+import { passedSecondFactor } from "../second-factor/doubles";
 
 const issuer = createTestIssuer();
 const lines: string[] = [];
@@ -32,6 +33,7 @@ const deps: ContextDeps = {
   audit: createMemoryAudit(),
   wallClock: () => new Date(),
   loggerFor: (correlationId) => createLogger({ correlationId, sink: (line) => void lines.push(line) }),
+  secondFactor: passedSecondFactor(),
 };
 
 const testRouter = router({

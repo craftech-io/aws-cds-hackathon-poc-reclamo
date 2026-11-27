@@ -11,6 +11,12 @@ describe("chokepoint [FL-110]", () => {
     expect(findCommands(`${TRANSPORTS_DIR}ses.ts`, source)).toEqual([]);
   });
 
+  it("[FL-131] fails on an SNS Publish (the SMS code) outside outbound/transports/", () => {
+    const source = "await sns.send(new PublishCommand({ PhoneNumber, Message }));";
+    expect(findCommands("packages/bff/src/second-factor/service.ts", source)).toEqual([{ file: "packages/bff/src/second-factor/service.ts", line: 1, command: "PublishCommand" }]);
+    expect(findCommands(`${TRANSPORTS_DIR}sms.ts`, source)).toEqual([]);
+  });
+
   it("fails on an SQS SendMessage outside worker/enqueue.ts, even inside the transports", () => {
     const source = "await sqs.send(new SendMessageCommand({ QueueUrl, MessageBody }));";
     expect(findCommands("packages/bff/src/routers/conversation.ts", source)).toHaveLength(1);

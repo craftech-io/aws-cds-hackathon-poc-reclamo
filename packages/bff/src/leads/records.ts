@@ -5,6 +5,7 @@
 import { z } from "zod";
 import { IsoInstant } from "@reclamo/shared";
 import { Locale, Utm } from "../guests/schemas";
+import { PhoneNumber } from "../second-factor/phone-number";
 
 export const ConsentRecord = z.object({
   terms: z.object({ acceptedAtReal: IsoInstant, textVersion: z.string().min(1).max(40) }),
@@ -36,6 +37,8 @@ export const SignupRequest = z.object({
   status: SignupStatus,
   ...Contact,
   ...Attribution,
+  /** The mobile of the form (E.164), to verify after the email (docs/architecture-guests.md §17). */
+  phone: PhoneNumber.optional(),
   consents: ConsentRecord,
   emailHash: z.string().regex(/^[0-9a-f]{64}$/),
   canonHash: z.string().regex(/^[0-9a-f]{64}$/),
@@ -68,9 +71,19 @@ export const Lead = z.object({
   confirmedAtReal: IsoInstant,
   lastLoginAtReal: IsoInstant.optional(),
   notifiedAtReal: IsoInstant.optional(),
+  /**
+   * `PENDING` from the confirmation until the account verifies its mobile, `VERIFIED` after (§17): a
+   * pending lead is never notified nor exported. A lead confirmed before the SMS code has none.
+   */
+  phoneStatus: z.enum(["PENDING", "VERIFIED"]).optional(),
+  phone: PhoneNumber.optional(),
+  phoneVerifiedAtReal: IsoInstant.optional(),
   qa: QaScopeRecord.optional(),
 });
 export type Lead = z.infer<typeof Lead>;
+
+/** A lead that has not verified its mobile yet: it is not a lead for Craftech until it does. */
+export const isPhonePendingLead = (lead: Pick<Lead, "phoneStatus">): boolean => lead.phoneStatus === "PENDING";
 
 /**
  * A test lead (`test=true` in every report): the scenario runner's, which carries its `qa` scope and so is

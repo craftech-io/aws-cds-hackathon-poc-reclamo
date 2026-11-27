@@ -34,6 +34,12 @@ export const leadsKeys = {
   deleted: (emailHash: string, at: Date): Key => ({ pk: `LEADDEL#${segment(emailHash, "email hash")}`, sk: at.toISOString() }),
   emailHashKey: (emailHash: string): string => `EMAIL#${segment(emailHash, "email hash")}`,
   subKey: (sub: string): string => `SUB#${segment(sub, "cognito sub")}`,
+  /** The mobile number of an account (enrolment pending or verified): every account, not only a lead. */
+  accountPhone: (sub: string): Key => ({ pk: `PHONEVER#${segment(sub, "cognito sub")}`, sk: META }),
+  /** The one account a verified number belongs to. */
+  phoneOwner: (phoneHash: string): Key => ({ pk: `PHONEOWNER#${segment(phoneHash, "phone hash")}`, sk: META }),
+  /** The last code sent to an account (its HMAC only). */
+  phoneCode: (sub: string): Key => ({ pk: `PHONECODE#${segment(sub, "cognito sub")}`, sk: META }),
 };
 
 /** `2026-10-07T13` and `2026-10-07` (UTC) of a real instant. */
@@ -59,6 +65,15 @@ export const signupRuntimeKeys = {
   worldRequest: (sub: string): Key => ({ pk: `GUESTACCT#${segment(sub, "cognito sub")}#WORLDREQ`, sk: META }),
   recoveryIpHour: (ipHash: string, at: Date): Key => ({ pk: `RECOVERYIP#${segment(ipHash, "ip hash")}#${realHour(at)}`, sk: META }),
   leadNoticeDay: (at: Date): Key => ({ pk: `LEADNOTICE#${realDay(at)}`, sk: META }),
+};
+
+/** Items of `Runtime` of the SMS code: the passed sessions and the SMS caps of the real day. */
+export const secondFactorRuntimeKeys = {
+  session: (sub: string, sessionHash: string): Key => ({ pk: `SECONDFACTOR#${segment(sub, "cognito sub")}#${segment(sessionHash, "session hash")}`, sk: META }),
+  accountDay: (sub: string, at: Date): Key => ({ pk: `SMSACCT#${segment(sub, "cognito sub")}#${realDay(at)}`, sk: META }),
+  numberDay: (phoneHash: string, at: Date): Key => ({ pk: `SMSPHONE#${segment(phoneHash, "phone hash")}#${realDay(at)}`, sk: META }),
+  ipDay: (ipHash: string, at: Date): Key => ({ pk: `SMSIP#${segment(ipHash, "ip hash")}#${realDay(at)}`, sk: META }),
+  globalDay: (at: Date): Key => ({ pk: `SMSCAP#${realDay(at)}`, sk: META }),
 };
 
 /**

@@ -9,7 +9,7 @@
 // through the QaDriver (`guest.lead`: campaign, consents and instants, never the address).
 import { CognitoIdentityProviderClient, ConfirmForgotPasswordCommand, SignUpCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
-import { qaSignupEmail } from "@reclamo/bff/guests/signup";
+import { QA_SIGNUP_PHONE, qaSignupEmail } from "@reclamo/bff/guests/signup";
 import { copy } from "../../packages/web/src/copy/console";
 import { REGION } from "./lib/driver-client";
 import { EDGE_CHALLENGE_ENFORCED } from "../../infra/guest-limits";
@@ -237,7 +237,7 @@ export default defineScenario({
       title: "from the runner: signup.start of a simulator address → refused (the Bff's INVALID_EMAIL; the edge's while rule 6 challenges); a batched public call → refused; the Bff's URL without the edge header → EDGE_REQUIRED",
       flows: ["FL-119"],
       async run(ctx) {
-        const outside = await publicPostOutside("signup.start", { email: qaSignupEmail({ runId: ctx.runId, key: "su9" }), password: `Qa-${ctx.runId}-Aa9!xyzw`, acceptTerms: true, acceptContact: false, locale: "en" });
+        const outside = await publicPostOutside("signup.start", { email: qaSignupEmail({ runId: ctx.runId, key: "su9" }), password: `Qa-${ctx.runId}-Aa9!xyzw`, phone: QA_SIGNUP_PHONE, acceptTerms: true, acceptContact: false, locale: "en" });
         const refused = EDGE_CHALLENGE_ENFORCED ? outside.edgeRefused : !outside.edgeRefused && outside.result === "INVALID_EMAIL";
         ctx.check(refused, `signup.start from outside a browser answered ${outside.status} ${outside.result ?? ""}`);
         const batched = await fetchPage("/api/guest.status,signup.start?batch=1", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });

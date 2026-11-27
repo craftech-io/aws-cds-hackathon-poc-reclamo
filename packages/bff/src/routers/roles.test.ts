@@ -8,6 +8,7 @@ import { createHandler } from "./handler";
 import { appRouter, createCaller } from "./index";
 import { ACCESS, type ProcedurePath, accessProcedure, capTierOf } from "./roles";
 import { createContextFactory, router, worldProcedure } from "./trpc";
+import { SECOND_FACTOR_PATHS } from "../auth/guest-identity";
 
 const AUTH_REASONS: ReadonlySet<string> = new Set(Object.values(AUTH_REASON));
 const MINUTE = 60;
@@ -49,7 +50,7 @@ async function reasonOf(path: string, token: string): Promise<string | null> {
 
 function expectedRefusal(path: ProcedurePath, principal: (typeof PRINCIPALS)[number]): string | undefined {
   const rule = ACCESS[path];
-  if (rule.type === "mutation" && principal.role === "COMPLIANCE") return AUTH_REASON.READ_ONLY_ROLE;
+  if (rule.type === "mutation" && principal.role === "COMPLIANCE" && !SECOND_FACTOR_PATHS.has(path)) return AUTH_REASON.READ_ONLY_ROLE;
   if (!rule.roles.includes(principal.role)) return AUTH_REASON.ROLE_NOT_ALLOWED;
   const kinds: readonly string[] | undefined = "worldKinds" in rule ? rule.worldKinds : undefined;
   if (kinds && !kinds.includes(worldKindOf(principal.worldId) ?? "")) return AUTH_REASON.WORLD_NOT_ALLOWED;
@@ -68,8 +69,9 @@ describe("role matrix of the console [FL-094]", () => {
     expect(typeOf("health")).toBe("query");
   });
 
-  it("never lists COMPLIANCE among the roles of a mutation", () => {
-    for (const path of PATHS) if (ACCESS[path].type === "mutation") expect(ACCESS[path].roles, path).not.toContain("COMPLIANCE");
+  it("never lists COMPLIANCE among the roles of a mutation but the SMS code of its own session", () => {
+    for (const path of PATHS) if (ACCESS[path].type === "mutation" && !SECOND_FACTOR_PATHS.has(path)) expect(ACCESS[path].roles, path).not.toContain("COMPLIANCE");
+    for (const path of SECOND_FACTOR_PATHS) expect(ACCESS[path as keyof typeof ACCESS].roles, path).toContain("COMPLIANCE");
   });
 
   it.each(PRINCIPALS.map((principal) => [`${principal.role} in ${principal.worldId}`, principal] as const))("enforces each row for %s", async (_label, principal) => {
@@ -117,7 +119,7 @@ describe("compliance is read-only [FL-095]", () => {
 
   it("refuses every mutation with 403 READ_ONLY_ROLE and audits DENY ROLE, before the procedure runs", async () => {
     audit.entries.length = 0;
-    const mutations = PATHS.filter((path) => ACCESS[path].type === "mutation");
+    const mutations = PATHS.filter((path) => ACCESS[path].type === "mutation" && !SECOND_FACTOR_PATHS.has(path));
     for (const path of mutations) expect(await reasonOf(path, tokenOf(compliance)), path).toBe(AUTH_REASON.READ_ONLY_ROLE);
     expect(audit.entries).toHaveLength(mutations.length);
     for (const entry of audit.entries) {

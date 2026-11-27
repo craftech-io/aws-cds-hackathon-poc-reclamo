@@ -8,6 +8,7 @@ import { leadHashes } from "@reclamo/bff/leads/keys";
 import type { Connector } from "@reclamo/bff/connector/port";
 import type { Logger } from "@reclamo/bff/lib/log";
 import type { ContextDeps } from "@reclamo/bff/routers/deps";
+import { passedSecondFactor } from "@reclamo/bff/second-factor/doubles";
 import { createCaller } from "@reclamo/bff/routers/index";
 import { createContextFactory } from "@reclamo/bff/routers/trpc";
 import { LOCAL_KEYS } from "./keys";
@@ -51,6 +52,8 @@ export function localContextDeps(input: LocalConsoleInput): ContextDeps {
     wallClock: input.now,
     loggerFor: input.loggerFor,
     guestWorldOf: (sub) => hashes.guestWorldId(sub),
+    // Every local session passed the SMS code; flows of the code itself bind the real service (`bind`).
+    secondFactor: passedSecondFactor(),
   };
 }
 
