@@ -52,8 +52,8 @@ Marca del operador en las filas `STAFF#` de una cuenta (`npm run console:block`,
 _Avoid_: cuenta inactiva (`active: false` es otra cosa: un mundo vencido o un lead borrado)
 
 **Región de casa** (`HOME_PREFIXES`):
-Los prefijos de país para los que es la demo (Latinoamérica y España, `docs/architecture-guests.md` §17.7). Un celular de otro país se acepta, pero sus SMS comparten un cupo de 5 por día en toda la demo. Un rango que no es de un celular de persona (máquinas, satelitales, redes internacionales) se rechaza siempre.
-_Avoid_: país permitido (los de fuera también se aceptan)
+Los prefijos de país para los que es la demo (Latinoamérica, `docs/architecture-guests.md` §17.7). El código por SMS se manda solo a países de América (`+1` y `+5`): un celular de América de fuera de casa se acepta, pero sus SMS comparten un cupo de 5 por día en toda la demo; uno de fuera de América se rechaza (`PHONE_COUNTRY_NOT_ALLOWED`). Un rango que no es de un celular de persona (máquinas, satelitales, redes internacionales) se rechaza siempre.
+_Avoid_: país permitido (los de América de fuera de casa también se aceptan)
 
 **Cuenta de automatización** (`automation`):
 Cuenta que no usa ninguna persona y no puede recibir un SMS (las del ejecutor de escenarios y de pruebas): la única exenta del código por SMS. La marca `automation: true` la escribe solo el servidor en su fila `STAFF#`, y vale solo en un mundo QA.
