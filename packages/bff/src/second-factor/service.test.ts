@@ -224,7 +224,7 @@ describe("the SMS caps of the real day [FL-131]", () => {
     expect((await sendEvery(r, r.caller("sub-9"), "+5491155550290", "198.51.100.1")).status).toBe("CODE_SENT");
   });
 
-  it("[FL-131] 150 SMS a day for the whole demo, and a refusal spends no other cap", async () => {
+  it("[FL-131] 40 SMS a day for the whole demo, and a refusal spends no other cap", async () => {
     const r = rig();
     await r.store.write({ kind: "put", table: "Runtime", item: { ...secondFactorRuntimeKeys.globalDay(r.now()), count: SECOND_FACTOR_LIMITS.smsGlobalPerDay } });
     expect(await sendEvery(r, r.caller(), PHONE)).toEqual({ status: "RATE_LIMITED", limit: "GLOBAL" });
@@ -232,8 +232,49 @@ describe("the SMS caps of the real day [FL-131]", () => {
     expect(await r.store.get("Runtime", secondFactorRuntimeKeys.accountDay("sub-operator-01", r.now()))).toBeUndefined();
   });
 
+  it("[FL-131] numbers abroad share 5 SMS a day across the demo; a home number never takes that quota; the sixth abroad is refused", async () => {
+    const r = rig();
+    const abroad = ["+12025550123", "+358401234567", "+31612345678", "+5352345678", "+18685551234", "+447912345678"];
+    for (let index = 0; index < 5; index += 1) {
+      expect((await sendEvery(r, r.caller(`sub-abroad-${index}`), abroad[index], `198.51.100.${index}`)).status).toBe("CODE_SENT");
+    }
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.abroadDay(r.now()))).toMatchObject({ count: 5 });
+    const sent = r.sms.outbox.length;
+    expect(await sendEvery(r, r.caller("sub-abroad-5"), abroad[5], "198.51.100.50")).toEqual({ status: "RATE_LIMITED", limit: "ABROAD" });
+    expect(r.sms.outbox).toHaveLength(sent);
+    expect(r.audit.entries.map((entry) => entry.outcome)).toContain("SMS_CAP_ABROAD");
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.accountDay("sub-abroad-5", r.now()))).toBeUndefined();
+    for (const [index, phone] of ["+5491155550100", "+34612345678", "+18095551234"].entries()) {
+      expect((await sendEvery(r, r.caller(`sub-home-${index}`), phone, `198.51.100.6${index}`)).status).toBe("CODE_SENT");
+    }
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.abroadDay(r.now()))).toMatchObject({ count: 5 });
+    r.advance(24 * 3_600_000);
+    expect((await sendEvery(r, r.caller("sub-abroad-5"), abroad[5], "198.51.100.50")).status).toBe("CODE_SENT");
+  });
+
+  it("[FL-131] a sign-in to a verified number abroad takes the quota too", async () => {
+    const r = rig();
+    expect(await enrol(r, r.caller("sub-us"), "+12025550123")).toEqual({ status: "VERIFIED" });
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.abroadDay(r.now()))).toMatchObject({ count: 1 });
+    await r.store.write({ kind: "put", table: "Runtime", item: { ...secondFactorRuntimeKeys.abroadDay(r.now()), count: SECOND_FACTOR_LIMITS.smsAbroadPerDay } });
+    expect(await sendEvery(r, r.caller("sub-us", { signInKey: "jti-b" }), undefined)).toEqual({ status: "RATE_LIMITED", limit: "ABROAD" });
+  });
+
+  it("[FL-131] a range that is not a person's mobile, or a filler, is refused when typed or prefilled, before any SMS or cap", async () => {
+    const r = rig();
+    const who = r.caller();
+    for (const phone of ["+3197010203040", "+447012345678", "+882123456789", "+883123456789", "+870123456789", "+881123456789", "+888123456789", "+979123456789"]) {
+      expect(await r.service.sendCode(who, { phone }, IP), phone).toEqual({ status: "PHONE_NOT_ACCEPTED" });
+    }
+    expect(await r.service.sendCode(who, { phone: "+5491100000000" }, IP)).toEqual({ status: "INVALID_PHONE" });
+    await r.store.write(secondFactorRepo(r.ctx).pendingPhoneOp({ sub: "sub-m2m", phone: "+3197010203040", locale: "es" }));
+    expect(await r.service.sendCode(r.caller("sub-m2m"), {}, IP)).toEqual({ status: "PHONE_NOT_ACCEPTED" });
+    expect(r.sms.outbox).toEqual([]);
+    expect(await r.store.get("Runtime", secondFactorRuntimeKeys.globalDay(r.now()))).toBeUndefined();
+  });
+
   it("keeps every number of the caps in one place", () => {
-    expect(SECOND_FACTOR_LIMITS).toMatchObject({ smsPerAccountPerDay: 6, smsPerNumberPerDay: 3, smsPerIpPerDay: 5, smsGlobalPerDay: 150, attemptsPerCode: 5, resendWaitSeconds: 60, codeValidSeconds: 600 });
+    expect(SECOND_FACTOR_LIMITS).toMatchObject({ smsPerAccountPerDay: 6, smsPerNumberPerDay: 3, smsPerIpPerDay: 5, smsGlobalPerDay: 40, smsAbroadPerDay: 5, attemptsPerCode: 5, resendWaitSeconds: 60, codeValidSeconds: 600 });
   });
 });
 

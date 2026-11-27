@@ -1,13 +1,14 @@
 // The SMS caps on the real clock (docs/architecture-guests.md §17), with the counters of the sign-up
 // (guests/caps.ts `takeAll`: read first, then a conditional `ADD` per counter, given back when a race
 // fills a later one): per account (enrolment and sign-ins together), per number (only an enrolment to
-// a number that is not yet the account's), per viewer IP and for the whole demo, all per real day.
+// a number that is not yet the account's), per viewer IP, for the whole demo and, for a number outside
+// the home region (phone-ranges.ts), the quota those numbers share, all per real day.
 import type { SignupCaps } from "../guests/caps";
 import type { Counter } from "../guests/caps";
 import { secondFactorRuntimeKeys } from "../leads/keys";
 import { SECOND_FACTOR_LIMITS } from "../leads/limits";
 
-export type SmsCapScope = "ACCOUNT" | "NUMBER" | "IP" | "GLOBAL";
+export type SmsCapScope = "ACCOUNT" | "NUMBER" | "IP" | "GLOBAL" | "ABROAD";
 
 interface ScopedCounter extends Counter {
   readonly scope: SmsCapScope;
@@ -18,6 +19,8 @@ export interface SmsSend {
   readonly ipHash: string;
   /** Present for an enrolment: the number's own cap counts too. */
   readonly enrolPhoneHash?: string;
+  /** A number outside the home region: the quota of the numbers abroad counts too. */
+  readonly abroad: boolean;
 }
 
 /** Spends one SMS of every cap, or names the first one that is full and spends none. */
@@ -26,6 +29,7 @@ export async function takeSms(caps: Pick<SignupCaps, "count" | "takeAll">, send:
     { scope: "ACCOUNT", key: secondFactorRuntimeKeys.accountDay(send.sub, at), limit: SECOND_FACTOR_LIMITS.smsPerAccountPerDay },
     ...(send.enrolPhoneHash ? [{ scope: "NUMBER" as const, key: secondFactorRuntimeKeys.numberDay(send.enrolPhoneHash, at), limit: SECOND_FACTOR_LIMITS.smsPerNumberPerDay }] : []),
     { scope: "IP", key: secondFactorRuntimeKeys.ipDay(send.ipHash, at), limit: SECOND_FACTOR_LIMITS.smsPerIpPerDay },
+    ...(send.abroad ? [{ scope: "ABROAD" as const, key: secondFactorRuntimeKeys.abroadDay(at), limit: SECOND_FACTOR_LIMITS.smsAbroadPerDay }] : []),
     { scope: "GLOBAL", key: secondFactorRuntimeKeys.globalDay(at), limit: SECOND_FACTOR_LIMITS.smsGlobalPerDay },
   ];
   const full = async (): Promise<SmsCapScope | undefined> => {

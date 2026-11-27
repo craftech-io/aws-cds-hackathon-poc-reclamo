@@ -72,6 +72,7 @@ export const AUTH_ES: AuthCopy = {
       notAccepted: "Usá un email permanente, personal o de trabajo.",
       weakPassword: "Usá al menos 12 caracteres, con mayúscula, minúscula y número",
       phone: "Escribí tu celular con el prefijo internacional, por ejemplo +54 9 11 1234 5678",
+      notPersonal: "Usá un celular personal.",
       consent: "Tenés que aceptar los Términos y la Política de privacidad para crear la cuenta",
       plainText: "Escribí solo texto, sin enlaces ni los signos < >.",
       failed: "No pudimos crear tu cuenta. Probá de nuevo.",
@@ -110,6 +111,7 @@ export const AUTH_ES: AuthCopy = {
     signOut: "Salir",
     errors: {
       invalidPhone: "Escribí tu celular con el prefijo internacional, por ejemplo +54 9 11 1234 5678.",
+      notPersonal: "Usá un celular personal.",
       phoneInUse: "Ese número ya está en uso en otra cuenta.",
       locked: "El celular de tu cuenta no se puede cambiar desde acá. Si ya no lo tenés, escribinos.",
       codeShape: "Escribí los 6 dígitos del código.",
@@ -119,6 +121,7 @@ export const AUTH_ES: AuthCopy = {
       noCode: "Pedí un código para continuar.",
       tooSoon: "Esperá unos segundos antes de pedir otro código.",
       accountLimit: "Llegaste al límite de códigos de hoy para tu cuenta. Vas a poder ingresar mañana; si lo necesitás antes, escribinos.",
+      abroadLimit: "Por hoy ya no podemos mandar más códigos a celulares de fuera de Latinoamérica y España. Probá mañana o escribinos y te damos acceso.",
       rateLimited: "Hubo demasiados pedidos de código. Probá más tarde o escribinos.",
       smsFailed: "No pudimos mandar el SMS a ese número. En algunos países (por ejemplo Estados Unidos e India) todavía no podemos enviar SMS. Probá con otro celular o escribinos.",
       failed: "No pudimos completar la verificación. Probá de nuevo.",
