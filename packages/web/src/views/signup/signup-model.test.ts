@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { EMPTY_SIGNUP, draftOf, firstErrorField, formFromDraft, startInputOf, startOutcome, validateSignup } from "./signup-model";
 import { afterResend, confirmOutcome, RESEND_WAIT_MS, secondsUntilResend } from "./verify-model";
 
-const VALID = { ...EMPTY_SIGNUP, email: " Success+QA-run1-su1@simulator.amazonses.com ", password: "UnaClaveLarga2026", acceptTerms: true };
+const VALID = { ...EMPTY_SIGNUP, email: " Success+QA-run1-su1@simulator.amazonses.com ", password: "UnaClaveLarga2026", phone: "+54 9 11 5555-0100", acceptTerms: true };
 
 describe("the sign-up form [FL-112] [FL-116] [FL-118]", () => {
   it("starts with both consents unticked and refuses a form without the required one", () => {
@@ -16,6 +16,15 @@ describe("the sign-up form [FL-112] [FL-116] [FL-118]", () => {
     expect(validateSignup({ ...VALID, password: "corta1A" })).toEqual({ password: "weakPassword" });
     expect(validateSignup({ ...VALID, password: "sinmayusculas2026" })).toEqual({ password: "weakPassword" });
     expect(validateSignup({ ...VALID, email: "no-es-un-email" }).email).toBe("email");
+  });
+
+  it("[FL-129] asks the mobile with its international prefix and sends it normalized", () => {
+    expect(validateSignup({ ...VALID, phone: "" })).toEqual({ phone: "phone" });
+    expect(validateSignup({ ...VALID, phone: "11 5555 0100" })).toEqual({ phone: "phone" });
+    expect(validateSignup({ ...VALID, phone: "+1 (202) 555-0123" })).toEqual({});
+    expect(startInputOf({ ...VALID, phone: "+1 (202) 555-0123" }, "es", {}).phone).toBe("+12025550123");
+    expect(startOutcome({ status: "INVALID_PHONE" })).toEqual({ kind: "fieldErrors", errors: { phone: "phone" } });
+    expect(firstErrorField({ phone: "phone", acceptTerms: "consent" })).toBe("phone");
   });
 
   it("refuses links and markup in the optional texts, as the BFF does", () => {
@@ -34,6 +43,7 @@ describe("the sign-up form [FL-112] [FL-116] [FL-118]", () => {
     expect(input).toEqual({
       email: "Success+QA-run1-su1@simulator.amazonses.com",
       password: "UnaClaveLarga2026",
+      phone: "+5491155550100",
       jobTitle: "Producto",
       acceptTerms: true,
       acceptContact: true,

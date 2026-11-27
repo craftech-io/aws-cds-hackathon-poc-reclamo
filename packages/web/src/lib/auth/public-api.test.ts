@@ -24,7 +24,7 @@ describe("public procedures of the self-signup, one per request [FL-112] [FL-118
 
   it("posts a mutation's bare input once, without retries", async () => {
     const fetch = fakeFetch(json({ result: { data: { status: "CODE_SENT", signupId: SIGNUP_ID } } }));
-    const input = { email: "success+qa-run1-su1@simulator.amazonses.com", password: "UnaClaveLarga2026", acceptTerms: true, acceptContact: false, locale: "es" as const };
+    const input = { email: "success+qa-run1-su1@simulator.amazonses.com", password: "UnaClaveLarga2026", phone: "+5491155550100", acceptTerms: true, acceptContact: false, locale: "es" as const };
     expect(await createPublicApi({ fetch }).start(input)).toEqual({ status: "CODE_SENT", signupId: SIGNUP_ID });
     const [url, init, options] = fetch.mock.calls[0] ?? [];
     expect(url).toBe("/api/public/signup.start");

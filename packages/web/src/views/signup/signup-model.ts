@@ -1,5 +1,5 @@
-// Rules of `/signup` without React (docs/landing-spec.md §9.2, docs/architecture-guests.md §4): the
-// empty form (both consent boxes unticked), the field errors the form shows before sending, the input
+// Rules of `/signup` without React (docs/landing-spec.md §9.2, docs/architecture-guests.md §4, §17): the
+// empty form (both consent boxes unticked, the mobile required with its international prefix), the field errors the form shows before sending, the input
 // `signup.start` gets (campaign and referrer only from the visit, never a datum of the person), what
 // each answer does, and what survives the full reload a fresh firewall challenge needs (never the
 // password). The BFF re-checks everything; these checks only spare the person a round trip.
@@ -7,10 +7,13 @@ import type { SignupStartInput, SignupStartResult } from "../../lib/auth/public-
 import { looksLikeEmail, missingPasswordRules, hasOuterSpaces } from "../../lib/auth/credentials";
 import type { Attribution } from "../landing/attribution";
 import type { AuthLang } from "../login/auth-copy";
+import { normalizePhone } from "@reclamo/bff/second-factor/phone-number";
 
 export interface SignupForm {
   readonly email: string;
   readonly password: string;
+  /** The mobile, with its international prefix (E.164 once spaces and dashes are dropped). */
+  readonly phone: string;
   readonly name: string;
   readonly company: string;
   readonly jobTitle: string;
@@ -18,17 +21,17 @@ export interface SignupForm {
   readonly acceptContact: boolean;
 }
 
-export const EMPTY_SIGNUP: SignupForm = { email: "", password: "", name: "", company: "", jobTitle: "", acceptTerms: false, acceptContact: false };
+export const EMPTY_SIGNUP: SignupForm = { email: "", password: "", phone: "", name: "", company: "", jobTitle: "", acceptTerms: false, acceptContact: false };
 
 /** Longest optional text the BFF accepts (guests/schemas.ts `leadText(80)`). */
 export const LEAD_TEXT_MAX = 80;
 
-export type SignupField = "email" | "password" | "name" | "company" | "jobTitle" | "acceptTerms";
-export type FieldErrorKey = "email" | "notAccepted" | "weakPassword" | "consent" | "plainText";
+export type SignupField = "email" | "password" | "phone" | "name" | "company" | "jobTitle" | "acceptTerms";
+export type FieldErrorKey = "email" | "notAccepted" | "weakPassword" | "phone" | "consent" | "plainText";
 export type FieldErrors = Partial<Record<SignupField, FieldErrorKey>>;
 
 /** The order the fields appear in: the first one with an error gets `role="alert"`. */
-export const FIELD_ORDER: readonly SignupField[] = ["email", "password", "name", "company", "jobTitle", "acceptTerms"];
+export const FIELD_ORDER: readonly SignupField[] = ["email", "password", "phone", "name", "company", "jobTitle", "acceptTerms"];
 
 // The same refusal the BFF applies to a stranger's text (links, markup, control characters), so a
 // lead notice can never carry a link: guests/schemas.ts.
@@ -43,6 +46,7 @@ export function validateSignup(form: SignupForm): FieldErrors {
   const errors: FieldErrors = {};
   if (!looksLikeEmail(form.email)) errors.email = "email";
   if (missingPasswordRules(form.password).length > 0 || hasOuterSpaces(form.password)) errors.password = "weakPassword";
+  if (normalizePhone(form.phone) === undefined) errors.phone = "phone";
   for (const field of ["name", "company"] as const) if (unsafeText(form[field])) errors[field] = "plainText";
   if (!form.acceptTerms) errors.acceptTerms = "consent";
   return errors;
@@ -61,6 +65,7 @@ export function startInputOf(form: SignupForm, locale: AuthLang, attribution: At
   return {
     email: form.email.trim(),
     password: form.password,
+    phone: normalizePhone(form.phone) ?? form.phone.trim(),
     ...(name !== undefined ? { name } : {}),
     ...(company !== undefined ? { company } : {}),
     ...(jobTitle !== undefined ? { jobTitle } : {}),
@@ -89,6 +94,8 @@ export function startOutcome(answer: SignupStartResult): StartOutcome {
       return { kind: "fieldErrors", errors: { email: "notAccepted" } };
     case "WEAK_PASSWORD":
       return { kind: "fieldErrors", errors: { password: "weakPassword" } };
+    case "INVALID_PHONE":
+      return { kind: "fieldErrors", errors: { phone: "phone" } };
     case "CONSENT_REQUIRED":
       return { kind: "fieldErrors", errors: { acceptTerms: "consent" } };
     case "RATE_LIMITED":
@@ -117,6 +124,7 @@ export function formFromDraft(raw: unknown): SignupForm {
   return {
     ...EMPTY_SIGNUP,
     email: text("email"),
+    phone: text("phone").slice(0, 32),
     name: text("name"),
     company: text("company"),
     jobTitle: text("jobTitle"),

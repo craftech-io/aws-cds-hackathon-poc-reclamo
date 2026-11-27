@@ -37,6 +37,7 @@
 <h2 id="es-data">2. Qué datos guardamos</h2>
 <ul>
 <li>Tu <strong>email</strong> y tu <strong>contraseña</strong>. La contraseña la guarda Amazon Cognito como un hash: Craftech no la ve ni la almacena.</li>
+<li>Tu <strong>celular</strong>, para verificar tu cuenta con un código por SMS y pedírtelo en cada ingreso (segundo factor). Del código guardamos solo una huella que vence a los 10 minutos.</li>
 <li>Tu <strong>nombre</strong>, tu <strong>empresa</strong> y tu <strong>rol</strong>, solo si los escribiste: son opcionales.</li>
 <li>Tus dos <strong>consentimientos</strong> (términos y privacidad, obligatorio; contacto de Craftech, opcional), cada uno con la fecha y la versión del texto que aceptaste.</li>
 <li>El <strong>idioma</strong> del alta, el <strong>origen de tu visita</strong> (los parámetros UTM y el sitio desde el que llegaste, sin ruta ni parámetros) y las fechas de <strong>alta</strong> y de tu <strong>último ingreso</strong>.</li>
@@ -53,7 +54,7 @@
 <p>La base legal es tu <strong>consentimiento</strong> (Ley 25.326, art. 5), que das al crear la cuenta, y el segundo, opcional, al marcar la casilla de contacto. Nunca vendemos ni cedemos tus datos y no los usamos para publicidad.</p>
 
 <h2 id="es-where">4. Dónde se procesan</h2>
-<p>En Amazon Web Services (AWS), región <code>us-east-1</code>, en los <strong>Estados Unidos</strong>, que actúa como proveedor por cuenta de Craftech: ahí viven la cuenta (Amazon Cognito), el registro (Amazon DynamoDB) y los emails de la cuenta (Amazon SES). Esto implica una transferencia internacional de tus datos a los Estados Unidos, que te informamos acá y que aceptás al crear la cuenta.</p>
+<p>En Amazon Web Services (AWS), región <code>us-east-1</code>, en los <strong>Estados Unidos</strong>, que actúa como proveedor por cuenta de Craftech: ahí viven la cuenta (Amazon Cognito), el registro (Amazon DynamoDB), los emails de la cuenta (Amazon SES) y los SMS del código (Amazon SNS). Esto implica una transferencia internacional de tus datos a los Estados Unidos, que te informamos acá y que aceptás al crear la cuenta.</p>
 
 <h2 id="es-retention">5. Cuánto tiempo los guardamos</h2>
 <ul>
@@ -92,6 +93,7 @@
 <h2 id="en-data">2. What data we keep</h2>
 <ul>
 <li>Your <strong>email</strong> and your <strong>password</strong>. Amazon Cognito keeps the password as a hash: Craftech never sees or stores it.</li>
+<li>Your <strong>mobile number</strong>, to verify your account with a code we text you and to ask for one at every sign-in (second factor). Of the code we keep only a fingerprint that expires in 10 minutes.</li>
 <li>Your <strong>name</strong>, your <strong>company</strong> and your <strong>role</strong>, only if you typed them: they are optional.</li>
 <li>Your two <strong>consents</strong> (terms and privacy, required; contact from Craftech, optional), each with the date and the version of the text you accepted.</li>
 <li>The <strong>language</strong> of the sign-up, the <strong>origin of your visit</strong> (the UTM parameters and the site you came from, without path or parameters) and the dates of your <strong>sign-up</strong> and your <strong>last sign-in</strong>.</li>
@@ -108,7 +110,7 @@
 <p>The legal basis is your <strong>consent</strong> (Law 25.326, art. 5), which you give when you create the account, and the second, optional one, when you tick the contact box. We never sell or share your data and we do not use it for advertising.</p>
 
 <h2 id="en-where">4. Where it is processed</h2>
-<p>On Amazon Web Services (AWS), region <code>us-east-1</code>, in the <strong>United States</strong>, acting as a provider on Craftech's behalf: the account (Amazon Cognito), the record (Amazon DynamoDB) and the account's emails (Amazon SES) live there. This is an international transfer of your data to the United States, which we tell you about here and which you accept when you create the account.</p>
+<p>On Amazon Web Services (AWS), region <code>us-east-1</code>, in the <strong>United States</strong>, acting as a provider on Craftech's behalf: the account (Amazon Cognito), the record (Amazon DynamoDB), the account's emails (Amazon SES) and the code's SMS (Amazon SNS) live there. This is an international transfer of your data to the United States, which we tell you about here and which you accept when you create the account.</p>
 
 <h2 id="en-retention">5. How long we keep it</h2>
 <ul>

@@ -186,7 +186,7 @@ test.describe("landing [FL-102]", () => {
   test("[FL-102] sends 'Probar Reclamo en regla' to /signup by a full page load and each 'Hablemos' to its placement", async ({ page }) => {
     await open(page, "es", 1440, 900);
     expect(await page.content()).not.toContain("mailto:");
-    for (const placement of CONTACT_PLACEMENTS.filter((name) => name !== "drawer" && name !== "signup-unavailable")) {
+    for (const placement of CONTACT_PLACEMENTS.filter((name) => name !== "drawer" && name !== "signup-unavailable" && name !== "phone-verification")) {
       const link = page.locator(`[data-placement="${placement}"]`);
       await expect(link).toHaveAttribute("href", contactHref(placement));
       await expect(link).toHaveAttribute("target", "_blank");

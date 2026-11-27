@@ -42,7 +42,7 @@ export interface SessionValue {
   getSession(): TokenSet | undefined;
   /** Stores the tokens of a finished sign-in (or step-up) and opens the session. */
   completeSignIn(tokens: TokenSet): void;
-  /** Revokes the refresh token (RevokeToken), clears the session and goes to the landing (docs/landing-spec.md §9.7). */
+  /** Ends the session's SMS-code pass, revokes the refresh token (RevokeToken), clears the session and goes to the landing (docs/landing-spec.md §9.7). */
   signOut(): void;
   /** The BFF refused the token: drop it and send the user through the login with a way back. */
   expireSession(): void;
@@ -120,6 +120,9 @@ export function SessionProvider({ children }: { readonly children: ReactNode }) 
 
   const signOut = useCallback(() => {
     const tokens = getSession();
+    // The pass of the SMS code ends with the session (docs/architecture-guests.md §17): asked with the
+    // token of now, which the store forgets right after; a failure never keeps anyone signed in.
+    if (tokens) void createConsoleClient(() => tokens.idToken).phone.endSession.mutate().catch(() => undefined);
     knownIdToken.current = undefined;
     setPrompt(undefined);
     setState({ status: "anonymous" });

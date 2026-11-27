@@ -36,6 +36,7 @@ async function publicApi(page: Page, script: Script): Promise<PublicCall[]> {
 async function fillForm(page: Page, email: string, copy = es): Promise<void> {
   await page.getByLabel(copy.signup.email, { exact: true }).fill(email);
   await page.getByLabel(copy.signup.password, { exact: true }).fill(PASSWORD);
+  await page.getByLabel(copy.signup.phone, { exact: true }).fill("+54 9 11 5555-0100");
   await page.getByRole("checkbox", { name: new RegExp(copy.signup.termsLink) }).check();
 }
 
@@ -86,7 +87,7 @@ for (const viewport of VIEWPORTS) {
       await page.waitForURL("**/signup/verify");
       const start = calls.find((call) => call.procedure === "signup.start");
       expect(start?.method).toBe("POST");
-      expect(start?.input).toEqual({ email, password: PASSWORD, company: "Prestamista del Sur", jobTitle: es.signup.roles[3], acceptTerms: true, acceptContact: false, locale: "es", utm: { source: "newsletter", campaign: "launch" } });
+      expect(start?.input).toEqual({ email, password: PASSWORD, phone: "+5491155550100", company: "Prestamista del Sur", jobTitle: es.signup.roles[3], acceptTerms: true, acceptContact: false, locale: "es", utm: { source: "newsletter", campaign: "launch" } });
       await expect(page.getByText(email)).toBeVisible();
       await expect(page.getByRole("button", { name: /Reenviar código \(\d+ s\)/ })).toBeDisabled();
       expect(page.url()).not.toContain(SIGNUP_A);
@@ -184,6 +185,7 @@ test.describe("the form's refusals [FL-112] [FL-116] [FL-118]", () => {
     await expect(page.getByRole("alert")).toHaveText(es.signup.errors.email);
     await expect(page.getByText(es.signup.errors.weakPassword)).toBeVisible();
     await expect(page.getByText(es.signup.errors.consent)).toBeVisible();
+    await expect(page.getByText(es.signup.errors.phone)).toBeVisible();
     await page.getByLabel(es.signup.name, { exact: true }).fill("visitá www.algo");
     await submit(page);
     await expect(page.getByText(es.signup.errors.plainText)).toBeVisible();
@@ -243,6 +245,7 @@ test.describe("the form's refusals [FL-112] [FL-116] [FL-118]", () => {
     await reload;
     await expect(page.getByLabel(en.signup.email, { exact: true })).toHaveValue(email);
     await expect(page.getByLabel(en.signup.company, { exact: true })).toHaveValue("Prestamista del Sur");
+    await expect(page.getByLabel(en.signup.phone, { exact: true })).toHaveValue("+54 9 11 5555-0100");
     await expect(page.getByLabel(en.signup.password, { exact: true })).toHaveValue("");
     await expect(page.getByRole("checkbox", { name: new RegExp(en.signup.termsLink) })).toBeChecked();
     await page.getByLabel(en.signup.password, { exact: true }).fill(PASSWORD);

@@ -8,6 +8,8 @@ export type ApiAnswer = { readonly data: unknown } | { readonly error: { readonl
 export interface ApiCall {
   readonly path: string;
   readonly atMs: number;
+  /** The input of this call (a batch's POST body is `{ "<index>": input }`). */
+  readonly input?: unknown;
 }
 
 export function refusal(code: string, httpStatus: number, reason: string | null): ApiAnswer {
@@ -31,8 +33,10 @@ export async function routeApi(page: Page, script: (path: string) => ApiAnswer):
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
     const paths = decodeURIComponent(url.pathname.replace(/^\/api\//, "")).split(",");
-    const answers = paths.map((path) => {
-      calls.push({ path, atMs: Date.now() });
+    const body = route.request().postData();
+    const inputs = body ? (JSON.parse(body) as Record<string, unknown>) : {};
+    const answers = paths.map((path, index) => {
+      calls.push({ path, atMs: Date.now(), input: inputs[String(index)] });
       return script(path);
     });
     const failed = answers.filter((answer) => "error" in answer).length;
